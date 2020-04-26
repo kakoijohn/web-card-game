@@ -1,0 +1,624 @@
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family: 'Josefin Sans', sans-serif;
+}
+
+.poker_table {
+  position: relative;
+
+  background: url('/resources/poker_table.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  width: 100vw;
+  height: 50vw;
+
+  margin: 0;
+  margin-bottom: 1vw;
+  padding: 0;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+#drawing_area {
+  height: 100%;
+  width: 100%;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.display_name_form {
+  position: fixed;
+  z-index: 1000;
+  height: 100%;
+  width: 100%;
+  background-color: white;
+}
+
+.display_name_form .form_inner {
+  position: relative;
+  display: table;
+
+  margin: 0 auto;
+  top: 10%;
+  vertical-align: middle;
+}
+
+.display_name_form img {
+  position: relative;
+  margin: 0 auto;
+  display: block;
+  top: 10%;
+  width: 8vw;
+
+  transition: all 1s;
+}
+
+.display_name_form img:hover {
+  width: 70vw;
+}
+
+.display_name_form .name_submit_btn {
+  height: 2vw;
+  width: 8vw;
+  margin: 0 auto;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  border-radius: 5px;
+
+  text-align: center;
+  font-size: 0.8em;
+
+  background-color: orange;
+
+  cursor: pointer;
+}
+
+.loading_area {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 999;
+  background-color: white;
+  text-align: center;
+}
+
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  top: 40%;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #000;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+
+.card {
+  position: absolute;
+  width: 8vw; 
+  height: 11.2vw;
+
+  background-color: transparent;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+
+  perspective: 1000px;
+
+  touch-action: none;
+}
+
+.card:hover {
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card_inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  border-radius: 0.9vw;
+
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.card_rotate_global {
+  transform: rotateY(180deg);
+}
+
+.card_rotate_local {
+  transform: rotateX(145deg);
+}
+
+.card_front, .card_back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+}
+
+.card_front {
+  transform: rotateY(180deg);
+}
+
+.card_back {
+  background: url('/resources/cards/card_top_v2.svg');
+}
+
+.card_return_to_deck_anim {
+  transition: all 1s;
+}
+
+.chip {
+  position: absolute;
+  width: 5.6vw; 
+  height: 5.6vw;
+
+  background-color: transparent;
+  z-index: 500;
+  /*perspective: 1000px;*/
+}
+
+.chip:hover {
+  cursor: grab;
+}
+
+.chip:active {
+  cursor: grabbing;
+}
+
+.chip_100 {
+  background: url('/resources/chips/100_pokerchip.svg');
+}
+
+.chip_50 {
+  background: url('/resources/chips/50_pokerchip.svg');
+}
+
+.chip_25 {
+  background: url('/resources/chips/25_pokerchip.svg');
+}
+
+.chip_5 {
+  background: url('/resources/chips/5_pokerchip.svg');
+}
+
+.chip_1 {
+  background: url('/resources/chips/1_pokerchip.svg');
+}
+
+.shuffle_btn {
+  display: inline-block;
+  vertical-align: top;
+  height: 4vw;
+  width: 8vw;
+  margin: 0;
+  margin-left: 1vw;
+  margin-right: 1vw;
+  padding-top: 15px;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 5px;
+
+  text-align: center;
+  font-size: 1vw;
+
+  background-color: orange;
+
+  cursor: pointer;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.deal_button {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 1vw;
+
+  width: 20vw;
+  height: 4vw;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.deal_button input {
+  width: 2vw;
+}
+
+.deal_button label {
+  font-size: 1.25vw;
+}
+
+.deal_button .deal_submit_btn {
+  margin: 0 auto;
+  margin-top: 5px;
+  padding: 0.7vw;
+  background-color: orange;
+  border-radius: 5px;
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.deck_area {
+  position: absolute;
+  top: 51vw;
+  left: 32.5vw;
+  width: 9vw;
+  height: 12vw;
+  margin-right: 1vw;
+  vertical-align: top;
+
+  background-color: orange;
+  border-radius: 0.9vw;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.deck_area h2 {
+  position: relative;
+  color: black;
+  top: 38%;
+  margin: 0;
+  text-align: center;
+  text-shadow: 1px 1px 0px white;
+  z-index: 100;
+
+  pointer-events: none;
+}
+
+.chip_area {
+  position: absolute;
+
+  width: 6vw;
+  height: 6vw;
+  margin: 0;
+  margin-left: 0.1vw;
+  margin-right: 0.1vw;
+  vertical-align: top;
+
+  border-radius: 10vw;
+
+  background-color: orange;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.chip_area h4 {
+  position: relative;
+  text-align: center;
+
+  top: 5vw;
+}
+
+#chip_1_holder {
+  top: 51vw;
+  left: 42.9vw;
+}
+#chip_5_holder {
+  top: 51vw;
+  left: 49.6vw;
+}
+#chip_25_holder {
+  top: 51vw;
+  left: 56.3vw;
+}
+#chip_50_holder {
+  top: 51vw;
+  left: 63vw;
+}
+#chip_100_holder {
+  top: 51vw;
+  left: 69.7vw;
+}
+
+.chip_splitter_area {
+  position: absolute;
+
+  width: 8vw;
+  height: 8vw;
+  top: 62vw;
+  left: 67.5vw;
+
+  border-radius: 10px;
+  background-color: orange;
+
+  text-align: center;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.draw_icon {
+  display: inline-block;
+  float: right;
+  vertical-align: top;
+  height: 2vw;
+  width: 2vw;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 5px;
+
+  background-color: orange !important;
+  background-size: 2vw !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+
+  border-radius: 5px;
+
+  cursor: pointer;
+}
+
+#pointer_icon {
+  background: url('/resources/icons/cursor.svg');
+}
+
+#pencil_icon {
+  background: url('/resources/icons/pencil.svg');
+}
+
+#eraser_icon {
+  background: url('/resources/icons/eraser.svg');
+
+  margin-right: 1vw;
+}
+
+.player {
+  position: absolute;
+  z-index: 500;
+  height: 0.5vw;
+  width: 0.5vw;
+  margin-top: -0.25vw;
+  margin-left: -0.25vw;
+
+  border-radius: 5vw;
+
+  pointer-events: none;
+}
+
+.player_anim {
+  transition: all 0.1s;
+}
+
+.player .nametag {
+  position: relative;
+  font-size: 1.5vw;
+  top: -15px;
+  left: 15px;
+}
+
+.floating_nametag {
+  position: absolute;
+  text-align: center;
+  font-size: 1.5vw;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.floating_nametag .player_cash {
+  margin-top: 0.1vw;
+  padding-top: 0.1vw;
+  border-top: solid;
+  border-width: 0.4vw;
+}
+
+.floating_nametag:hover {
+  cursor: grab;
+}
+
+.floating_nametag:active {
+  cursor: grabbing;
+}
+
+#table_floating_nametag {
+  top: 118%;
+  left: 26.5%;
+}
+
+#table_floating_nametag .player_cash {
+  border-color: orange;
+}
+
+.info_text {
+  display: block;
+  margin-left: 1vw;
+
+  margin-top: 8vw;
+  margin-bottom: 10px;
+}
+
+.info_text p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.info_text ul {
+  margin: 0;
+}
+
+.youtube_player {
+  margin-left: 1vw;
+  display: none;
+}
+
+.youtube_player__enabled {
+  display: block;
+  padding: 1vw;
+  width: 28vw;
+  background-color: #c4302b;
+  border-radius: 5px;
+}
+
+.youtube_link_btn {
+  display: inline-block;
+  vertical-align: top;
+
+  margin-right: 5px;
+  padding: 5px;
+  background-color: orange !important;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.2vw;
+  height: 2vw;
+
+  cursor: pointer;
+}
+
+.youtube_icon_btn {
+  width: 2vw;
+
+  background-size: 2vw !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.yt_player_input_area {
+  margin-bottom: 5px;
+}
+
+.yt_player_input_area .yt_form {
+  vertical-align: -webkit-baseline-middle;
+}
+
+.yt_player_input_area input {
+  width: 12vw;
+}
+
+#enable_youtube_link_btn {
+  padding-top: 8px;
+  padding-bottom: 2px;
+
+  margin-left: 1vw;
+  margin-bottom: 1vw;
+}
+
+.youtube_player #submit_youtube_link_btn {
+  padding-top: 8px;
+  padding-bottom: 0px;
+}
+
+.youtube_pause_state_icon {
+  background: url('/resources/icons/pause.svg');
+}
+
+.youtube_play_state_icon {
+  background: url('/resources/icons/play.svg');
+}
+
+.youtube_volume_icon_1 {
+  background: url('/resources/icons/sound_vol1.svg');
+}
+
+.youtube_volume_icon_2 {
+  background: url('/resources/icons/sound_vol2.svg');
+}
+
+.youtube_volume_icon_3 {
+  background: url('/resources/icons/sound_vol3.svg');
+}
+
+.youtube_next_icon {
+  background: url('/resources/icons/next.svg');
+}
+
+.youtube_previous_icon {
+  background: url('/resources/icons/previous.svg');
+}
+
+.youtube_currently_playing {
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+#youtube_player_iframe {
+  display: none;
+}
