@@ -1,0 +1,21 @@
+{
+  "name": "web-card-game",
+  "version": "1.0.0",
+  "description": "This example is so cool.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "card game",
+    "heroku"
+  ],
+  "author": "kakoijohn",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "engines": {
+    "node": "12.x"
+  }
+}
