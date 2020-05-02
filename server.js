@@ -46,7 +46,8 @@ var videoQueue = [];
 var currVideoIndex = -1;
 
 
-app.set('port', 5000);
+var PORT = proces.env.PORT || 5000;
+app.set('port', PORT);
 app.use('/static', express.static(__dirname + '/static'));
 app.use(express.static('public'));
 
@@ -56,8 +57,8 @@ app.get('/', function(request, response) {
 });
 
 // Starts the server.
-server.listen(5000, function() {
-  console.log('Starting server on port 5000');
+server.listen(PORT, function() {
+  console.log('Starting server on port ' + PORT);
 
   //assemble deck
   console.log('Assembling Deck');
