@@ -25,6 +25,8 @@ var isTouchDevice;
 var poker_tableWidth;
 var poker_tableHeight;
 
+var numCards = 24;
+
 //set up our drawing canvas
 var canvas = document.getElementById("drawing_area");
 var ctx = canvas.getContext("2d");
@@ -38,8 +40,8 @@ Construct the deck and the draw area
 $(document).ready(function() {
 	isTouchDevice = 'ontouchstart' in document.documentElement;
 
-	//setup game board with 52 cards	
-	for (var i = 1; i <= 52; i++) {
+	//setup game board with numCards cards	
+	for (var i = 1; i <= numCards; i++) {
 		$('.poker_table').append(
 			"<div id=\"card_" + i + "\" class=\"card\">" +
 				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
@@ -394,7 +396,7 @@ setInterval(function() {
 	//only emit the player state if we have received an id from the server.
 	if (playerInfo.username != 'null')
 		socket.emit('broadcast player state', playerInfo);
-}, 1000 / 30);
+}, 1000 / 24);
 
 /** 
 
@@ -404,7 +406,7 @@ Listen for the sever for states of the deck, chips, and other players.
 
 //listen for the state of the deck from server
 socket.on('deck state', function(deck) {
-  	for (var i = 0; i < 52; i++) {
+  	for (var i = 0; i < numCards; i++) {
     	$('#card_' + (i + 1)).css('left', deck[i].x + "%");
     	$('#card_' + (i + 1)).css('top', deck[i].y + "%");
     	$('#card_' + (i + 1)).css('z-index', deck[i].zIndex);
@@ -514,7 +516,7 @@ socket.on('reset deck', function() {
 	}, 1000);
 
 	//reset the peek state of all cards in deck
-	for (var i = 1; i <= 52; i++)
+	for (var i = 1; i <= numCards; i++)
 		$('#card_' + i + '_inner').toggleClass('card_rotate_local', false);
 });
 

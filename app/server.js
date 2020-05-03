@@ -13,7 +13,7 @@ process.stdin.setEncoding('utf8');
 
 //card game vars
 var deck = {};
-var numCards = 52;
+var numCards = 24;
 const deckStartX = 32.92; //percentage of gameboard
 const deckStartY = 102.83; //percentage of gameboard
 
@@ -46,7 +46,7 @@ var videoQueue = [];
 var currVideoIndex = -1;
 
 
-var PORT = proces.env.PORT || 5000;
+var PORT = process.env.PORT || 5000;
 app.set('port', PORT);
 app.use('/static', express.static(__dirname + '/static'));
 app.use(express.static('public'));
@@ -406,7 +406,7 @@ io.on('connection', function(socket) {
 setInterval(function() {
   io.sockets.emit('deck state', deck);
   io.sockets.emit('chips state', chips);
-}, 1000 / 60);
+}, 1000 / 24);
 
 //emit the state of all players every 10ms
 setInterval(function() {
