@@ -725,3 +725,13 @@ $(document).on('click', '#youtube_next_btn', function(evt) {
 $(document).on('click', '#youtube_previous_btn', function(evt) {
 	socket.emit('play previous video');
 });
+
+
+//console commands
+process.stdin.resume();
+process.stdin.setEncoding('utf8');
+
+process.stdin.on('data', function (text) {
+	var command = text.replace('\n', '').split(' ');
+	console.log("COMMAND RESPONSE: " + command);
+}
