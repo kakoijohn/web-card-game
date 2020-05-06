@@ -456,7 +456,7 @@ process.stdin.on('data', function (text) {
   consolecmd(text);
 });
 
-function consolecmd(command) {
+function consolecmd(text) {
   var command = text.replace('\n', '').split(' ');
 
   if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
