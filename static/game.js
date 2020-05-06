@@ -582,7 +582,7 @@ var youtubePlayer;
 
 var ytScriptTag = document.createElement('script');
 
-ytScriptTag.src = "http://www.youtube.com/iframe_api";
+ytScriptTag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(ytScriptTag, firstScriptTag);
 
@@ -596,7 +596,7 @@ function onYouTubeIframeAPIReady() {
         	'rel': 0,
         	'modestbranding': 0,
         	'controls': 0,
-        	'origin': 'http://www.youtube.com'
+        	'origin': 'https://www.youtube.com'
         },
         events: {
             'onReady': onPlayerReady,
@@ -728,5 +728,5 @@ $(document).on('click', '#youtube_previous_btn', function(evt) {
 
 
 function servercmd(command) {
-	console.log(command);
+	socket.emit('console command', command);
 }

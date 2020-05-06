@@ -400,6 +400,10 @@ io.on('connection', function(socket) {
 
   	io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
   });
+
+  socket.on('console command', function(command) {
+    consolecmd(command);
+  });
 });
 
 //emit the state of the deck every 60ms
@@ -449,120 +453,120 @@ function colorNameToHex(color) {
 
 //console commands
 process.stdin.on('data', function (text) {
-	var command = text.replace('\n', '').split(' ');
-
-	if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
-		var username = command[1];
-		var amount = command[2];
-
-		if (players[username] != undefined || username == "house" || username == "table") {
-			var num100Chips = Math.floor(amount / 100);
-			amount = amount % 100;
-			var num50Chips = Math.floor(amount / 50);
-			amount = amount % 50;
-			var num25Chips = Math.floor(amount / 25);
-			amount = amount % 25;
-			var num5Chips = Math.floor(amount / 5);
-			amount = amount % 5;
-			var num1Chips = Math.floor(amount / 1);
-
-			for (var i = 0; i < num100Chips; i++)
-				createNewChip(username, 100, chipStartX + (chipSeparationX * 4), chipStartY);
-			for (var i = 0; i < num50Chips; i++)
-				createNewChip(username, 50, chipStartX + (chipSeparationX * 3), chipStartY);
-			for (var i = 0; i < num25Chips; i++)
-				createNewChip(username, 25, chipStartX + (chipSeparationX * 2), chipStartY);
-			for (var i = 0; i < num5Chips; i++)
-				createNewChip(username, 5, chipStartX + (chipSeparationX), chipStartY);
-			for (var i = 0; i < num1Chips; i++)
-				createNewChip(username, 1, chipStartX, chipStartY);
-
-			console.log("Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1");
-		} else {
-			console.log("Error: Invalid give command. Username not found.");
-		}
-	} else if (command[0] == 'change' && command[1] != undefined && command[2] != undefined && command[3] != undefined) {
-		/* Currently doesnt work */
-
-		var username = command[1];
-		var amount = command[2];
-		var divisor = command[3];
-
-		if (players[username] != undefined) {
-			var player = players[username];
-			var playerChipTotal = (player.chips['chip_1']) +
-							  (player.chips['chip_5'] * 5) +
-							  (player.chips['chip_25'] * 25) +
-							  (player.chips['chip_50'] * 50) +
-							  (player.chips['chip_100'] * 100);
-
-			if (amount > playerChipTotal) {
-				console.log("Error: " + username + " does not have enough money to change: " + amount + " (amount requested), " + playerChipTotal + " (amount in player's bank)");
-			} else if (divisor > amount) {
-				console.log("Error: Divisor cannot be greater than the amount.");
-			} else {
-				var numChipsCreated = Math.floor(amount / divisor);
-				if (divisor == 100 || divisor == 50 || divisor == 25 || divisor == 5 || divisor == 1) {
-					//first take out the chips we will be changing.
-
-
-					var chipIndex = 0;
-					switch (divisor) {
-						case 100:
-							chipIndex = 4;
-							break;
-						case 50:
-							chipIndex = 3;
-							break;
-						case 25:
-							chipIndex = 2;
-							break;
-						case 5:
-							chipIndex = 1;
-							break;
-					}
-
-					//create the new changed chips for the player
-					// for (var i = 0; i < numChipsCreated; i++)
-						// createNewChip(username, divisor, chipStartX + (chipSeparationX * chipIndex), chipStartY);
-				} else {
-					console.log("Error: Chip divisor must be a standard chip denomination (100, 50, 25, 5, or 1).");
-				}
-			}
-		} else {
-			console.log("Error: Invalid command. Username not found.");	
-		}
-	} else if (command[0] == 'payout' && command[1] != undefined) {
-		var username = command[1];
-		if (players[username] != undefined) {
-			var player = players[username];
-
-			for (var id in chips) {
-				var chip = chips[id];
-
-				if (chip.owner == "table") {
-					moveChipOwnership('table', username, id);
-					snapChipToPlayer(id);
-				}
-			}
-		} else {
-			console.log("Error: Invalid payout command. Username not found.");
-		}
-	} else if (command[0] == 'help') {
-		console.log("List of Commands:");
-		console.log("give [username] [amount]");
-		console.log("-- gives the specified user the amount of chips (divided to the largest chip denominator");
-		console.log("payout [username]");
-		console.log("-- pays all the chips currently on the table to the specified player");
-		// console.log("change [username] [amount] [divisor]");
-		// console.log("-- changes the user's specified amount of chips into the divisor");
-	}
-
-	else {
-		console.log("Error: Invalid command. type help for a list of commands.");
-	}
+  consolecmd(text);
 });
 
+function consolecmd(command) {
+  var command = text.replace('\n', '').split(' ');
+
+  if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
+    var username = command[1];
+    var amount = command[2];
+
+    if (players[username] != undefined || username == "house" || username == "table") {
+      var num100Chips = Math.floor(amount / 100);
+      amount = amount % 100;
+      var num50Chips = Math.floor(amount / 50);
+      amount = amount % 50;
+      var num25Chips = Math.floor(amount / 25);
+      amount = amount % 25;
+      var num5Chips = Math.floor(amount / 5);
+      amount = amount % 5;
+      var num1Chips = Math.floor(amount / 1);
+
+      for (var i = 0; i < num100Chips; i++)
+        createNewChip(username, 100, chipStartX + (chipSeparationX * 4), chipStartY);
+      for (var i = 0; i < num50Chips; i++)
+        createNewChip(username, 50, chipStartX + (chipSeparationX * 3), chipStartY);
+      for (var i = 0; i < num25Chips; i++)
+        createNewChip(username, 25, chipStartX + (chipSeparationX * 2), chipStartY);
+      for (var i = 0; i < num5Chips; i++)
+        createNewChip(username, 5, chipStartX + (chipSeparationX), chipStartY);
+      for (var i = 0; i < num1Chips; i++)
+        createNewChip(username, 1, chipStartX, chipStartY);
+
+      console.log("Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1");
+    } else {
+      console.log("Error: Invalid give command. Username not found.");
+    }
+  } else if (command[0] == 'change' && command[1] != undefined && command[2] != undefined && command[3] != undefined) {
+    /* Currently doesnt work */
+
+    var username = command[1];
+    var amount = command[2];
+    var divisor = command[3];
+
+    if (players[username] != undefined) {
+      var player = players[username];
+      var playerChipTotal = (player.chips['chip_1']) +
+                (player.chips['chip_5'] * 5) +
+                (player.chips['chip_25'] * 25) +
+                (player.chips['chip_50'] * 50) +
+                (player.chips['chip_100'] * 100);
+
+      if (amount > playerChipTotal) {
+        console.log("Error: " + username + " does not have enough money to change: " + amount + " (amount requested), " + playerChipTotal + " (amount in player's bank)");
+      } else if (divisor > amount) {
+        console.log("Error: Divisor cannot be greater than the amount.");
+      } else {
+        var numChipsCreated = Math.floor(amount / divisor);
+        if (divisor == 100 || divisor == 50 || divisor == 25 || divisor == 5 || divisor == 1) {
+          //first take out the chips we will be changing.
 
 
+          var chipIndex = 0;
+          switch (divisor) {
+            case 100:
+              chipIndex = 4;
+              break;
+            case 50:
+              chipIndex = 3;
+              break;
+            case 25:
+              chipIndex = 2;
+              break;
+            case 5:
+              chipIndex = 1;
+              break;
+          }
 
+          //create the new changed chips for the player
+          // for (var i = 0; i < numChipsCreated; i++)
+            // createNewChip(username, divisor, chipStartX + (chipSeparationX * chipIndex), chipStartY);
+        } else {
+          console.log("Error: Chip divisor must be a standard chip denomination (100, 50, 25, 5, or 1).");
+        }
+      }
+    } else {
+      console.log("Error: Invalid command. Username not found."); 
+    }
+  } else if (command[0] == 'payout' && command[1] != undefined) {
+    var username = command[1];
+    if (players[username] != undefined) {
+      var player = players[username];
+
+      for (var id in chips) {
+        var chip = chips[id];
+
+        if (chip.owner == "table") {
+          moveChipOwnership('table', username, id);
+          snapChipToPlayer(id);
+        }
+      }
+    } else {
+      console.log("Error: Invalid payout command. Username not found.");
+    }
+  } else if (command[0] == 'help') {
+    console.log("List of Commands:");
+    console.log("give [username] [amount]");
+    console.log("-- gives the specified user the amount of chips (divided to the largest chip denominator");
+    console.log("payout [username]");
+    console.log("-- pays all the chips currently on the table to the specified player");
+    // console.log("change [username] [amount] [divisor]");
+    // console.log("-- changes the user's specified amount of chips into the divisor");
+  }
+
+  else {
+    console.log("Error: Invalid command. type help for a list of commands.");
+  }
+}
