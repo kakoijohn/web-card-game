@@ -163,8 +163,6 @@ body {
   perspective: 1000px;
 
   touch-action: none;
-
-  box-shadow: 0px 0px 0px 1px black;
 }
 
 .card:hover {
@@ -181,6 +179,7 @@ body {
   height: 100%;
 
   border-radius: 0.9vw;
+  box-shadow: 0px 0px 0px 1px black;
 
   transition: transform 0.8s;
   transform-style: preserve-3d;
