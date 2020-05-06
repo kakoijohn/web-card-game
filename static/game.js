@@ -734,4 +734,4 @@ process.stdin.setEncoding('utf8');
 process.stdin.on('data', function (text) {
 	var command = text.replace('\n', '').split(' ');
 	console.log("COMMAND RESPONSE: " + command);
-}
+});
