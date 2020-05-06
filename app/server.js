@@ -13,7 +13,7 @@ process.stdin.setEncoding('utf8');
 
 //card game vars
 var deck = {};
-var numCards = 24;
+var numCards = 52;
 const deckStartX = 32.92; //percentage of gameboard
 const deckStartY = 102.83; //percentage of gameboard
 

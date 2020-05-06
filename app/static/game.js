@@ -25,7 +25,7 @@ var isTouchDevice;
 var poker_tableWidth;
 var poker_tableHeight;
 
-var numCards = 24;
+var numCards = 52;
 
 //set up our drawing canvas
 var canvas = document.getElementById("drawing_area");
