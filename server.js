@@ -558,6 +558,9 @@ function consolecmd(text) {
     }
   } else if (command[0] == 'resetserver') {
     players = null;
+    chips = null;
+    resetDeck();
+    shuffle(deck, 10);
     io.sockets.emit('reload page');
     console.log("Cleared all players from server and sent out refresh call to all clients.");
   } else if (command[0] == 'help') {
