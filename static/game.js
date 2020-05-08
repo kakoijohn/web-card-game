@@ -59,7 +59,7 @@ Construct the deck and the draw area
 **/
 
 $(document).ready(function() {
-	// initTouchHandler();
+	initTouchHandler();
 
 	//setup game board with numCards cards	
 	for (var i = 1; i <= numCards; i++) {
@@ -231,7 +231,9 @@ $(document).on('mousedown', '.card', function(evt) {
 });
 
 $(document).on('touch', '.card', function(evt) {
-	peekCard(evt);
+	if (evt.touches.length == 2) {
+		peekCard(evt);
+	}
 });
 
 function peekCard(evt) {
