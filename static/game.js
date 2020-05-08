@@ -226,15 +226,15 @@ $(document).on('mousedown', '.card', function(evt) {
 		socket.emit('target card to top', targetCardIndex);	
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
-		peekCard();
+		peekCard(evt);
 	}
 });
 
 $(document).on('tap', function(evt) {
-	peekCard();
+	peekCard(evt);
 });
 
-function peekCard() {
+function peekCard(evt) {
 	var targetCardID = $(evt.target).attr('id');
 	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
 	
