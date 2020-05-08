@@ -556,6 +556,10 @@ function consolecmd(text) {
     } else {
       console.log("Error: Invalid payout command. Username not found.");
     }
+  } else if (command[0] == 'resetserver') {
+    players = null;
+    io.sockets.emit('reload page');
+    console.log("Cleared all players from server and sent out refresh call to all clients.");
   } else if (command[0] == 'help') {
     console.log("List of Commands:");
     console.log("give [username] [amount]");

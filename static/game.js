@@ -139,6 +139,10 @@ socket.on('new player notification', function(players) {
 	}
 });
 
+socket.on('reload page', function() {
+	location.reload();
+});
+
 /** 
 
 Game Logic
