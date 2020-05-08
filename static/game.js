@@ -34,7 +34,6 @@ function touchHandler(event) {
         false, false, false, 0, null);
 
     touch.target.dispatchEvent(simulatedEvent);
-    event.preventDefault();
 }
 
 function initTouchHandler() {
@@ -61,7 +60,7 @@ Construct the deck and the draw area
 
 $(document).ready(function() {
 	initTouchHandler();
-	
+
 	//setup game board with numCards cards	
 	for (var i = 1; i <= numCards; i++) {
 		$('.poker_table').append(
