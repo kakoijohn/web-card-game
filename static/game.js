@@ -230,7 +230,7 @@ $(document).on('mousedown', '.card', function(evt) {
 	}
 });
 
-$(document).on('click touchstart', '.card', function(evt) {
+$(document).on('touch click', '.card', function(evt) {
 	peekCard(evt);
 });
 
