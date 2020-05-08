@@ -20,7 +20,29 @@ if (document.addEventListener) {
   });
 }
 
-var isTouchDevice;
+function touchHandler(event) {
+    var touch = event.changedTouches[0];
+
+    var simulatedEvent = document.createEvent("MouseEvent");
+        simulatedEvent.initMouseEvent({
+        touchstart: "mousedown",
+        touchmove: "mousemove",
+        touchend: "mouseup"
+    }[event.type], true, true, window, 1,
+        touch.screenX, touch.screenY,
+        touch.clientX, touch.clientY, false,
+        false, false, false, 0, null);
+
+    touch.target.dispatchEvent(simulatedEvent);
+    event.preventDefault();
+}
+
+function initTouchHandler() {
+    document.addEventListener("touchstart", touchHandler, true);
+    document.addEventListener("touchmove", touchHandler, true);
+    document.addEventListener("touchend", touchHandler, true);
+    document.addEventListener("touchcancel", touchHandler, true);
+}
 
 var poker_tableWidth;
 var poker_tableHeight;
@@ -38,8 +60,8 @@ Construct the deck and the draw area
 **/
 
 $(document).ready(function() {
-	isTouchDevice = 'ontouchstart' in document.documentElement;
-
+	initTouchHandler();
+	
 	//setup game board with numCards cards	
 	for (var i = 1; i <= numCards; i++) {
 		$('.poker_table').append(
