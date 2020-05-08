@@ -231,6 +231,7 @@ $(document).on('mousedown', '.card', function(evt) {
 });
 
 $(document).on('touch', '.card', function(evt) {
+	console.log(evt.touches.length);
 	if (evt.touches.length == 1) {
 		peekCard(evt);		
 	}
