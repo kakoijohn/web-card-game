@@ -226,22 +226,30 @@ $(document).on('mousedown', '.card', function(evt) {
 		socket.emit('target card to top', targetCardIndex);	
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
-		var targetCardID = $(evt.target).attr('id');
-		var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
-		
-		//check to see if card is already face up, 
-		//if not we reveal it to the player then send a message to the server saying we flipped it.
-		if (! $('#' + targetCardID + '_inner').hasClass('card_rotate_global')) {
-			$('#' + targetCardID + '_inner').toggleClass('card_rotate_local');
-			
-			//if we are peeking that card, tell the server that we are peeking the card, else clear that value
-			if ($('#' + targetCardID + '_inner').hasClass('card_rotate_local'))
-				socket.emit('card peek', {targetCardIndex, playerColor: playerInfo.color});
-			else
-				socket.emit('card peek', {targetCardIndex, playerColor: ''});
-		}
+		peekCard();
 	}
 });
+
+$(document).on('tap', function(evt) {
+	peekCard();
+});
+
+function peekCard() {
+	var targetCardID = $(evt.target).attr('id');
+	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
+	
+	//check to see if card is already face up, 
+	//if not we reveal it to the player then send a message to the server saying we flipped it.
+	if (! $('#' + targetCardID + '_inner').hasClass('card_rotate_global')) {
+		$('#' + targetCardID + '_inner').toggleClass('card_rotate_local');
+		
+		//if we are peeking that card, tell the server that we are peeking the card, else clear that value
+		if ($('#' + targetCardID + '_inner').hasClass('card_rotate_local'))
+			socket.emit('card peek', {targetCardIndex, playerColor: playerInfo.color});
+		else
+			socket.emit('card peek', {targetCardIndex, playerColor: ''});
+	}
+}
 
 $(document).on('mousedown', '.chip', function(evt) {
 	if (evt.which == 1) {
