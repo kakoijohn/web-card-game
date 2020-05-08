@@ -557,11 +557,11 @@ function consolecmd(text) {
       console.log("Error: Invalid payout command. Username not found.");
     }
   } else if (command[0] == 'resetserver') {
+    io.sockets.emit('reload page');
     players = null;
     chips = null;
     resetDeck();
     shuffle(deck, 10);
-    io.sockets.emit('reload page');
     console.log("Cleared all players from server and sent out refresh call to all clients.");
   } else if (command[0] == 'help') {
     console.log("List of Commands:");
