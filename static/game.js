@@ -231,7 +231,8 @@ $(document).on('mousedown', '.card', function(evt) {
 });
 
 $(document).on('click touch', '.card', function(evt) {
-	peekCard(evt);
+	if(draggingCard == false)
+		peekCard(evt);
 });
 
 function peekCard(evt) {
