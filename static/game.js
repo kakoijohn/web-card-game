@@ -230,7 +230,7 @@ $(document).on('mousedown', '.card', function(evt) {
 	}
 });
 
-$(document).on('touch click', '.card', function(evt) {
+$(document).on('click touch', '.card', function(evt) {
 	if(draggingCard == false)
 		peekCard(evt);
 });
