@@ -341,7 +341,7 @@ $(window).mousemove(function (evt) {
 	$('#' + playerInfo.cleanID).css('-webkit-transform', 'translate3d(0,0,0)');
 });
 
-$(window).mouseup(function() {
+$(window).mouseup(function(evt) {
 	if (draggingCard) {
 		draggingCard = false;
 
