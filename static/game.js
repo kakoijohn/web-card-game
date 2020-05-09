@@ -232,6 +232,13 @@ $(document).on('mousedown', '.card', function(evt) {
 	}
 });
 
+$(document).on('click', '.card', function(evt) {
+	if (cardClick) {
+		peekCard(evt);
+		cardClick = false;			
+	}
+});
+
 function peekCard(evt) {
 	var targetCardID = $(evt.target).attr('id');
 	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
@@ -341,14 +348,9 @@ $(window).mousemove(function (evt) {
 	$('#' + playerInfo.cleanID).css('-webkit-transform', 'translate3d(0,0,0)');
 });
 
-$(window).mouseup(function(evt) {
+$(window).mouseup(function() {
 	if (draggingCard) {
 		draggingCard = false;
-
-		if (cardClick) {
-			peekCard(evt);
-			cardClick = false;			
-		}
 	}
 
 	if (drawing)
