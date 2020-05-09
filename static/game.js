@@ -190,6 +190,7 @@ var targetNametag = {
 }
 
 var draggingCard;
+var cardClick;
 var draggingChip;
 var draggingNametag;
 var drawing;
@@ -210,6 +211,7 @@ $(document).on('mousedown', '.card', function(evt) {
 	if (evt.which == 1 && !evt.metaKey && !evt.ctrlKey) {
 		//left click event
 		draggingCard = true;
+		cardClick = true;
 		drawing = false;
 		draggingChip = false;
 		draggingNametag = false;
@@ -228,10 +230,6 @@ $(document).on('mousedown', '.card', function(evt) {
 		//right click event
 		peekCard(evt);
 	}
-});
-
-$(document).on('click', '.card', function(evt) {
-	peekCard(evt);
 });
 
 function peekCard(evt) {
@@ -308,6 +306,8 @@ $(window).mousemove(function (evt) {
 		targetCard.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
 		socket.emit('move card', targetCard);
+
+		cardClick = false;
 	} else if (drawing) {
 		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
 			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height, 
@@ -342,8 +342,14 @@ $(window).mousemove(function (evt) {
 });
 
 $(window).mouseup(function() {
-	if (draggingCard)
+	if (draggingCard) {
 		draggingCard = false;
+
+		if (cardClick) {
+			peekCard(evt);
+			cardClick = false;			
+		}
+	}
 
 	if (drawing)
 		drawing = false;
