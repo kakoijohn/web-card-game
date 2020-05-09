@@ -230,11 +230,8 @@ $(document).on('mousedown', '.card', function(evt) {
 	}
 });
 
-$(document).on('touch click', '.card', function(evt) {
-	console.log(evt.touches.length);
-	if (evt.touches.length == 1) {
-		peekCard(evt);		
-	}
+$(document).on('click touch', '.card', function(evt) {
+	peekCard(evt);
 });
 
 function peekCard(evt) {
