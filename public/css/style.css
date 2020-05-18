@@ -32,9 +32,11 @@ input, select {
 }
 
 .clear_scroll_bar {
-  width: 2vw;
-  height: 100%;
+  position: absolute;
+  top: 0;
   right: 0;
+  width: 2vw;
+  height: 50vw;
 
   background-color: transparent;
 }
