@@ -31,6 +31,14 @@ input, select {
   -o-user-select: none;
 }
 
+.clear_scroll_bar {
+  width: 2vw;
+  height: 100%;
+  right: 0;
+
+  background-color: transparent;
+}
+
 #drawing_area {
   height: 100%;
   width: 100%;

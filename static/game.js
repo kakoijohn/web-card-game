@@ -414,6 +414,7 @@ $(document).on('click', '#pointer_icon', function(evt) {
 	cursorMode = 'pointer';
 	$('#drawing_area').css('cursor', 'default');
 	$('.poker_table').css('touch-action', 'auto');
+	$('.clear_scroll_bar').css('display', 'none');
 });
 $(document).on('click', '#pencil_icon', function(evt) {
 	$('#pencil_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
@@ -423,6 +424,7 @@ $(document).on('click', '#pencil_icon', function(evt) {
 	cursorMode = 'pencil';
 	$('#drawing_area').css('cursor', 'url(\'/resources/icons/pencil.png\'), crosshair');
 	$('.poker_table').css('touch-action', 'none');
+	$('.clear_scroll_bar').css('display', 'block');
 });
 $(document).on('click', '#eraser_icon', function(evt) {
 	$('#eraser_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
@@ -432,6 +434,7 @@ $(document).on('click', '#eraser_icon', function(evt) {
 	cursorMode = 'eraser';
 	$('#drawing_area').css('cursor', 'url(\'/resources/icons/eraser.png\'), cell');
 	$('.poker_table').css('touch-action', 'none');
+	$('.clear_scroll_bar').css('display', 'block');
 });
 $(document).on('dblclick', '#eraser_icon', function(evt) {
 	socket.emit('clear draw area');
