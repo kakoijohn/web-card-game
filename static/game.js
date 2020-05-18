@@ -49,8 +49,11 @@ var poker_tableHeight;
 var numCards = 24;
 
 //set up our drawing canvas
-var canvas = document.getElementById("drawing_area");
-var ctx = canvas.getContext("2d");
+var canvas = document.getElementById('drawing_area');
+var ctx = canvas.getContext('2d');
+
+var inMemCanvas = document.createElement('canvas');
+var inMemCtx = inMemCanvas.getContext('2d');
 
 /** 
 
@@ -83,8 +86,14 @@ $( window ).resize(function() {
 	poker_tableWidth = $('.poker_table').width();
 	poker_tableHeight = $('.poker_table').height();
 
+	inMemCanvas.width = poker_tableWidth;
+	inMemCanvas.height = poker_tableHeight;
+	inMemCtx.drawImage(canvas, 0, 0);
+
 	canvas.width = poker_tableWidth;
 	canvas.height = poker_tableHeight;
+
+	ctx.drawImage(inMemCanvas, 0, 0);
 });
 
 
