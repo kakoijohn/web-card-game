@@ -513,7 +513,6 @@ function consolecmd(text) {
         if (divisor == 100 || divisor == 50 || divisor == 25 || divisor == 5 || divisor == 1) {
           //first take out the chips we will be changing.
 
-
           var chipIndex = 0;
           switch (divisor) {
             case 100:

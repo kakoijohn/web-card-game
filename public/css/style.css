@@ -5,6 +5,10 @@ body {
   font-family: 'Josefin Sans', sans-serif;
 }
 
+input, select { 
+  font-size: 100%; 
+}
+
 .poker_table {
   position: relative;
 
@@ -222,6 +226,8 @@ body {
   background-color: transparent;
   z-index: 500;
   /*perspective: 1000px;*/
+
+  touch-action: none;
 }
 
 .chip:hover {
@@ -483,6 +489,8 @@ body {
   -khtml-user-select: none;
   -webkit-user-select: none;
   -o-user-select: none;
+
+  touch-action: none;
 }
 
 .floating_nametag .player_cash {

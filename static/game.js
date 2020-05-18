@@ -20,7 +20,28 @@ if (document.addEventListener) {
   });
 }
 
-var isTouchDevice;
+function touchHandler(event) {
+    var touch = event.changedTouches[0];
+
+    var simulatedEvent = document.createEvent("MouseEvent");
+        simulatedEvent.initMouseEvent({
+        touchstart: "mousedown",
+        touchmove: "mousemove",
+        touchend: "mouseup"
+    }[event.type], true, true, window, 1,
+        touch.screenX, touch.screenY,
+        touch.clientX, touch.clientY, false,
+        false, false, false, 0, null);
+
+    touch.target.dispatchEvent(simulatedEvent);
+}
+
+function initTouchHandler() {
+    document.addEventListener("touchstart", touchHandler, true);
+    document.addEventListener("touchmove", touchHandler, true);
+    document.addEventListener("touchend", touchHandler, true);
+    document.addEventListener("touchcancel", touchHandler, true);
+}
 
 var poker_tableWidth;
 var poker_tableHeight;
@@ -38,7 +59,7 @@ Construct the deck and the draw area
 **/
 
 $(document).ready(function() {
-	isTouchDevice = 'ontouchstart' in document.documentElement;
+	initTouchHandler();
 
 	//setup game board with numCards cards	
 	for (var i = 1; i <= numCards; i++) {
@@ -169,6 +190,7 @@ var targetNametag = {
 }
 
 var draggingCard;
+var cardClick;
 var draggingChip;
 var draggingNametag;
 var drawing;
@@ -189,6 +211,7 @@ $(document).on('mousedown', '.card', function(evt) {
 	if (evt.which == 1 && !evt.metaKey && !evt.ctrlKey) {
 		//left click event
 		draggingCard = true;
+		cardClick = true;
 		drawing = false;
 		draggingChip = false;
 		draggingNametag = false;
@@ -205,22 +228,33 @@ $(document).on('mousedown', '.card', function(evt) {
 		socket.emit('target card to top', targetCardIndex);	
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
-		var targetCardID = $(evt.target).attr('id');
-		var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
-		
-		//check to see if card is already face up, 
-		//if not we reveal it to the player then send a message to the server saying we flipped it.
-		if (! $('#' + targetCardID + '_inner').hasClass('card_rotate_global')) {
-			$('#' + targetCardID + '_inner').toggleClass('card_rotate_local');
-			
-			//if we are peeking that card, tell the server that we are peeking the card, else clear that value
-			if ($('#' + targetCardID + '_inner').hasClass('card_rotate_local'))
-				socket.emit('card peek', {targetCardIndex, playerColor: playerInfo.color});
-			else
-				socket.emit('card peek', {targetCardIndex, playerColor: ''});
-		}
+		peekCard(evt);
 	}
 });
+
+$(document).on('click', '.card', function(evt) {
+	if (cardClick) {
+		peekCard(evt);
+		cardClick = false;			
+	}
+});
+
+function peekCard(evt) {
+	var targetCardID = $(evt.target).attr('id');
+	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
+	
+	//check to see if card is already face up, 
+	//if not we reveal it to the player then send a message to the server saying we flipped it.
+	if (! $('#' + targetCardID + '_inner').hasClass('card_rotate_global')) {
+		$('#' + targetCardID + '_inner').toggleClass('card_rotate_local');
+		
+		//if we are peeking that card, tell the server that we are peeking the card, else clear that value
+		if ($('#' + targetCardID + '_inner').hasClass('card_rotate_local'))
+			socket.emit('card peek', {targetCardIndex, playerColor: playerInfo.color});
+		else
+			socket.emit('card peek', {targetCardIndex, playerColor: ''});
+	}
+}
 
 $(document).on('mousedown', '.chip', function(evt) {
 	if (evt.which == 1) {
@@ -279,6 +313,8 @@ $(window).mousemove(function (evt) {
 		targetCard.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
 		socket.emit('move card', targetCard);
+
+		cardClick = false;
 	} else if (drawing) {
 		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
 			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height, 
@@ -313,8 +349,9 @@ $(window).mousemove(function (evt) {
 });
 
 $(window).mouseup(function() {
-	if (draggingCard)
+	if (draggingCard) {
 		draggingCard = false;
+	}
 
 	if (drawing)
 		drawing = false;
