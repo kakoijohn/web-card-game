@@ -25,7 +25,7 @@ var isTouchDevice;
 var poker_tableWidth;
 var poker_tableHeight;
 
-var numCards = 52;
+var numCards = 24;
 
 //set up our drawing canvas
 var canvas = document.getElementById("drawing_area");
@@ -46,7 +46,7 @@ $(document).ready(function() {
 			"<div id=\"card_" + i + "\" class=\"card\">" +
 				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
 					"<div id=\"card_" + i + "\" class=\"card_back\"></div>" +
-					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/cards/card_" + i + ".svg');\">" +
+					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/euchre_cards/card_" + i + ".svg');\">" +
 			"</div></div></div>"
 		);
 	}
