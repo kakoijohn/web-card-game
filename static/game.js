@@ -88,7 +88,7 @@ $( window ).resize(function() {
 
 	inMemCanvas.width = poker_tableWidth;
 	inMemCanvas.height = poker_tableHeight;
-	inMemCtx.drawImage(canvas, 0, 0, 100, 100);
+	inMemCtx.drawImage(canvas, 0, 0, poker_tableWidth, poker_tableHeight);
 
 	canvas.width = poker_tableWidth;
 	canvas.height = poker_tableHeight;
