@@ -35,10 +35,10 @@ input, select {
   position: absolute;
   top: 0;
   right: 0;
-  width: 1vw;
+  width: 3vw;
   height: 50vw;
 
-  background-color: orange;
+  background-color: transparent;
 }
 
 #drawing_area {
