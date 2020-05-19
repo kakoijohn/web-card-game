@@ -322,7 +322,7 @@ $(window).mousemove(function (evt) {
 
 		if (cardClick) {
 			//bring the clicked card to the front.
-			socket.emit('target card to top', targetCardIndex);	
+			socket.emit('target card to top', targetCard.index);	
 		}
 
 		cardClick = false;
