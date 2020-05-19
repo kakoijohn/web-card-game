@@ -232,9 +232,6 @@ $(document).on('mousedown', '.card', function(evt) {
 		var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
 
 		targetCard.index = targetCardIndex;
-
-		//bring the clicked card to the front.
-		socket.emit('target card to top', targetCardIndex);	
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
 		peekCard(evt);
@@ -242,7 +239,7 @@ $(document).on('mousedown', '.card', function(evt) {
 });
 
 $(document).on('click', '.card', function(evt) {
-	if (cardClick) {
+	if (cardClick == true && draggingCard == false) {
 		peekCard(evt);
 		cardClick = false;			
 	}
@@ -322,6 +319,11 @@ $(window).mousemove(function (evt) {
 		targetCard.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
 		socket.emit('move card', targetCard);
+
+		if (cardClick) {
+			//bring the clicked card to the front.
+			socket.emit('target card to top', targetCardIndex);	
+		}
 
 		cardClick = false;
 	} else if (drawing) {
@@ -447,7 +449,7 @@ send our player state to the server
 
 **/
 
-//emit the player position 30 times per second
+//emit the player position 24 times per second
 setInterval(function() {
 	//only emit the player state if we have received an id from the server.
 	if (playerInfo.username != 'null')
