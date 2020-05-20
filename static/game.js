@@ -152,7 +152,7 @@ socket.on('new player confirmation', function(newPlayer) {
 	$('#pointer_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
 	cursorMode =  'pointer';
 
-	$('.deck_area h2').text(deckName + " Deck");
+	$('.deck_area h2').text(deckName + " Deck Yo Whatup");
 
 	clearInterval(newPlayerCall);
 
