@@ -566,6 +566,8 @@ function consolecmd(text) {
         var chip = chips[id];
 
         if (chip.owner == "table") {
+          chip.moverUsername = '';
+          chip.moverColor = '';
           moveChipOwnership('table', username, id);
           snapChipToPlayer(id);
         }
