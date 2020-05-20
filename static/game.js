@@ -255,13 +255,6 @@ $(document).on('mousedown', '.card', function(evt) {
 	}
 });
 
-$(document).on('click', '.card', function(evt) {
-	if (cardClick == true && draggingCard == false) {
-		peekCard(evt);
-		cardClick = false;			
-	}
-});
-
 function peekCard(evt) {
 	var targetCardID = $(evt.target).attr('id');
 	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
@@ -378,6 +371,11 @@ $(window).mousemove(function (evt) {
 });
 
 $(window).mouseup(function() {
+	if (cardClick == true && draggingCard == false) {
+		peekCard(evt);
+		cardClick = false;
+	}
+
 	if (draggingCard) {
 		draggingCard = false;
 	}
