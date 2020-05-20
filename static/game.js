@@ -147,8 +147,7 @@ socket.on('new player confirmation', function(newPlayer) {
 	playerInfo.cleanID = newPlayer.cleanID;
 	playerInfo.color = newPlayer.color;
 
-	console.log(playerInfo.numCards + " " + playerInfo.deckName);
-	loadDeck(playerInfo.numCards, playerInfo.deckName);
+	loadDeck(newPlayer.numCards, newPlayer.deckName);
 
 	$('#pointer_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
 	cursorMode =  'pointer';

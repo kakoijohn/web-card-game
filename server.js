@@ -244,9 +244,6 @@ io.on('connection', function(socket) {
 
   	players[cleanID].color = color;
 
-    var numCards = this.numCards;
-    var deckName = this.deckName;
-
   	//callback to client that we have put them into the system.
     socket.emit('new player confirmation', {username, cleanID, color, numCards, deckName});
 
@@ -604,6 +601,8 @@ function consolecmd(text) {
       io.sockets.emit('load new deck', {numCards, deckName});
 
       console.log('Loading Euchre deck with 24 cards.');
+    } else {
+      console.log('Error: Invalid deck name.');
     }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
