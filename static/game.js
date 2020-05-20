@@ -262,9 +262,9 @@ function peekCurCard() {
 		
 		//if we are peeking that card, tell the server that we are peeking the card, else clear that value
 		if ($('#' + targetCard.id + '_inner').hasClass('card_rotate_local'))
-			socket.emit('card peek', {targetCard.index, playerColor: playerInfo.color});
+			socket.emit('card peek', {targetCardIndex: targetCard.index, playerColor: playerInfo.color});
 		else
-			socket.emit('card peek', {targetCard.index, playerColor: ''});
+			socket.emit('card peek', {targetCardIndex: targetCard.index, playerColor: ''});
 	}
 }
 
