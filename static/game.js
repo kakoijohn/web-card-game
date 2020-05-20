@@ -234,6 +234,9 @@ Player Mouse Events
 
 //when card is single clicked
 $(document).on('mousedown', '.card', function(evt) {
+	var targetCardID = $(evt.target).attr('id');
+	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
+
 	if (evt.which == 1 && !evt.metaKey && !evt.ctrlKey) {
 		//left click event
 		draggingCard = true;
@@ -245,20 +248,14 @@ $(document).on('mousedown', '.card', function(evt) {
 		offsetX = evt.pageX - $(evt.target).offset().left;
 		offsetY = evt.pageY - $(evt.target).offset().top;
 
-		var targetCardID = $(evt.target).attr('id');
-		var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
-
 		targetCard.index = targetCardIndex;
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
-		peekCard(evt);
+		peekCurCard();
 	}
 });
 
-function peekCard(evt) {
-	var targetCardID = $(evt.target).attr('id');
-	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
-	
+function peekCurCard() {
 	//check to see if card is already face up, 
 	//if not we reveal it to the player then send a message to the server saying we flipped it.
 	if (! $('#' + targetCardID + '_inner').hasClass('card_rotate_global')) {
@@ -372,26 +369,23 @@ $(window).mousemove(function (evt) {
 
 $(window).mouseup(function() {
 	if (cardClick) {
-		peekCard(evt);
+		peekCurCard();
 		cardClick = false;
 	}
 
-	if (draggingCard) {
+	if (draggingCard)
 		draggingCard = false;
-	}
 
 	if (drawing)
 		drawing = false;
 
 	if (draggingChip) {
 		draggingChip = false;
-
 		socket.emit('release chip', targetChip);
 	}
 
-	if (draggingNametag) {
+	if (draggingNametag)
 		draggingNametag = false;
-	}
 });
 
 //when card is double clicked
