@@ -86,6 +86,27 @@ $( window ).resize(function() {
 	ctx.drawImage(inMemCanvas, 0, 0);
 });
 
+function loadDeck(numCards, deckName) {
+	this.numCards = numCards;
+	this.deckName = deckName;
+
+	//if we have existing cards on the table, remove them first.
+	$('.card').each(function() {
+	    var cardID = this.id;
+	    $('#' + cardID).remove();
+	});
+
+	//setup game board with numCards cards	
+	for (var i = 1; i <= numCards; i++) {
+		$('.poker_table').append(
+			"<div id=\"card_" + i + "\" class=\"card\">" +
+				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
+					"<div id=\"card_" + i + "\" class=\"card_back\"></div>" +
+					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/cards/" + deckName + "/card_" + i + ".svg');\">" +
+			"</div></div></div>"
+		);
+	}
+}
 
 /** 
 
@@ -168,28 +189,6 @@ socket.on('load new deck', function(deckInfo) {
 socket.on('reload page', function() {
 	location.reload();
 });
-
-function loadDeck(numCards, deckName) {
-	this.numCards = numCards;
-	this.deckName = deckName;
-
-	//if we have existing cards on the table, remove them first.
-	$('.card').each(function() {
-	    var cardID = this.id;
-	    $('#' + cardID).remove();
-	});
-
-	//setup game board with numCards cards	
-	for (var i = 1; i <= numCards; i++) {
-		$('.poker_table').append(
-			"<div id=\"card_" + i + "\" class=\"card\">" +
-				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
-					"<div id=\"card_" + i + "\" class=\"card_back\"></div>" +
-					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/" + deckName + "/card_" + i + ".svg');\">" +
-			"</div></div></div>"
-		);
-	}
-}
 
 /** 
 
