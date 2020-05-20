@@ -152,6 +152,8 @@ socket.on('new player confirmation', function(newPlayer) {
 	$('#pointer_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
 	cursorMode =  'pointer';
 
+	$('.deck_area h2').text(deckName + " Deck");
+
 	clearInterval(newPlayerCall);
 
 	//hide the loading bar once we have submitted the info to the server
