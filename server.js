@@ -327,7 +327,7 @@ io.on('connection', function(socket) {
   						break;
   				}
   				for (var i = 0; i < numNewChips; i++)
-  					createNewChip(targetChip.targetUsername, newChipVals, chips[targetChip.index].x + ((Math.random() * 6) - 3), chips[targetChip.index].y + ((Math.random() * 6) - 3));
+  					createNewChip(targetChip.targetUsername, '', '', newChipVals, chips[targetChip.index].x + ((Math.random() * 6) - 3), chips[targetChip.index].y + ((Math.random() * 6) - 3));
   			}
   		}
 
@@ -493,15 +493,15 @@ function consolecmd(text) {
       var num1Chips = Math.floor(amount / 1);
 
       for (var i = 0; i < num100Chips; i++)
-        createNewChip(username, 100, chipStartX + (chipSeparationX * 4), chipStartY);
+        createNewChip(username, '', '', 100, chipStartX + (chipSeparationX * 4), chipStartY);
       for (var i = 0; i < num50Chips; i++)
-        createNewChip(username, 50, chipStartX + (chipSeparationX * 3), chipStartY);
+        createNewChip(username, '', '', 50, chipStartX + (chipSeparationX * 3), chipStartY);
       for (var i = 0; i < num25Chips; i++)
-        createNewChip(username, 25, chipStartX + (chipSeparationX * 2), chipStartY);
+        createNewChip(username, '', '', 25, chipStartX + (chipSeparationX * 2), chipStartY);
       for (var i = 0; i < num5Chips; i++)
-        createNewChip(username, 5, chipStartX + (chipSeparationX), chipStartY);
+        createNewChip(username, '', '', 5, chipStartX + (chipSeparationX), chipStartY);
       for (var i = 0; i < num1Chips; i++)
-        createNewChip(username, 1, chipStartX, chipStartY);
+        createNewChip(username, '', '', 1, chipStartX, chipStartY);
 
       console.log("Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1");
     } else {
@@ -549,7 +549,7 @@ function consolecmd(text) {
 
           //create the new changed chips for the player
           // for (var i = 0; i < numChipsCreated; i++)
-            // createNewChip(username, divisor, chipStartX + (chipSeparationX * chipIndex), chipStartY);
+            // createNewChip(username, '', '', divisor, chipStartX + (chipSeparationX * chipIndex), chipStartY);
         } else {
           console.log("Error: Chip divisor must be a standard chip denomination (100, 50, 25, 5, or 1).");
         }
