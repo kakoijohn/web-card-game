@@ -244,6 +244,9 @@ io.on('connection', function(socket) {
 
   	players[cleanID].color = color;
 
+    var numCards = this.numCards;
+    var deckName = this.deckName;
+
   	//callback to client that we have put them into the system.
     socket.emit('new player confirmation', {username, cleanID, color, numCards, deckName});
 
