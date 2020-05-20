@@ -265,7 +265,6 @@ function peekCard(evt) {
 $(document).on('mousedown', '.chip', function(evt) {
 	if (evt.which == 1) {
 		//left click event
-		draggingChip = true;
 		draggingCard = false;
 		draggingNametag = false;
 		drawing = false;
@@ -277,6 +276,8 @@ $(document).on('mousedown', '.chip', function(evt) {
 
 		targetChip.index = targetChipID;
 		targetChip.targetUsername = playerInfo.cleanID;
+
+		socket.emit('pickup chip', targetChip);
 
 		// console.log(((evt.pageX - offsetX) / poker_tableWidth * 100) + ", " + ((evt.pageY - offsetY) / poker_tableHeight * 100));	
 	}
@@ -511,6 +512,10 @@ socket.on('chips state', function(chips) {
 
 			$('#' + id).css('left', chip.x + "%");
 			$('#' + id).css('top', chip.y + "%");
+			if (chip.moverUsername != '')
+				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
+			else
+				$('#' + id).css('box-shadow', '');
 			$('#' + id).css('-webkit-transform', 'translate3d(0,0,0)');
 		}
 
@@ -563,6 +568,12 @@ socket.on('player state', function(players) {
 		if ($('#' + player.cleanID + '_floating_nametag .player_cash').text() != ('$ ' + playerChipTotal))
 			$('#' + player.cleanID + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
 	}
+});
+
+//if we recieve confirmation from the server that we can move the chip, set the state to dragging.
+socket.on('pickup confirmation', function(targetPickupChip) {
+	if (targetPickupChip.index == targetChip.index)
+		draggingChip = true;
 });
 
 //listen for reset deck call from server

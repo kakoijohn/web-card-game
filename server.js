@@ -30,6 +30,8 @@ const nametagStartY = 118;
 
 var chips = {
 	owner: '',
+  moverUsername: '',
+  moverColor: '',
 	value: 0,
 	x: 0,
 	y: 0
@@ -146,8 +148,8 @@ function findCardAt(zIndex) {
 }
 
 //create a new poker chip with a unique id.
-function createNewChip(owner, value, x, y) {
-	chips["chip_" + uniqueChipIDcounter] = {owner, value, x, y};
+function createNewChip(owner, moverUsername, moverColor, value, x, y) {
+	chips["chip_" + uniqueChipIDcounter] = {owner, moverUsername, moverColor, value, x, y};
 
 	if (players[owner] != undefined)
 		players[owner].chips["chip_" + value]++;
@@ -256,6 +258,19 @@ io.on('connection', function(socket) {
   	// console.log('moved  deck: ' + deck[card.index].card + ", to: " + deck[card.index].x + ", " + deck[card.index].y);
   });
 
+  socket.on('pickup chip', function(targetChip) {
+    if (chips[targetChip.index] != undefined) {
+      var chip = chips[targetChip.index];
+      if (chip.owner == 'table' || chip.owner == targetChip.targetUsername) {
+        if (chip.moverUsername == '') {
+          chip.moverUsername = targetChip.targetUsername;
+          chip.moverColor = players[targetChip.targetUsername].color;
+          socket.emit('pickup confirmation', targetChip);
+        }
+      }
+    }
+  });
+
   socket.on('move chip', function(targetChip) {
   	if (chips[targetChip.index] != undefined) {
   		chips[targetChip.index].x = targetChip.x;
@@ -276,6 +291,9 @@ io.on('connection', function(socket) {
 
   socket.on('release chip', function(targetChip) {
   	if (chips[targetChip.index] != undefined) {
+      chips[targetChip.index].moverUsername = '';
+      chips[targetChip.index].moverColor = '';
+
   		if (chips[targetChip.index].y > 100 && chips[targetChip.index].owner != targetChip.targetUsername) {
   			moveChipOwnership(chips[targetChip.index].owner, targetChip.targetUsername, targetChip.index);
   		} else if (chips[targetChip.index].y < 100 && chips[targetChip.index].owner != 'table') {
