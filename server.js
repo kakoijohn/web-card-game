@@ -593,6 +593,7 @@ function consolecmd(text) {
       this.deckName = deckName;
       this.numCards = 52;
       loadNewDeck(numCards, deckName);
+      shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
       console.log('Loading Default deck with 52 cards.');
@@ -600,11 +601,12 @@ function consolecmd(text) {
       this.deckName = deckName;
       this.numCards = 24;
       loadNewDeck(numCards, deckName);
+      shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
       console.log('Loading Euchre deck with 24 cards.');
     } else {
-      console.log('Error: Invalid deck name.');
+      console.log('Error: Invalid deck name, or that deck is already loaded.');
     }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
