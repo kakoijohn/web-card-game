@@ -375,12 +375,22 @@ $(document).on('click', '.card', function() {
 	}
 })
 
-$(window).mouseup(function() {
+$(window).mouseup(function(evt) {
 	if (draggingCard)
 		draggingCard = false;
 
-	if (drawing)
+	if (drawing) {
+		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
+			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height, 
+			playerID: playerInfo.cleanID, color: playerInfo.color, mode: cursorMode}
+		
+		//draw on our own cavas first
+		drawOnCanvas(data);
+		//next send that info over to the server.
+		socket.emit('new draw line', data);
+
 		drawing = false;
+	}
 
 	if (draggingChip) {
 		draggingChip = false;
