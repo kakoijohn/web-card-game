@@ -366,12 +366,14 @@ $(window).mousemove(function (evt) {
 	$('#' + playerInfo.cleanID).css('-webkit-transform', 'translate3d(0,0,0)');
 });
 
-$(window).mouseup(function() {
+$(document).on('click', '.card', function() {
 	if (cardClick) {
 		peekCurCard();
 		cardClick = false;
 	}
+})
 
+$(window).mouseup(function() {
 	if (draggingCard)
 		draggingCard = false;
 
