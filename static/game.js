@@ -90,6 +90,8 @@ function loadDeck(numCards, deckName) {
 	this.numCards = numCards;
 	this.deckName = deckName;
 
+	$('.deck_area h2').text(deckName.charAt(0).toUpperCase() + deckName.slice(1) + " Deck");
+
 	//if we have existing cards on the table, remove them first.
 	$('.card').each(function() {
 	    var cardID = this.id;
@@ -151,8 +153,6 @@ socket.on('new player confirmation', function(newPlayer) {
 
 	$('#pointer_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
 	cursorMode =  'pointer';
-
-	$('.deck_area h2').text(deckName.charAt(0).toUpperCase() + deckName.slice(1) + " Deck");
 
 	clearInterval(newPlayerCall);
 
