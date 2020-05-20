@@ -371,7 +371,7 @@ $(window).mousemove(function (evt) {
 });
 
 $(window).mouseup(function() {
-	if (cardClick == true && draggingCard == false) {
+	if (cardClick) {
 		peekCard(evt);
 		cardClick = false;
 	}
