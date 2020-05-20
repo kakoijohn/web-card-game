@@ -238,7 +238,6 @@ input, select {
   /*perspective: 1000px;*/
 
   border-radius: 5.6vw;
-  box-shadow: 0px 0px 0px 1px black;
 
   touch-action: none;
 }
