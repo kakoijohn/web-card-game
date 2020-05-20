@@ -245,7 +245,7 @@ io.on('connection', function(socket) {
   	players[cleanID].color = color;
 
   	//callback to client that we have put them into the system.
-    socket.emit('new player confirmation', {username, cleanID, color, numCards, deckName});
+    socket.emit('new player confirmation', {username, cleanID, color, this.numCards, this.deckName});
 
     //tell all clients we have a new player and send a list of all the current players.
     io.sockets.emit('new player notification', players);
