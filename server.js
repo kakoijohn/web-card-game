@@ -14,6 +14,7 @@ process.stdin.setEncoding('utf8');
 //card game vars
 var deck = {};
 var numCards = 24;
+var deckName = 'euchre';
 const deckStartX = 32.92; //percentage of gameboard
 const deckStartY = 102.83; //percentage of gameboard
 
@@ -64,21 +65,30 @@ server.listen(PORT, function() {
 
   //assemble deck
   console.log('Assembling Deck');
-  for (var i = 0; i < numCards; i++) {
-  	deck[i] = {
-  		card: (i + 1),
-  		zIndex: (i + 1),
-  		showCard: false,
-  		peekCardCol: '',
-  		x: deckStartX, 
-  		y: deckStartY
-  	};
-  }
+  loadNewDeck(numCards, deckName);
 
   //shuffle deck
   console.log('Shuffling Deck');
   shuffle(deck, 10);
 });
+
+function loadNewDeck(numCards, deckName) {
+  deck = {};
+
+  for (var i = 0; i < numCards; i++) {
+    deck[i] = {
+      card: (i + 1),
+      zIndex: (i + 1),
+      showCard: false,
+      peekCardCol: '',
+      x: deckStartX, 
+      y: deckStartY
+    };
+  }
+
+  this.numCards = numCards;
+  this.deckName = deckName;
+}
 
 function shuffle(sDeck, numTimes) {
 	for (var iterations = 0; iterations < numTimes; iterations++) {
@@ -235,7 +245,7 @@ io.on('connection', function(socket) {
   	players[cleanID].color = color;
 
   	//callback to client that we have put them into the system.
-    socket.emit('new player confirmation', {username, cleanID, color});
+    socket.emit('new player confirmation', {username, cleanID, color, numCards, deckName});
 
     //tell all clients we have a new player and send a list of all the current players.
     io.sockets.emit('new player notification', players);
@@ -574,6 +584,23 @@ function consolecmd(text) {
       }
     } else {
       console.log("Error: Invalid payout command. Username not found.");
+    }
+  } else if (command[0] == 'loaddeck') {
+    var deckName = command[1];
+    if (deckName == 'default' && this.deckName != deckName) {
+      this.deckName = deckName;
+      this.numCards = 52;
+      loadNewDeck(numCards, deckName);
+      io.sockets.emit('load new deck', {numCards, deckName});
+
+      console.log('Loading Default deck with 52 cards.');
+    } else if (deckName == 'euchre' && this.deckName != deckName) {
+      this.deckName = deckName;
+      this.numCards = 24;
+      loadNewDeck(numCards, deckName);
+      io.sockets.emit('load new deck', {numCards, deckName});
+
+      console.log('Loading Euchre deck with 24 cards.');
     }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');

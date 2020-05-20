@@ -46,7 +46,8 @@ function initTouchHandler() {
 var poker_tableWidth;
 var poker_tableHeight;
 
-var numCards = 24;
+var numCards;
+var deckName;
 
 //set up our drawing canvas
 var canvas = document.getElementById('drawing_area');
@@ -63,17 +64,6 @@ Construct the deck and the draw area
 
 $(document).ready(function() {
 	initTouchHandler();
-
-	//setup game board with numCards cards	
-	for (var i = 1; i <= numCards; i++) {
-		$('.poker_table').append(
-			"<div id=\"card_" + i + "\" class=\"card\">" +
-				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
-					"<div id=\"card_" + i + "\" class=\"card_back\"></div>" +
-					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/euchre_cards/card_" + i + ".svg');\">" +
-			"</div></div></div>"
-		);
-	}
 	
 	poker_tableWidth = $('.poker_table').width();
 	poker_tableHeight = $('.poker_table').height();
@@ -136,6 +126,8 @@ socket.on('new player confirmation', function(newPlayer) {
 	playerInfo.cleanID = newPlayer.cleanID;
 	playerInfo.color = newPlayer.color;
 
+	loadDeck(playerInfo.numCards, playerInfo.deckName);
+
 	$('#pointer_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
 	cursorMode =  'pointer';
 
@@ -169,9 +161,35 @@ socket.on('new player notification', function(players) {
 	}
 });
 
+socket.on('load new deck', function(deckInfo) {
+	loadDeck(deckInfo.numCards, deckInfo.deckName);
+})
+
 socket.on('reload page', function() {
 	location.reload();
 });
+
+function loadDeck(numCards, deckName) {
+	this.numCards = numCards;
+	this.deckName = deckName;
+
+	//if we have existing cards on the table, remove them first.
+	$('.card').each(function() {
+	    var cardID = this.id;
+	    $('#' + cardID).remove();
+	});
+
+	//setup game board with numCards cards	
+	for (var i = 1; i <= numCards; i++) {
+		$('.poker_table').append(
+			"<div id=\"card_" + i + "\" class=\"card\">" +
+				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
+					"<div id=\"card_" + i + "\" class=\"card_back\"></div>" +
+					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/" + deckName + "/card_" + i + ".svg');\">" +
+			"</div></div></div>"
+		);
+	}
+}
 
 /** 
 
