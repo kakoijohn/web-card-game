@@ -236,7 +236,7 @@ Player Mouse Events
 //when card is single clicked
 $(document).on('mousedown', '.card', function(evt) {
 	targetCard.id = $(evt.target).attr('id');
-	targetCard.index = parseInt(targetCardID.replace("card_", '')) - 1;
+	targetCard.index = parseInt(targetCard.id.replace("card_", '')) - 1;
 
 	if (evt.which == 1 && !evt.metaKey && !evt.ctrlKey) {
 		//left click event
