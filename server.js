@@ -223,7 +223,9 @@ io.on('connection', function(socket) {
   		username = socket.id;
 
   	if (color == null || color == "" || colorNameToHex(color) == false)
-  		color = 'rgb(' + (Math.floor(Math.random() * 256) + ',' + (Math.floor(Math.random() * 256) + ',' + (Math.floor(Math.random() * 256) + ')';
+  		color = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' 
+                     + (Math.floor(Math.random() * 256)) + ',' 
+                     + (Math.floor(Math.random() * 256)) + ')';
 
   	var cleanID = username.replace(/[^a-zA-Z0-9]/g, '_');
 
