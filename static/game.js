@@ -197,6 +197,7 @@ Game Logic
 **/
 
 var targetCard = {
+	id: '',
 	index: 0,
   	x: 0,
   	y: 0
@@ -234,8 +235,8 @@ Player Mouse Events
 
 //when card is single clicked
 $(document).on('mousedown', '.card', function(evt) {
-	var targetCardID = $(evt.target).attr('id');
-	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
+	targetCard.id = $(evt.target).attr('id');
+	targetCard.index = parseInt(targetCardID.replace("card_", '')) - 1;
 
 	if (evt.which == 1 && !evt.metaKey && !evt.ctrlKey) {
 		//left click event
@@ -247,8 +248,6 @@ $(document).on('mousedown', '.card', function(evt) {
 
 		offsetX = evt.pageX - $(evt.target).offset().left;
 		offsetY = evt.pageY - $(evt.target).offset().top;
-
-		targetCard.index = targetCardIndex;
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
 		peekCurCard();
@@ -258,14 +257,14 @@ $(document).on('mousedown', '.card', function(evt) {
 function peekCurCard() {
 	//check to see if card is already face up, 
 	//if not we reveal it to the player then send a message to the server saying we flipped it.
-	if (! $('#' + targetCardID + '_inner').hasClass('card_rotate_global')) {
-		$('#' + targetCardID + '_inner').toggleClass('card_rotate_local');
+	if (! $('#' + targetCard.id + '_inner').hasClass('card_rotate_global')) {
+		$('#' + targetCard.id + '_inner').toggleClass('card_rotate_local');
 		
 		//if we are peeking that card, tell the server that we are peeking the card, else clear that value
-		if ($('#' + targetCardID + '_inner').hasClass('card_rotate_local'))
-			socket.emit('card peek', {targetCardIndex, playerColor: playerInfo.color});
+		if ($('#' + targetCard.id + '_inner').hasClass('card_rotate_local'))
+			socket.emit('card peek', {targetCard.index, playerColor: playerInfo.color});
 		else
-			socket.emit('card peek', {targetCardIndex, playerColor: ''});
+			socket.emit('card peek', {targetCard.index, playerColor: ''});
 	}
 }
 
