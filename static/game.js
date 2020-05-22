@@ -541,7 +541,7 @@ socket.on('chips state', function(chips) {
 
 			$('#' + id).css('left', chip.x + "%");
 			$('#' + id).css('top', chip.y + "%");
-			if (chip.moverUsername != '')
+			if (chip.moverColor != '')
 				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
 			else
 				$('#' + id).css('box-shadow', '');
