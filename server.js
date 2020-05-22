@@ -593,7 +593,7 @@ function consolecmd(text) {
     }
   } else if (command[0] == 'loaddeck' && command[1] != undefined) {
     var deckName = command[1];
-    if (deckName == 'default' && this.deckName != deckName) {
+    if (deckName == 'standard' && this.deckName != deckName) {
       this.deckName = deckName;
       this.numCards = 52;
       loadNewDeck(numCards, deckName);
