@@ -547,11 +547,6 @@ socket.on('chips state', function(chips) {
 				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
 			else
 				$('#' + id).css('box-shadow', '');
-			
-			if (chip.moverUsername != '')
-				$('#' + id).toggleClass('chip_rotate_global', true);
-			else
-				$('#' + id).toggleClass('chip_rotate_global', false);
 		}
 
 		if (chip.owner == 'table') {
