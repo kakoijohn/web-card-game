@@ -271,7 +271,7 @@ input, select {
 }
 
 .chip_rotate_global {
-  transform: rotateY(20deg) !important;
+  transform: rotateX(45deg) !important;
 }
 
 .shuffle_btn {
