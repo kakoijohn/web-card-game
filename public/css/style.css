@@ -173,6 +173,7 @@ input, select {
   background-color: transparent;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  background-size: cover !important;
 
   perspective: 1000px;
 
@@ -194,6 +195,8 @@ input, select {
 
   border-radius: 0.9vw;
   box-shadow: 0px 0px 0px 1px black;
+
+  background-size: cover !important;
 
   transition: transform 0.8s;
   transform-style: preserve-3d;
@@ -234,15 +237,13 @@ input, select {
   height: 5.6vw;
 
   background-color: transparent;
+  background-size: cover !important;
   z-index: 500;
   /*perspective: 1000px;*/
 
   border-radius: 5.6vw;
 
   touch-action: none;
-
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
 }
 
 .chip:hover {
@@ -392,24 +393,24 @@ input, select {
 }
 
 #chip_1_holder {
-  top: 51vw;
-  left: 42.9vw;
+  top: 51.5vw;
+  left: 43.4vw;
 }
 #chip_5_holder {
-  top: 51vw;
-  left: 49.6vw;
+  top: 51.5vw;
+  left: 50.2vw;
 }
 #chip_25_holder {
-  top: 51vw;
-  left: 56.3vw;
+  top: 51.5vw;
+  left: 57vw;
 }
 #chip_50_holder {
-  top: 51vw;
-  left: 63vw;
+  top: 51.5vw;
+  left: 63.6vw;
 }
 #chip_100_holder {
-  top: 51vw;
-  left: 69.7vw;
+  top: 51.5vw;
+  left: 70.5vw;
 }
 
 .chip_splitter_area {
