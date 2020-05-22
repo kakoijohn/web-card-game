@@ -584,6 +584,8 @@ function consolecmd(text) {
           snapChipToPlayer(id);
         }
       }
+
+      console.log("Paying out " + username);
     } else {
       console.log("Error: Invalid payout command. Username not found.");
     }
@@ -613,6 +615,8 @@ function consolecmd(text) {
     if (players[username] != undefined) {
       delete players[username];
       io.sockets.emit('remove user', username);
+    } else {
+      console.log("Error: Invalid payout command. Username not found.");
     }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
@@ -629,6 +633,8 @@ function consolecmd(text) {
     console.log("-- pays all the chips currently on the table to the specified player");
     console.log("loaddeck [deck name]");
     console.log("-- loads a specified deck to the server (available: default, euchre)");
+    console.log("removeuser [username]");
+    console.log("-- removes the specified user from the server.");
     console.log("resetserver");
     console.log("-- removes all users and resets the server to the original state.");
     // console.log("change [username] [amount] [divisor]");
