@@ -594,7 +594,7 @@ function consolecmd(text) {
   } else if (command[0] == 'loaddeck' && command[1] != undefined) {
     var deckName = command[1];
     if (deckName == 'standard' && this.deckName != deckName) {
-      this.deckName = deckName;
+      deckName = this.deckName;
       numCards = 52;
       loadNewDeck(numCards, deckName);
       shuffle(deck, 10);
@@ -602,7 +602,7 @@ function consolecmd(text) {
 
       response = 'Loading Standard deck with 52 cards.';
     } else if (deckName == 'euchre' && this.deckName != deckName) {
-      this.deckName = deckName;
+      deckName = this.deckName;
       numCards = 24;
       loadNewDeck(numCards, deckName);
       shuffle(deck, 10);
