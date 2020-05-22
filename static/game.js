@@ -186,7 +186,14 @@ socket.on('new player notification', function(players) {
 
 socket.on('load new deck', function(deckInfo) {
 	loadDeck(deckInfo.numCards, deckInfo.deckName);
-})
+});
+
+socket.on('remove user', function(username) {
+	if ($('#' + username).length != 0) {
+		$('#' + username).remove();
+		$('#' + username + '_floating_nametag').remove();
+	}
+});
 
 socket.on('reload page', function() {
 	location.reload();

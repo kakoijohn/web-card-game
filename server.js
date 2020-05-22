@@ -587,7 +587,7 @@ function consolecmd(text) {
     } else {
       console.log("Error: Invalid payout command. Username not found.");
     }
-  } else if (command[0] == 'loaddeck') {
+  } else if (command[0] == 'loaddeck' && command[1] != undefined) {
     var deckName = command[1];
     if (deckName == 'default' && this.deckName != deckName) {
       this.deckName = deckName;
@@ -608,6 +608,12 @@ function consolecmd(text) {
     } else {
       console.log('Error: Invalid deck name, or that deck is already loaded.');
     }
+  } else if (command[0] == 'removeuser' && command[1] != undefined) {
+    var username = command[1];
+    if (players[username] != undefined) {
+      delete players[username];
+      io.sockets.emit('remove user', username);
+    }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
     players = null;
@@ -621,6 +627,10 @@ function consolecmd(text) {
     console.log("-- gives the specified user the amount of chips (divided to the largest chip denominator");
     console.log("payout [username]");
     console.log("-- pays all the chips currently on the table to the specified player");
+    console.log("loaddeck [deck name]");
+    console.log("-- loads a specified deck to the server (available: default, euchre)");
+    console.log("resetserver");
+    console.log("-- removes all users and resets the server to the original state.");
     // console.log("change [username] [amount] [divisor]");
     // console.log("-- changes the user's specified amount of chips into the divisor");
   }
