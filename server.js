@@ -600,7 +600,7 @@ function consolecmd(text) {
       shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
-      response = 'Loading Default deck with 52 cards.';
+      response = 'Loading Standard deck with 52 cards.';
     } else if (deckName == 'euchre' && this.deckName != deckName) {
       this.deckName = deckName;
       this.numCards = 24;
@@ -635,7 +635,7 @@ function consolecmd(text) {
     "payout [username]" + '\n' +
     "-- pays all the chips currently on the table to the specified player" + '\n' + 
     "loaddeck [deck name]" + '\n' +
-    "-- loads a specified deck to the server (available: default, euchre)" + '\n' +
+    "-- loads a specified deck to the server (available: standard, euchre)" + '\n' +
     "removeuser [username]" + '\n' +
     "-- removes the specified user from the server." + '\n' +
     "resetserver" + '\n' +
