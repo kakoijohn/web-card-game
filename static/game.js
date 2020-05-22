@@ -828,3 +828,7 @@ $(document).on('click', '#youtube_previous_btn', function(evt) {
 function servercmd(command) {
 	socket.emit('console command', command);
 }
+
+socket.on('console response', function(response) {
+	console.log(response);
+});

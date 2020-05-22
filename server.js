@@ -432,7 +432,8 @@ io.on('connection', function(socket) {
   });
 
   socket.on('console command', function(command) {
-    consolecmd(command);
+    var response = consolecmd(command);
+    socket.emit('console response', response);
   });
 });
 
@@ -488,6 +489,7 @@ process.stdin.on('data', function (text) {
 
 function consolecmd(text) {
   var command = text.replace('\n', '').split(' ');
+  var response = '';
 
   if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
     var username = command[1];
@@ -515,9 +517,9 @@ function consolecmd(text) {
       for (var i = 0; i < num1Chips; i++)
         createNewChip(username, '', '', 1, chipStartX, chipStartY);
 
-      console.log("Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1");
+      response = "Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1";
     } else {
-      console.log("Error: Invalid give command. Username not found.");
+      response = "Error: Invalid give command. Username not found.";
     }
   } else if (command[0] == 'change' && command[1] != undefined && command[2] != undefined && command[3] != undefined) {
     /* Currently doesnt work */
@@ -535,9 +537,9 @@ function consolecmd(text) {
                 (player.chips['chip_100'] * 100);
 
       if (amount > playerChipTotal) {
-        console.log("Error: " + username + " does not have enough money to change: " + amount + " (amount requested), " + playerChipTotal + " (amount in player's bank)");
+        response = "Error: " + username + " does not have enough money to change: " + amount + " (amount requested), " + playerChipTotal + " (amount in player's bank)";
       } else if (divisor > amount) {
-        console.log("Error: Divisor cannot be greater than the amount.");
+        response = "Error: Divisor cannot be greater than the amount.";
       } else {
         var numChipsCreated = Math.floor(amount / divisor);
         if (divisor == 100 || divisor == 50 || divisor == 25 || divisor == 5 || divisor == 1) {
@@ -563,11 +565,11 @@ function consolecmd(text) {
           // for (var i = 0; i < numChipsCreated; i++)
             // createNewChip(username, '', '', divisor, chipStartX + (chipSeparationX * chipIndex), chipStartY);
         } else {
-          console.log("Error: Chip divisor must be a standard chip denomination (100, 50, 25, 5, or 1).");
+          response = "Error: Chip divisor must be a standard chip denomination (100, 50, 25, 5, or 1).";
         }
       }
     } else {
-      console.log("Error: Invalid command. Username not found."); 
+      response = "Error: Invalid command. Username not found."; 
     }
   } else if (command[0] == 'payout' && command[1] != undefined) {
     var username = command[1];
@@ -585,9 +587,9 @@ function consolecmd(text) {
         }
       }
 
-      console.log("Paying out " + username);
+      response = "Paying out " + username;
     } else {
-      console.log("Error: Invalid payout command. Username not found.");
+      response = "Error: Invalid payout command. Username not found.";
     }
   } else if (command[0] == 'loaddeck' && command[1] != undefined) {
     var deckName = command[1];
@@ -598,7 +600,7 @@ function consolecmd(text) {
       shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
-      console.log('Loading Default deck with 52 cards.');
+      response = 'Loading Default deck with 52 cards.';
     } else if (deckName == 'euchre' && this.deckName != deckName) {
       this.deckName = deckName;
       this.numCards = 24;
@@ -606,17 +608,18 @@ function consolecmd(text) {
       shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
-      console.log('Loading Euchre deck with 24 cards.');
+      response = 'Loading Euchre deck with 24 cards.';
     } else {
-      console.log('Error: Invalid deck name, or that deck is already loaded.');
+      response = 'Error: Invalid deck name, or that deck is already loaded.';
     }
   } else if (command[0] == 'removeuser' && command[1] != undefined) {
     var username = command[1];
     if (players[username] != undefined) {
       delete players[username];
       io.sockets.emit('remove user', username);
+      response = "Removeing user: " + username;
     } else {
-      console.log("Error: Invalid payout command. Username not found.");
+      response = "Error: Invalid payout command. Username not found.";
     }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
@@ -624,24 +627,27 @@ function consolecmd(text) {
     chips = null;
     resetDeck();
     shuffle(deck, 10);
-    console.log("Cleared all players from server and sent out refresh call to all clients.");
+    response = "Cleared all players from server and sent out refresh call to all clients.";
   } else if (command[0] == 'help') {
-    console.log("List of Commands:");
-    console.log("give [username] [amount]");
-    console.log("-- gives the specified user the amount of chips (divided to the largest chip denominator");
-    console.log("payout [username]");
-    console.log("-- pays all the chips currently on the table to the specified player");
-    console.log("loaddeck [deck name]");
-    console.log("-- loads a specified deck to the server (available: default, euchre)");
-    console.log("removeuser [username]");
-    console.log("-- removes the specified user from the server.");
-    console.log("resetserver");
-    console.log("-- removes all users and resets the server to the original state.");
+    response = "List of Commands:" + '\n' +
+    "give [username] [amount]" + '\n' +
+    "-- gives the specified user the amount of chips (divided to the largest chip denominator" + '\n' +
+    "payout [username]" + '\n' +
+    "-- pays all the chips currently on the table to the specified player" + '\n' + 
+    "loaddeck [deck name]" + '\n' +
+    "-- loads a specified deck to the server (available: default, euchre)" + '\n' +
+    "removeuser [username]" + '\n' +
+    "-- removes the specified user from the server." + '\n' +
+    "resetserver" + '\n' +
+    "-- removes all users and resets the server to the original state.";
     // console.log("change [username] [amount] [divisor]");
     // console.log("-- changes the user's specified amount of chips into the divisor");
   }
 
   else {
-    console.log("Error: Invalid command. type help for a list of commands.");
+    response = "Error: Invalid command. type help for a list of commands.";
   }
+
+  console.log(response);
+  return response;
 }
