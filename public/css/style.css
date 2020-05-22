@@ -270,6 +270,10 @@ input, select {
   background: url('/resources/chips/1_pokerchip.svg');
 }
 
+.chip_rotate_global {
+  transform: rotateY(20deg);
+}
+
 .shuffle_btn {
   display: inline-block;
   vertical-align: top;

@@ -541,10 +541,17 @@ socket.on('chips state', function(chips) {
 
 			$('#' + id).css('left', chip.x + "%");
 			$('#' + id).css('top', chip.y + "%");
+			
 			if (chip.moverColor != '')
 				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
 			else
 				$('#' + id).css('box-shadow', '');
+			
+			if (chip.moverUsername != '')
+				$('#' + id).toggleClass('chip_rotate_global', true);
+			else
+				$('#' + id).toggleClass('chip_rotate_global', false);
+
 			$('#' + id).css('-webkit-transform', 'translate3d(0,0,0)');
 		}
 
