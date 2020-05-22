@@ -618,7 +618,7 @@ function consolecmd(text) {
     if (players[username] != undefined) {
       delete players[username];
       io.sockets.emit('remove user', username);
-      response = "Removeing user: " + username;
+      response = "Removing user: " + username;
     } else {
       response = "Error: Invalid payout command. Username not found.";
     }
