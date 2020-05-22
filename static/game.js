@@ -89,7 +89,6 @@ $( window ).resize(function() {
 function loadDeck(numCards, deckName) {
 	this.numCards = numCards;
 	this.deckName = deckName;
-	console.log(numCards + " AHA");
 
 	$('.deck_area h2').text(deckName.charAt(0).toUpperCase() + deckName.slice(1) + " Deck");
 
