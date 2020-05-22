@@ -368,11 +368,9 @@ input, select {
 .chip_area {
   position: absolute;
 
-  width: 6vw;
-  height: 6vw;
+  width: 5vw;
+  height: 5vw;
   margin: 0;
-  margin-left: 0.1vw;
-  margin-right: 0.1vw;
   vertical-align: top;
 
   border-radius: 10vw;
