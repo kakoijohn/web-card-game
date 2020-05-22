@@ -307,7 +307,6 @@ io.on('connection', function(socket) {
 
   		if (chips[targetChip.index].y > 100 && chips[targetChip.index].owner != targetChip.targetUsername) {
   			moveChipOwnership(chips[targetChip.index].owner, targetChip.targetUsername, targetChip.index);
-        chips[targetChip.index].moverColor = '';
   		} else if (chips[targetChip.index].y < 100 && chips[targetChip.index].owner != 'table') {
   			moveChipOwnership(chips[targetChip.index].owner, 'table', targetChip.index);
   		}
@@ -343,8 +342,10 @@ io.on('connection', function(socket) {
   			}
   		}
 
-  		if (chips[targetChip.index].y > 100)
+  		if (chips[targetChip.index].y > 100) {
   			snapChipToPlayer(targetChip.index);
+        chips[targetChip.index].moverColor = '';
+      }
   	}
   });
 
