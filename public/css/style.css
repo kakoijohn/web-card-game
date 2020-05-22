@@ -240,6 +240,9 @@ input, select {
   border-radius: 5.6vw;
 
   touch-action: none;
+
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
 }
 
 .chip:hover {
@@ -271,7 +274,7 @@ input, select {
 }
 
 .chip_rotate_global {
-  transform: rotateX(45deg) !important;
+  transform: rotateZ(180deg) !important;
 }
 
 .shuffle_btn {
