@@ -592,17 +592,17 @@ function consolecmd(text) {
       response = "Error: Invalid payout command. Username not found.";
     }
   } else if (command[0] == 'loaddeck' && command[1] != undefined) {
-    var deckName = command[1];
-    if (deckName == 'standard' && this.deckName != deckName) {
-      this.deckName = deckName;
+    var deckNameInput = command[1];
+    if (deckName == 'standard' && deckName != deckNameInput) {
+      deckName = deckNameInput;
       numCards = 52;
       loadNewDeck(numCards, deckName);
       shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
       response = 'Loading Standard deck with 52 cards.';
-    } else if (deckName == 'euchre' && this.deckName != deckName) {
-      this.deckName = deckName;
+    } else if (deckName == 'euchre' && deckName != deckNameInput) {
+      deckName = deckNameInput;
       numCards = 24;
       loadNewDeck(numCards, deckName);
       shuffle(deck, 10);
