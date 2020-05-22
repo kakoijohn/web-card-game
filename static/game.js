@@ -541,6 +541,7 @@ socket.on('chips state', function(chips) {
 
 			$('#' + id).css('left', chip.x + "%");
 			$('#' + id).css('top', chip.y + "%");
+			$('#' + id).css('-webkit-transform', 'translate3d(0,0,0)');
 			
 			if (chip.moverColor != '')
 				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
@@ -551,8 +552,6 @@ socket.on('chips state', function(chips) {
 				$('#' + id).toggleClass('chip_rotate_global', true);
 			else
 				$('#' + id).toggleClass('chip_rotate_global', false);
-
-			$('#' + id).css('-webkit-transform', 'translate3d(0,0,0)');
 		}
 
 		if (chip.owner == 'table') {
