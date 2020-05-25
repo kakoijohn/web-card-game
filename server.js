@@ -594,7 +594,7 @@ function consolecmd(text) {
     }
   } else if (command[0] == 'loaddeck' && command[1] != undefined) {
     var deckNameInput = command[1];
-    if (deckName == 'standard' && deckName != deckNameInput) {
+    if (deckNameInput == 'standard' && deckName != deckNameInput) {
       deckName = deckNameInput;
       numCards = 52;
       loadNewDeck(numCards, deckName);
@@ -602,7 +602,7 @@ function consolecmd(text) {
       io.sockets.emit('load new deck', {numCards, deckName});
 
       response = 'Loading Standard deck with 52 cards.';
-    } else if (deckName == 'euchre' && deckName != deckNameInput) {
+    } else if (deckNameInput == 'euchre' && deckName != deckNameInput) {
       deckName = deckNameInput;
       numCards = 24;
       loadNewDeck(numCards, deckName);
