@@ -86,9 +86,9 @@ $( window ).resize(function() {
 	ctx.drawImage(inMemCanvas, 0, 0);
 });
 
-function loadDeck(numCards, deckName) {
-	this.numCards = numCards;
-	this.deckName = deckName;
+function loadDeck(numCardsVar, deckNameVar) {
+	numCards = numCardsVar;
+	deckName = deckNameVar;
 
 	$('.deck_area h2').text(deckName.charAt(0).toUpperCase() + deckName.slice(1) + " Deck");
 
