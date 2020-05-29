@@ -81,7 +81,7 @@ function loadNewDeck(numCards, deckName) {
   for (var i = 0; i < numCards; i++) {
     deck[i] = {
       card: i,
-      zIndex: i,
+      zIndex: (i + 1),
       showCard: false,
       peekCardCol: '',
       x: deckStartX, 
