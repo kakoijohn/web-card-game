@@ -67,6 +67,10 @@ const chipSeparationX = 6.75;
 
 var uniqueChipIDcounter = 0;
 
+var deckStateChanged = false;
+var chipStateChanged = false;
+var playerStateChanged = false;
+
 //youtube stuff
 var videoQueue = [];
 var currVideoIndex = -1;
@@ -252,12 +256,18 @@ io.on('connection', function(socket) {
     io.sockets.emit('new player notification', players);
 
     console.log("Added new player with username: " + cleanID);
+
+    deckStateChanged = true;
+    chipStateChanged = true;
+    playerStateChanged = true;
   });
 
   socket.on('broadcast player state', function(playerInfo) {
   	if (players[playerInfo.cleanID] != null) {
 	  	players[playerInfo.cleanID].pointerX = playerInfo.pointerX;
-	  	players[playerInfo.cleanID].pointerY = playerInfo.pointerY;	
+	  	players[playerInfo.cleanID].pointerY = playerInfo.pointerY;
+
+      playerStateChanged = true;
   	}
   });
 
@@ -267,11 +277,13 @@ io.on('connection', function(socket) {
 
   	// console.log('moving card: ' + card.index + ", to: " + card.x + ", " + card.y);
   	// console.log('moved  deck: ' + deck[card.index].card + ", to: " + deck[card.index].x + ", " + deck[card.index].y);
+
+    deckStateChanged = true;
   });
 
   socket.on('pickup chip', function(targetChip) {
-    if (chips[targetChip.index] != undefined) {
-      var chip = chips[targetChip.index];
+    if (chips[targetChip.id] != undefined) {
+      var chip = chips[targetChip.id];
       if (chip.owner == 'table' || chip.owner == targetChip.targetUsername) {
         if (chip.moverUsername == '') {
           chip.moverUsername = targetChip.targetUsername;
@@ -279,13 +291,17 @@ io.on('connection', function(socket) {
           socket.emit('pickup confirmation', targetChip);
         }
       }
+
+      chipStateChanged = true;
     }
   });
 
   socket.on('move chip', function(targetChip) {
-  	if (chips[targetChip.index] != undefined) {
-  		chips[targetChip.index].x = targetChip.x;
-  		chips[targetChip.index].y = targetChip.y;
+  	if (chips[targetChip.id] != undefined) {
+  		chips[targetChip.id].x = targetChip.x;
+  		chips[targetChip.id].y = targetChip.y;
+
+      chipStateChanged = true;
   	}
   });
 
@@ -296,26 +312,28 @@ io.on('connection', function(socket) {
   		if (players[playerID] != undefined) {
   			players[playerID].nametagX = targetNametag.x;
   			players[playerID].nametagY = targetNametag.y;
+
+        playerStateChanged = true;
   		}	
   	}
   });
 
   socket.on('release chip', function(targetChip) {
-  	if (chips[targetChip.index] != undefined) {
-      chips[targetChip.index].moverUsername = '';
+  	if (chips[targetChip.id] != undefined) {
+      chips[targetChip.id].moverUsername = '';
 
-  		if (chips[targetChip.index].y > 100 && chips[targetChip.index].owner != targetChip.targetUsername) {
-  			moveChipOwnership(chips[targetChip.index].owner, targetChip.targetUsername, targetChip.index);
-  		} else if (chips[targetChip.index].y < 100 && chips[targetChip.index].owner != 'table') {
-  			moveChipOwnership(chips[targetChip.index].owner, 'table', targetChip.index);
+  		if (chips[targetChip.id].y > 100 && chips[targetChip.id].owner != targetChip.targetUsername) {
+  			moveChipOwnership(chips[targetChip.id].owner, targetChip.targetUsername, targetChip.id);
+  		} else if (chips[targetChip.id].y < 100 && chips[targetChip.id].owner != 'table') {
+  			moveChipOwnership(chips[targetChip.id].owner, 'table', targetChip.id);
   		}
 
   		//chip splitter function
-  		if (chips[targetChip.index].x > 67  && chips[targetChip.index].x < 75 &&
-  			chips[targetChip.index].y > 123 && chips[targetChip.index].y < 138) {
-  			var chipVal = chips[targetChip.index].value;
+  		if (chips[targetChip.id].x > 67  && chips[targetChip.id].x < 75 &&
+  			chips[targetChip.id].y > 123 && chips[targetChip.id].y < 138) {
+  			var chipVal = chips[targetChip.id].value;
   			if (chipVal != 1) {
-  				moveChipOwnership(chips[targetChip.index].owner, 'house', targetChip.index);
+  				moveChipOwnership(chips[targetChip.id].owner, 'house', targetChip.id);
   				var numNewChips = 0;
   				var newChipVals = 0;
   				switch (chipVal) {
@@ -337,35 +355,42 @@ io.on('connection', function(socket) {
   						break;
   				}
   				for (var i = 0; i < numNewChips; i++)
-  					createNewChip(targetChip.targetUsername, '', '', newChipVals, chips[targetChip.index].x + ((Math.random() * 6) - 3), chips[targetChip.index].y + ((Math.random() * 6) - 3));
+  					createNewChip(targetChip.targetUsername, '', '', newChipVals, chips[targetChip.id].x + ((Math.random() * 6) - 3), chips[targetChip.id].y + ((Math.random() * 6) - 3));
   			}
   		}
 
-  		if (chips[targetChip.index].y > 100) {
-  			snapChipToPlayer(targetChip.index);
-        chips[targetChip.index].moverColor = '';
+  		if (chips[targetChip.id].y > 100) {
+  			snapChipToPlayer(targetChip.id);
+        chips[targetChip.id].moverColor = '';
       }
+
+      chipStateChanged = true;
   	}
   });
 
   socket.on('target card to top', function(targetCardIndex) {
   	var currZIndex = deck[targetCardIndex].zIndex;
-	// console.log("CURRZINDEX: " + currZIndex);
-	for (var i = 0; i < numCards; i++) {
-		if (deck[i].zIndex > currZIndex)
-			deck[i].zIndex = deck[i].zIndex - 1;
-	}
-	deck[targetCardIndex].zIndex = numCards;
+	  // console.log("CURRZINDEX: " + currZIndex);
+  	for (var i = 0; i < numCards; i++) {
+		  if (deck[i].zIndex > currZIndex)
+		  	deck[i].zIndex = deck[i].zIndex - 1;
+  	}
+  	deck[targetCardIndex].zIndex = numCards;
+
+    deckStateChanged = true;
   });
 
   socket.on('flip card global', function(targetCardIndex) {
   	deck[targetCardIndex].showCard = !deck[targetCardIndex].showCard;
 
   	// console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
+    deckStateChanged = true;
   });
 
   socket.on('card peek', function(data) {
   	deck[data.targetCardIndex].peekCardCol = data.playerColor;
+
+    deckStateChanged = true;
   });
 
   //shuffle cards and reset the deck position.
@@ -375,18 +400,23 @@ io.on('connection', function(socket) {
 
   	//call all decks to be reset on client side
   	io.sockets.emit('reset deck');
+
+    deckStateChanged = true;
   });
 
   socket.on('deal cards', function(data) {
-	resetDeck();
+	  resetDeck();
   	shuffle(deck, 10);
 
   	io.sockets.emit('reset deck');
 
+    deckStateChanged = true;
+
   	setTimeout(function() {
-		dealCards(data.numPlayers, data.numCardsDealt);
-		io.sockets.emit('reset deck');
-	}, 1100);
+		  dealCards(data.numPlayers, data.numCardsDealt);
+		  io.sockets.emit('reset deck');
+      deckStateChanged = true;
+	  }, 1100);
   });
 
   socket.on('new draw line', function(data) {
@@ -396,7 +426,6 @@ io.on('connection', function(socket) {
   socket.on('clear draw area', function() {
   	io.sockets.emit('clear draw area');
   });
-
 
   // Youtube Player Stuff
   socket.on('queue youtube video', function(videoID) {
@@ -439,13 +468,22 @@ io.on('connection', function(socket) {
 
 //emit the state of the deck every 60ms
 setInterval(function() {
-  io.sockets.emit('deck state', deck);
-  io.sockets.emit('chips state', chips);
+  if (deckStateChanged) {
+    io.sockets.emit('deck state', deck);
+    deckStateChanged = false;
+  }
+  if (chipStateChanged) {
+    io.sockets.emit('chips state', chips);  
+    chipStateChanged = false;
+  }
 }, 1000 / 24);
 
 //emit the state of all players every 10ms
 setInterval(function() {
-  io.sockets.emit('player state', players);
+  if (playerStateChanged) {
+    io.sockets.emit('player state', players);
+    playerStateChanged = false;
+  }
 }, 1000 / 10);
 
 
@@ -517,59 +555,10 @@ function consolecmd(text) {
       for (var i = 0; i < num1Chips; i++)
         createNewChip(username, '', '', 1, chipStartX, chipStartY);
 
+      chipStateChanged = true;
       response = "Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1";
     } else {
       response = "Error: Invalid give command. Username not found.";
-    }
-  } else if (command[0] == 'change' && command[1] != undefined && command[2] != undefined && command[3] != undefined) {
-    /* Currently doesnt work */
-
-    var username = command[1];
-    var amount = command[2];
-    var divisor = command[3];
-
-    if (players[username] != undefined) {
-      var player = players[username];
-      var playerChipTotal = (player.chips['chip_1']) +
-                (player.chips['chip_5'] * 5) +
-                (player.chips['chip_25'] * 25) +
-                (player.chips['chip_50'] * 50) +
-                (player.chips['chip_100'] * 100);
-
-      if (amount > playerChipTotal) {
-        response = "Error: " + username + " does not have enough money to change: " + amount + " (amount requested), " + playerChipTotal + " (amount in player's bank)";
-      } else if (divisor > amount) {
-        response = "Error: Divisor cannot be greater than the amount.";
-      } else {
-        var numChipsCreated = Math.floor(amount / divisor);
-        if (divisor == 100 || divisor == 50 || divisor == 25 || divisor == 5 || divisor == 1) {
-          //first take out the chips we will be changing.
-
-          var chipIndex = 0;
-          switch (divisor) {
-            case 100:
-              chipIndex = 4;
-              break;
-            case 50:
-              chipIndex = 3;
-              break;
-            case 25:
-              chipIndex = 2;
-              break;
-            case 5:
-              chipIndex = 1;
-              break;
-          }
-
-          //create the new changed chips for the player
-          // for (var i = 0; i < numChipsCreated; i++)
-            // createNewChip(username, '', '', divisor, chipStartX + (chipSeparationX * chipIndex), chipStartY);
-        } else {
-          response = "Error: Chip divisor must be a standard chip denomination (100, 50, 25, 5, or 1).";
-        }
-      }
-    } else {
-      response = "Error: Invalid command. Username not found."; 
     }
   } else if (command[0] == 'payout' && command[1] != undefined) {
     var username = command[1];
@@ -587,6 +576,7 @@ function consolecmd(text) {
         }
       }
 
+      chipStateChanged = true;
       response = "Paying out " + username;
     } else {
       response = "Error: Invalid payout command. Username not found.";
@@ -600,6 +590,7 @@ function consolecmd(text) {
       shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
+      deckStateChanged = true;
       response = 'Loading Standard deck with 52 cards.';
     } else if (deckNameInput == 'euchre' && deckName != deckNameInput) {
       deckName = deckNameInput;
@@ -608,6 +599,7 @@ function consolecmd(text) {
       shuffle(deck, 10);
       io.sockets.emit('load new deck', {numCards, deckName});
 
+      deckStateChanged = true;
       response = 'Loading Euchre deck with 24 cards.';
     } else {
       response = 'Error: Invalid deck name, or that deck is already loaded.';
@@ -617,6 +609,7 @@ function consolecmd(text) {
     if (players[username] != undefined) {
       delete players[username];
       io.sockets.emit('remove user', username);
+      playerStateChanged = true;
       response = "Removing user: " + username;
     } else {
       response = "Error: Invalid payout command. Username not found.";
@@ -627,6 +620,9 @@ function consolecmd(text) {
     chips = null;
     resetDeck();
     shuffle(deck, 10);
+    deckStateChanged = true;
+    playerStateChanged = true;
+    chipStateChanged = true;
     response = "Cleared all players from server and sent out refresh call to all clients.";
   } else if (command[0] == 'help') {
     response = "List of Commands:" + '\n' +

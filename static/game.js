@@ -124,6 +124,7 @@ var playerInfo = {
 	nametagX: 0,
 	nametagY: 0,
 	color: 'null',
+	stateChanged: false,
 
 	chips: {chip_1: 0, chip_5: 0, chip_25: 0, chip_50: 0, chip_100: 0}
 }
@@ -209,14 +210,16 @@ var targetCard = {
 	id: '',
 	index: 0,
   	x: 0,
-  	y: 0
+  	y: 0,
+  	released: false
 }
 
 var targetChip = {
-	index: 0,
+	id: 0,
 	x: 0,
 	y: 0,
-	targetUsername: ''
+	targetUsername: '',
+	released: false
 }
 
 var targetNametag = {
@@ -256,6 +259,8 @@ $(document).on('mousedown', '.card', function(evt) {
 		draggingChip = false;
 		draggingNametag = false;
 
+		targetCard.released = false;
+
 		offsetX = evt.pageX - $(evt.target).offset().left;
 		offsetY = evt.pageY - $(evt.target).offset().top;
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
@@ -286,12 +291,14 @@ $(document).on('mousedown', '.chip', function(evt) {
 		drawing = false;
 		draggingChip = true;
 
+		targetChip.released = false;
+
 		offsetX = evt.pageX - $(evt.target).offset().left;
 		offsetY = evt.pageY - $(evt.target).offset().top;
 
 		var targetChipID = $(evt.target).attr('id');
 
-		targetChip.index = targetChipID;
+		targetChip.id = targetChipID;
 		targetChip.targetUsername = playerInfo.cleanID;
 
 		socket.emit('pickup chip', targetChip);
@@ -341,6 +348,10 @@ $(window).mousemove(function (evt) {
 		targetCard.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
 		targetCard.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
+		//move the card locally on our screen before sending the data to the server.
+		$('#' + targetCard.id).css('left', targetCard.x + "%");
+		$('#' + targetCard.id).css('top', targetCard.y + "%");
+		//next send the card state to the server.
 		socket.emit('move card', targetCard);
 
 		if (cardClick) {
@@ -365,6 +376,10 @@ $(window).mousemove(function (evt) {
 		targetChip.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
 		targetChip.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
+		//move the chip locally on our screen before sending the data to the server.
+		$('#' + targetChip.id).css('left', targetChip.x + "%");
+		$('#' + targetChip.id).css('top', targetChip.y + "%");
+		//next send the chip state to the server.
 		socket.emit('move chip', targetChip);
 	} else if (draggingNametag) {
 		targetNametag.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
@@ -379,7 +394,8 @@ $(window).mousemove(function (evt) {
 	
 	$('#' + playerInfo.cleanID).css('left', evt.pageX);
 	$('#' + playerInfo.cleanID).css('top', evt.pageY);
-	$('#' + playerInfo.cleanID).css('-webkit-transform', 'translate3d(0,0,0)');
+
+	playerInfo.stateChanged = true;
 });
 
 $(document).on('click', '.card', function() {
@@ -387,11 +403,14 @@ $(document).on('click', '.card', function() {
 		peekCurCard();
 		cardClick = false;
 	}
-})
+});
 
 $(window).mouseup(function(evt) {
-	if (draggingCard)
+	if (draggingCard) {
+		socket.emit('move card', targetCard);
 		draggingCard = false;
+		targetCard.released = true;
+	}
 
 	if (drawing) {
 		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
@@ -406,11 +425,13 @@ $(window).mouseup(function(evt) {
 		drawing = false;
 	}
 
-	if (draggingChip)
+	if (draggingChip) {
 		draggingChip = false;
+	}
 
 	if (draggingChipConfirm) {
 		draggingChipConfirm = false;
+		targetChip.released = true;
 		socket.emit('release chip', targetChip);
 	}
 
@@ -492,8 +513,12 @@ send our player state to the server
 //emit the player position 24 times per second
 setInterval(function() {
 	//only emit the player state if we have received an id from the server.
-	if (playerInfo.username != 'null')
-		socket.emit('broadcast player state', playerInfo);
+	if (playerInfo.username != 'null') {
+		if (playerInfo.stateChanged) {
+			socket.emit('broadcast player state', playerInfo);	
+			playerInfo.stateChanged = false;
+		}
+	}
 }, 1000 / 24);
 
 /** 
@@ -505,8 +530,10 @@ Listen for the sever for states of the deck, chips, and other players.
 //listen for the state of the deck from server
 socket.on('deck state', function(deck) {
   	for (var i = 0; i < numCards; i++) {
-    	$('#card_' + (i + 1)).css('left', deck[i].x + "%");
-    	$('#card_' + (i + 1)).css('top', deck[i].y + "%");
+  		if (targetCard.index != (i + 1) || (targetCard.index == (i + 1) && targetCard.released)) {
+  			$('#card_' + (i + 1)).css('left', deck[i].x + "%");
+  			$('#card_' + (i + 1)).css('top', deck[i].y + "%");
+  		}
     	$('#card_' + (i + 1)).css('z-index', deck[i].zIndex);
 
     	if (deck[i].showCard) {
@@ -549,9 +576,11 @@ socket.on('chips state', function(chips) {
 			if ($('#' + id).length == 0)
 				$('.poker_table').append("<div id=\"" + id + "\" class=\"chip chip_" + chip.value + "\"></div>");
 
-			$('#' + id).css('left', chip.x + "%");
-			$('#' + id).css('top', chip.y + "%");
-			$('#' + id).css('-webkit-transform', 'translate3d(0,0,0)');
+
+			if (targetChip.id != id || (targetChip.id == id && targetChip.released)) {
+				$('#' + id).css('left', chip.x + "%");
+				$('#' + id).css('top', chip.y + "%");
+			}
 			
 			if (chip.moverColor != '')
 				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
@@ -577,7 +606,6 @@ socket.on('player state', function(players) {
 			//if not us we update everyone else's cursor on our screen
 			$('#' + player.cleanID).css('left', player.pointerX * poker_tableWidth);
 			$('#' + player.cleanID).css('top', player.pointerY * poker_tableHeight);
-			$('#' + player.cleanID).css('-webkit-transform', 'translate3d(0,0,0)');
 
 			if (player.nametagY > 100)
 				$('#' + player.cleanID + "_floating_nametag").css('display', 'none');
@@ -599,7 +627,6 @@ socket.on('player state', function(players) {
 
 		$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
 		$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
-		$('#' + player.cleanID + '_floating_nametag').css('-webkit-transform', 'translate3d(0,0,0)');
 		var playerChipTotal = (player.chips['chip_1']) +
 							  (player.chips['chip_5'] * 5) +
 							  (player.chips['chip_25'] * 25) +
@@ -612,7 +639,7 @@ socket.on('player state', function(players) {
 
 //if we recieve confirmation from the server that we can move the chip, set the state to dragging.
 socket.on('pickup confirmation', function(targetPickupChip) {
-	if (targetPickupChip.index == targetChip.index)
+	if (targetPickupChip.id == targetChip.id)
 		draggingChipConfirm = true;
 });
 
@@ -683,158 +710,164 @@ Youtube player stuff
 **/
 
 
-var youtubePlayerEnabled = true;
-var youtubePlaying = false;
-var youtubeVolume = 1;
-var youtubeLink;
-var youtubePlayer;
+// var youtubePlayerEnabled = true;
+// var youtubePlaying = false;
+// var youtubeVolume = 1;
+// var youtubeLink;
+// var youtubePlayer;
 
-var ytScriptTag = document.createElement('script');
+// var ytScriptTag = document.createElement('script');
 
-ytScriptTag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(ytScriptTag, firstScriptTag);
+// ytScriptTag.src = "https://www.youtube.com/iframe_api";
+// var firstScriptTag = document.getElementsByTagName('script')[0];
+// firstScriptTag.parentNode.insertBefore(ytScriptTag, firstScriptTag);
 
-function onYouTubeIframeAPIReady() {
-	youtubePlayer = new YT.Player('youtube_player_iframe', {
-		height: '390',
-        width: '640',
-        playerVars: {
-        	'playsinline': 1,
-        	'showinfo': 0,
-        	'rel': 0,
-        	'modestbranding': 0,
-        	'controls': 0,
-        	'origin': 'https://www.youtube.com'
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
-}
+// function onYouTubeIframeAPIReady() {
+// 	youtubePlayer = new YT.Player('youtube_player_iframe', {
+// 		height: '390',
+//         width: '640',
+//         playerVars: {
+//         	'playsinline': 1,
+//         	'showinfo': 0,
+//         	'rel': 0,
+//         	'modestbranding': 0,
+//         	'controls': 0,
+//         	'origin': 'https://www.youtube.com'
+//         },
+//         events: {
+//             'onReady': onPlayerReady,
+//             'onStateChange': onPlayerStateChange
+//         }
+//     });
+// }
 
-function onPlayerReady(event) {
-	youtubePlayer.setVolume(10);
-	youtubePlayer.setLoop(true);
-}
+// function onPlayerReady(event) {
+// 	youtubePlayer.setVolume(10);
+// 	youtubePlayer.setLoop(true);
+// }
 
-function onPlayerStateChange(event) {
-	$('.youtube_currently_playing').text(youtubePlayer.getVideoData().title);
+// function onPlayerStateChange(event) {
+// 	$('.youtube_currently_playing').text(youtubePlayer.getVideoData().title);
 
-	if (youtubePlayer.getPlayerState() == YT.PlayerState.ENDED) {
-		socket.emit('play next video');
-	}
-}
+// 	if (youtubePlayer.getPlayerState() == YT.PlayerState.ENDED) {
+// 		socket.emit('play next video');
+// 	}
+// }
 
-socket.on('load youtube video', function(videoId) {
-	if (youtubePlayerEnabled) {
-		youtubePlayer.loadVideoById(videoId);
-		youtubePlayer.playVideo();
+// socket.on('load youtube video', function(videoId) {
+// 	if (youtubePlayerEnabled) {
+// 		youtubePlayer.loadVideoById(videoId);
+// 		youtubePlayer.playVideo();
 
-		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', true);
-		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', false);
-		youtubePlaying = true;
-	}
-});
+// 		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', true);
+// 		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', false);
+// 		youtubePlaying = true;
+// 	}
+// });
 
-socket.on('pause youtube video', function() {
-	if (youtubePlayerEnabled) {
-		youtubePlayer.pauseVideo();	
+// socket.on('pause youtube video', function() {
+// 	if (youtubePlayerEnabled) {
+// 		youtubePlayer.pauseVideo();	
 
-		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', true);
-		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', false);
-		youtubePlaying = false;
-	}
-});
+// 		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', true);
+// 		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', false);
+// 		youtubePlaying = false;
+// 	}
+// });
 
-socket.on('play youtube video', function() {
-	if (youtubePlayerEnabled) {
-		youtubePlayer.playVideo();
+// socket.on('play youtube video', function() {
+// 	if (youtubePlayerEnabled) {
+// 		youtubePlayer.playVideo();
 
-		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', true);
-		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', false);
-		youtubePlaying = true;
-	}
-});
+// 		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', true);
+// 		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', false);
+// 		youtubePlaying = true;
+// 	}
+// });
 
-$(document).on('click', '#enable_youtube_link_btn', function(evt) {
-	if (!youtubePlayerEnabled) {
-		$('.youtube_player').toggleClass('youtube_player__enabled', true);
-		$('#enable_youtube_link_btn').text('Disable YT Player');
-		youtubePlayerEnabled = true;
-	} else {
-		$('.youtube_player').toggleClass('youtube_player__enabled', false);
-		$('#enable_youtube_link_btn').text('Enable Youtube Player');
-		youtubePlayerEnabled = false;
+// $(document).on('click', '#enable_youtube_link_btn', function(evt) {
+// 	if (!youtubePlayerEnabled) {
+// 		$('.youtube_player').toggleClass('youtube_player__enabled', true);
+// 		$('#enable_youtube_link_btn').text('Disable YT Player');
+// 		youtubePlayerEnabled = true;
+// 	} else {
+// 		$('.youtube_player').toggleClass('youtube_player__enabled', false);
+// 		$('#enable_youtube_link_btn').text('Enable Youtube Player');
+// 		youtubePlayerEnabled = false;
 
-		pauseVideo();
-	}
-});
+// 		pauseVideo();
+// 	}
+// });
 
-$(document).on('click', '#submit_youtube_link_btn', function(evt) {
-	if (youtubePlayerEnabled) {
-		var url = $('#youtube_player_link').val();
-		if (url != undefined && url != '') {
-			var videoId = url.split('v=')[1];
-			var ampersandPosition = videoId.indexOf('&');
-			if(ampersandPosition != -1) {
-			  videoId = videoId.substring(0, ampersandPosition);
-			}
+// $(document).on('click', '#submit_youtube_link_btn', function(evt) {
+// 	if (youtubePlayerEnabled) {
+// 		var url = $('#youtube_player_link').val();
+// 		if (url != undefined && url != '') {
+// 			var videoId = url.split('v=')[1];
+// 			var ampersandPosition = videoId.indexOf('&');
+// 			if(ampersandPosition != -1) {
+// 			  videoId = videoId.substring(0, ampersandPosition);
+// 			}
 
-			socket.emit('queue youtube video', videoId);
+// 			socket.emit('queue youtube video', videoId);
 			
-			$('#youtube_player_link').val('');
-		}
-	}
-});
+// 			$('#youtube_player_link').val('');
+// 		}
+// 	}
+// });
 
-$(document).on('click', '#youtube_pause_play_btn', function(evt) {
-	if (youtubePlayerEnabled) {
-		if (youtubePlaying) {
-			socket.emit('pause youtube video');
-		} else {
-			socket.emit('play youtube video');
-		}
-	}
-});
+// $(document).on('click', '#youtube_pause_play_btn', function(evt) {
+// 	if (youtubePlayerEnabled) {
+// 		if (youtubePlaying) {
+// 			socket.emit('pause youtube video');
+// 		} else {
+// 			socket.emit('play youtube video');
+// 		}
+// 	}
+// });
 
-$(document).on('click', '#youtube_volume_btn', function(evt) {
-	if (youtubePlayerEnabled) {
-		switch (youtubeVolume) {
-			case 1:
-				youtubePlayer.setVolume(60);
-				youtubeVolume = 2;
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_2', true);
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_1', false);
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_3', false);
-				break;
-			case 2:
-				youtubePlayer.setVolume(100);
-				youtubeVolume = 3;
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_3', true);
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_1', false);
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_2', false);
-				break;
-			case 3:
-				youtubePlayer.setVolume(10);
-				youtubeVolume = 1;
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_1', true);
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_2', false);
-				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_3', false);
-				break;
-		}
-	}
-});
+// $(document).on('click', '#youtube_volume_btn', function(evt) {
+// 	if (youtubePlayerEnabled) {
+// 		switch (youtubeVolume) {
+// 			case 1:
+// 				youtubePlayer.setVolume(60);
+// 				youtubeVolume = 2;
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_2', true);
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_1', false);
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_3', false);
+// 				break;
+// 			case 2:
+// 				youtubePlayer.setVolume(100);
+// 				youtubeVolume = 3;
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_3', true);
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_1', false);
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_2', false);
+// 				break;
+// 			case 3:
+// 				youtubePlayer.setVolume(10);
+// 				youtubeVolume = 1;
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_1', true);
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_2', false);
+// 				$('#youtube_volume_btn').toggleClass('youtube_volume_icon_3', false);
+// 				break;
+// 		}
+// 	}
+// });
 
-$(document).on('click', '#youtube_next_btn', function(evt) {
-	socket.emit('play next video');
-});
+// $(document).on('click', '#youtube_next_btn', function(evt) {
+// 	socket.emit('play next video');
+// });
 
-$(document).on('click', '#youtube_previous_btn', function(evt) {
-	socket.emit('play previous video');
-});
+// $(document).on('click', '#youtube_previous_btn', function(evt) {
+// 	socket.emit('play previous video');
+// });
 
+
+/**
+
+Client Side server commands
+
+*/
 
 function servercmd(command) {
 	socket.emit('console command', command);
