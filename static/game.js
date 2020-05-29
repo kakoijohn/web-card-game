@@ -531,8 +531,8 @@ Listen for the sever for states of the deck, chips, and other players.
 socket.on('deck state', function(deck) {
   	for (var i = 0; i < numCards; i++) {
   		if (targetCard.index != i || (targetCard.index == i && targetCard.released)) {
-  			// $('#card_' + i).css('left', deck[i].x + "%");
-  			// $('#card_' + i).css('top', deck[i].y + "%");
+  			$('#card_' + i).css('left', deck[i].x + "%");
+  			$('#card_' + i).css('top', deck[i].y + "%");
   		}
     	$('#card_' + i).css('z-index', deck[i].zIndex);
 
