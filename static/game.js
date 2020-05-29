@@ -228,6 +228,7 @@ var targetNametag = {
 var draggingCard;
 var cardClick;
 var draggingChip;
+var draggingChipConfirm;
 var draggingNametag;
 var drawing;
 var cursorMode;
@@ -283,6 +284,7 @@ $(document).on('mousedown', '.chip', function(evt) {
 		draggingCard = false;
 		draggingNametag = false;
 		drawing = false;
+		draggingChip = true;
 
 		offsetX = evt.pageX - $(evt.target).offset().left;
 		offsetY = evt.pageY - $(evt.target).offset().top;
@@ -329,6 +331,11 @@ $(document).on('mousedown', '#drawing_area', function(evt) {
 	}
 });
 
+$(document).on('touchstart', '#drawing_area', function(evt) {
+	if (evt.touches.length > 1)
+		drawing = false;
+});
+
 $(window).mousemove(function (evt) {
 	if (draggingCard) {
 		targetCard.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
@@ -354,7 +361,7 @@ $(window).mousemove(function (evt) {
 
 		prevDrawPointX = evt.pageX / canvas.width;
 		prevDrawPointY = evt.pageY / canvas.height;
-	} else if (draggingChip) {
+	} else if (draggingChip && draggingChipConfirm) {
 		targetChip.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
 		targetChip.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
@@ -399,8 +406,11 @@ $(window).mouseup(function(evt) {
 		drawing = false;
 	}
 
-	if (draggingChip) {
+	if (draggingChip)
 		draggingChip = false;
+
+	if (draggingChipConfirm) {
+		draggingChipConfirm = false;
 		socket.emit('release chip', targetChip);
 	}
 
@@ -603,7 +613,7 @@ socket.on('player state', function(players) {
 //if we recieve confirmation from the server that we can move the chip, set the state to dragging.
 socket.on('pickup confirmation', function(targetPickupChip) {
 	if (targetPickupChip.index == targetChip.index)
-		draggingChip = true;
+		draggingChipConfirm = true;
 });
 
 //listen for reset deck call from server

@@ -11,44 +11,6 @@ var io = socketIO(server);
 process.stdin.resume();
 process.stdin.setEncoding('utf8');
 
-//card game vars
-var deck = {};
-var numCards = 52;
-var deckName = 'standard';
-const deckStartX = 32.92; //percentage of gameboard
-const deckStartY = 102.83; //percentage of gameboard
-
-const dealStartX = 0.5;
-const dealStartY = 0.7;
-const dealEndX = 80 - dealStartX;
-const dealEndY = 76.5 - dealStartY;
-const cardSeparationX = 2.1;
-const playerSeparationX = 20;
-const playerSeparationY = 25;
-
-const nametagStartX = 1;
-const nametagStartY = 118;
-
-var chips = {
-	owner: '',
-  moverUsername: '',
-  moverColor: '',
-	value: 0,
-	x: 0,
-	y: 0
-};
-
-const chipStartX = 43.12;
-const chipStartY = 102.52;
-const chipSeparationX = 6.75;
-
-var uniqueChipIDcounter = 0;
-
-//youtube stuff
-var videoQueue = [];
-var currVideoIndex = -1;
-
-
 var PORT = process.env.PORT || 5000;
 app.set('port', PORT);
 app.use('/static', express.static(__dirname + '/static'));
@@ -71,6 +33,43 @@ server.listen(PORT, function() {
   console.log('Shuffling Deck');
   shuffle(deck, 10);
 });
+
+//card game vars
+var deck = {};
+var numCards = 52;
+var deckName = 'standard';
+const deckStartX = 32.92; //percentage of gameboard
+const deckStartY = 102.83; //percentage of gameboard
+
+const dealStartX = 0.5;
+const dealStartY = 0.7;
+const dealEndX = 80 - dealStartX;
+const dealEndY = 76.5 - dealStartY;
+const cardSeparationX = 2.1;
+const playerSeparationX = 20;
+const playerSeparationY = 25;
+
+const nametagStartX = 1;
+const nametagStartY = 118;
+
+var chips = {
+  owner: '',
+  moverUsername: '',
+  moverColor: '',
+  value: 0,
+  x: 0,
+  y: 0
+};
+
+const chipStartX = 43.12;
+const chipStartY = 102.52;
+const chipSeparationX = 6.75;
+
+var uniqueChipIDcounter = 0;
+
+//youtube stuff
+var videoQueue = [];
+var currVideoIndex = -1;
 
 function loadNewDeck(numCards, deckName) {
   deck = {};
