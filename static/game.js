@@ -398,8 +398,10 @@ $(window).mousemove(function (evt) {
 	playerInfo.stateChanged = true;
 });
 
-$(document).on('click', '.card', function() {
+$(document).on('click', '.card', function(evt) {
 	if (cardClick) {
+		targetCard.id = $(evt.target).attr('id');
+		targetCard.index = parseInt(targetCard.id.replace("card_", ''));
 		peekCurCard();
 		cardClick = false;
 	}
