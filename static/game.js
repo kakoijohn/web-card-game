@@ -529,25 +529,25 @@ Listen for the sever for states of the deck, chips, and other players.
 
 //listen for the state of the deck from server
 socket.on('deck state', function(deck) {
-  	for (var i = 0; i < numCards; i++) {
-  		if (targetCard.index != (i + 1) || (targetCard.index == (i + 1) && targetCard.released)) {
-  			$('#card_' + (i + 1)).css('left', deck[i].x + "%");
-  			$('#card_' + (i + 1)).css('top', deck[i].y + "%");
+  	for (var i = 1; i <= numCards; i++) {
+  		if (targetCard.index != i || (targetCard.index == i && targetCard.released)) {
+  			// $('#card_' + i).css('left', deck[i].x + "%");
+  			// $('#card_' + i).css('top', deck[i].y + "%");
   		}
-    	$('#card_' + (i + 1)).css('z-index', deck[i].zIndex);
+    	$('#card_' + i).css('z-index', deck[i].zIndex);
 
     	if (deck[i].showCard) {
-			$('#card_' + (i + 1) + '_inner').toggleClass('card_rotate_global', true);
-			$('#card_' + (i + 1) + '_inner').toggleClass('card_rotate_local', false);
+			$('#card_' + i + '_inner').toggleClass('card_rotate_global', true);
+			$('#card_' + i + '_inner').toggleClass('card_rotate_local', false);
 
-			$('#card_' + (i + 1) + '_inner').css('box-shadow', '');
+			$('#card_' + i + '_inner').css('box-shadow', '');
     	} else {
-			$('#card_' + (i + 1) + '_inner').toggleClass('card_rotate_global', false);
+			$('#card_' + i + '_inner').toggleClass('card_rotate_global', false);
 
 			if (deck[i].peekCardCol != '') {
-				$('#card_' + (i + 1) + '_inner').css('box-shadow', '0px 0px 0px 3px ' + deck[i].peekCardCol);
+				$('#card_' + i + '_inner').css('box-shadow', '0px 0px 0px 3px ' + deck[i].peekCardCol);
 			} else {
-				$('#card_' + (i + 1) + '_inner').css('box-shadow', '');
+				$('#card_' + i + '_inner').css('box-shadow', '');
 			}
 		}
 
