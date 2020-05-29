@@ -99,12 +99,12 @@ function loadDeck(numCardsVar, deckNameVar) {
 	});
 
 	//setup game board with numCards cards	
-	for (var i = 1; i <= numCards; i++) {
+	for (var i = 0; i < numCards; i++) {
 		$('.poker_table').append(
 			"<div id=\"card_" + i + "\" class=\"card\">" +
 				"<div class=\"card_inner\" id=\"card_" + i + "_inner\">" +
 					"<div id=\"card_" + i + "\" class=\"card_back\"></div>" +
-					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/cards/" + deckName + "/card_" + i + ".svg');\">" +
+					"<div id=\"card_" + i + "\" class=\"card_front\" style=\"background: url('/resources/cards/" + deckName + "/card_" + (i + 1) + ".svg');\">" +
 			"</div></div></div>"
 		);
 	}
@@ -249,7 +249,7 @@ Player Mouse Events
 //when card is single clicked
 $(document).on('mousedown', '.card', function(evt) {
 	targetCard.id = $(evt.target).attr('id');
-	targetCard.index = parseInt(targetCard.id.replace("card_", '')) - 1;
+	targetCard.index = parseInt(targetCard.id.replace("card_", ''));
 
 	if (evt.which == 1 && !evt.metaKey && !evt.ctrlKey) {
 		//left click event
@@ -529,7 +529,7 @@ Listen for the sever for states of the deck, chips, and other players.
 
 //listen for the state of the deck from server
 socket.on('deck state', function(deck) {
-  	for (var i = 1; i <= numCards; i++) {
+  	for (var i = 0; i < numCards; i++) {
   		if (targetCard.index != i || (targetCard.index == i && targetCard.released)) {
   			// $('#card_' + i).css('left', deck[i].x + "%");
   			// $('#card_' + i).css('top', deck[i].y + "%");
@@ -575,7 +575,6 @@ socket.on('chips state', function(chips) {
 		if (chip.owner == playerInfo.cleanID || chip.owner == "table") {
 			if ($('#' + id).length == 0)
 				$('.poker_table').append("<div id=\"" + id + "\" class=\"chip chip_" + chip.value + "\"></div>");
-
 
 			if (targetChip.id != id || (targetChip.id == id && targetChip.released)) {
 				$('#' + id).css('left', chip.x + "%");
@@ -652,7 +651,7 @@ socket.on('reset deck', function() {
 	}, 1000);
 
 	//reset the peek state of all cards in deck
-	for (var i = 1; i <= numCards; i++)
+	for (var i = 0; i < numCards; i++)
 		$('#card_' + i + '_inner').toggleClass('card_rotate_local', false);
 });
 

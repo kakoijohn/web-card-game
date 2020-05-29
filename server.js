@@ -80,8 +80,8 @@ function loadNewDeck(numCards, deckName) {
 
   for (var i = 0; i < numCards; i++) {
     deck[i] = {
-      card: (i + 1),
-      zIndex: (i + 1),
+      card: i,
+      zIndex: i,
       showCard: false,
       peekCardCol: '',
       x: deckStartX, 
@@ -146,7 +146,7 @@ function resetDeck() {
 	for (var i = 0; i < numCards; i++) {
 		deck[i].x = deckStartX;
 		deck[i].y = deckStartY;
-		deck[i].zIndex = i + 1;
+		deck[i].zIndex = i;
 		deck[i].showCard = false;
 		deck[i].peekCardCol = '';
 	}
