@@ -349,8 +349,8 @@ $(window).mousemove(function (evt) {
 		targetCard.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
 		//move the card locally on our screen before sending the data to the server.
-		$('#' + targetCard.id).css('left', targetCard.x + "%");
-		$('#' + targetCard.id).css('top', targetCard.y + "%");
+		// $('#' + targetCard.id).css('left', targetCard.x + "%");
+		// $('#' + targetCard.id).css('top', targetCard.y + "%");
 		//next send the card state to the server.
 		socket.emit('move card', targetCard);
 
@@ -398,10 +398,8 @@ $(window).mousemove(function (evt) {
 	playerInfo.stateChanged = true;
 });
 
-$(document).on('click', '.card', function(evt) {
+$(document).on('click', '.card', function() {
 	if (cardClick) {
-		targetCard.id = $(evt.target).attr('id');
-		targetCard.index = parseInt(targetCard.id.replace("card_", ''));
 		peekCurCard();
 		cardClick = false;
 	}
@@ -532,10 +530,10 @@ Listen for the sever for states of the deck, chips, and other players.
 //listen for the state of the deck from server
 socket.on('deck state', function(deck) {
   	for (var i = 0; i < numCards; i++) {
-  		if (targetCard.index != i || (targetCard.index == i && targetCard.released)) {
+  		// if (targetCard.index != i || (targetCard.index == i && targetCard.released)) {
   			$('#card_' + i).css('left', deck[i].x + "%");
   			$('#card_' + i).css('top', deck[i].y + "%");
-  		}
+  		// }
     	$('#card_' + i).css('z-index', deck[i].zIndex);
 
     	if (deck[i].showCard) {
