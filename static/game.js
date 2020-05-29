@@ -442,7 +442,7 @@ $(window).mouseup(function(evt) {
 //when card is double clicked
 $(document).on('dblclick', '.card', function(evt) {
 	var targetCardID = $(evt.target).attr('id');
-	var targetCardIndex = parseInt(targetCardID.replace("card_", '')) - 1;
+	var targetCardIndex = parseInt(targetCardID.replace("card_", ''));
 
 	socket.emit('flip card global', targetCardIndex);
 	socket.emit('card peek', {targetCardIndex, playerColor: ''});
