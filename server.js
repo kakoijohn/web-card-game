@@ -211,9 +211,6 @@ function snapChipToPlayer(uniqueChipID) {
 	}
 }
 
-// Add the WebSocket handlers
-io.on('connection', function(socket) {
-});
 
 var players = {};
 io.on('connection', function(socket) {

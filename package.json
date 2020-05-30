@@ -1,13 +1,13 @@
 {
-  "name": "web-card-game",
+  "name": "live-stream-feud",
   "version": "1.0.0",
-  "description": "This example is so cool.",
+  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "card game",
+    "live stream feud",
     "heroku"
   ],
   "author": "kakoijohn",
