@@ -208,10 +208,10 @@ Game Logic
 
 var targetCard = {
 	id: '',
-	index: 0,
+	index: -1,
   	x: 0,
   	y: 0,
-  	released: false
+  	released: true
 }
 
 var targetChip = {
@@ -219,13 +219,14 @@ var targetChip = {
 	x: 0,
 	y: 0,
 	targetUsername: '',
-	released: false
+	released: true
 }
 
 var targetNametag = {
 	nametagID: '',
 	x: 0,
 	y: 0,
+	released: true
 }
 
 var draggingCard;
@@ -266,6 +267,13 @@ $(document).on('mousedown', '.card', function(evt) {
 	} else if (evt.which == 3 || (evt.which == 1 && evt.metaKey) || (evt.which == 1 && evt.ctrlKey)) {
 		//right click event
 		peekCurCard();
+	}
+});
+
+$(document).on('click', '.card', function() {
+	if (cardClick) {
+		peekCurCard();
+		cardClick = false;
 	}
 });
 
@@ -315,6 +323,8 @@ $(document).on('mousedown', '.floating_nametag', function(evt) {
 		draggingCard = false;
 		drawing = false;
 
+		targetNametag.released = false;
+
 		offsetX = evt.pageX - $(evt.target).offset().left;
 		offsetY = evt.pageY - $(evt.target).offset().top;
 
@@ -349,8 +359,8 @@ $(window).mousemove(function (evt) {
 		targetCard.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
 		//move the card locally on our screen before sending the data to the server.
-		// $('#' + targetCard.id).css('left', targetCard.x + "%");
-		// $('#' + targetCard.id).css('top', targetCard.y + "%");
+		$('#' + targetCard.id).css('left', targetCard.x + "%");
+		$('#' + targetCard.id).css('top', targetCard.y + "%");
 		//next send the card state to the server.
 		socket.emit('move card', targetCard);
 
@@ -377,13 +387,20 @@ $(window).mousemove(function (evt) {
 		targetChip.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
 		//move the chip locally on our screen before sending the data to the server.
-		$('#' + targetChip.id).css('left', targetChip.x + "%");
-		$('#' + targetChip.id).css('top', targetChip.y + "%");
+		if (!targetChip.released) {
+			$('#' + targetChip.id).css('left', targetChip.x + "%");
+			$('#' + targetChip.id).css('top', targetChip.y + "%");
+		}
 		//next send the chip state to the server.
 		socket.emit('move chip', targetChip);
 	} else if (draggingNametag) {
 		targetNametag.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
 		targetNametag.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
+
+		if (!targetNametag.released) {
+			$('#' + targetNametag.nametagID).css('left', targetNametag.x + '%');
+			$('#' + targetNametag.nametagID).css('top',  targetNametag.y + '%');
+		}
 
 		socket.emit('move nametag', targetNametag);
 	}
@@ -398,19 +415,12 @@ $(window).mousemove(function (evt) {
 	playerInfo.stateChanged = true;
 });
 
-$(document).on('click', '.card', function() {
-	if (cardClick) {
-		peekCurCard();
-		cardClick = false;
-	}
-});
-
 $(window).mouseup(function(evt) {
-	if (draggingCard) {
-		socket.emit('move card', targetCard);
+	if (draggingCard)
 		draggingCard = false;
+
+	if (!targetCard.released)
 		targetCard.released = true;
-	}
 
 	if (drawing) {
 		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
@@ -425,9 +435,8 @@ $(window).mouseup(function(evt) {
 		drawing = false;
 	}
 
-	if (draggingChip) {
+	if (draggingChip)
 		draggingChip = false;
-	}
 
 	if (draggingChipConfirm) {
 		draggingChipConfirm = false;
@@ -435,8 +444,11 @@ $(window).mouseup(function(evt) {
 		socket.emit('release chip', targetChip);
 	}
 
-	if (draggingNametag)
+	if (draggingNametag) 
 		draggingNametag = false;
+
+	if (!targetNametag.released)
+		targetNametag.released = true;
 });
 
 //when card is double clicked
@@ -530,10 +542,10 @@ Listen for the sever for states of the deck, chips, and other players.
 //listen for the state of the deck from server
 socket.on('deck state', function(deck) {
   	for (var i = 0; i < numCards; i++) {
-  		// if (targetCard.index != i || (targetCard.index == i && targetCard.released)) {
+  		if (targetCard.index != i || targetCard.released) {
   			$('#card_' + i).css('left', deck[i].x + "%");
   			$('#card_' + i).css('top', deck[i].y + "%");
-  		// }
+  		}
     	$('#card_' + i).css('z-index', deck[i].zIndex);
 
     	if (deck[i].showCard) {
@@ -576,7 +588,7 @@ socket.on('chips state', function(chips) {
 			if ($('#' + id).length == 0)
 				$('.poker_table').append("<div id=\"" + id + "\" class=\"chip chip_" + chip.value + "\"></div>");
 
-			if (targetChip.id != id || (targetChip.id == id && targetChip.released)) {
+			if (targetChip.id != id || targetChip.released) {
 				$('#' + id).css('left', chip.x + "%");
 				$('#' + id).css('top', chip.y + "%");
 			}
@@ -624,8 +636,11 @@ socket.on('player state', function(players) {
 				$('#chip_100_holder h4').text(player.chips['chip_100']);
 		}
 
-		$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
-		$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
+		if (targetNametag.nametagID != (player.cleanID + '_floating_nametag') || targetNametag.released) {
+			$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
+			$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
+		}
+
 		var playerChipTotal = (player.chips['chip_1']) +
 							  (player.chips['chip_5'] * 5) +
 							  (player.chips['chip_25'] * 25) +

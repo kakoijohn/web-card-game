@@ -81,7 +81,7 @@ function loadNewDeck(numCards, deckName) {
   for (var i = 0; i < numCards; i++) {
     deck[i] = {
       card: i,
-      zIndex: (i + 1),
+      zIndex: i,
       showCard: false,
       peekCardCol: '',
       x: deckStartX, 
@@ -108,7 +108,7 @@ function shuffle(sDeck, numTimes) {
 }
 
 function dealCards(numPlayers, numCardsDealt) {
-	var cardZIndex = 1;
+	var cardZIndex = 0;
 	for (var j = 0; j < numCardsDealt; j++) {
 		for (var i = 0; i < numPlayers; i++) {
 			var cardX;
@@ -375,7 +375,7 @@ io.on('connection', function(socket) {
 		  if (deck[i].zIndex > currZIndex)
 		  	deck[i].zIndex = deck[i].zIndex - 1;
   	}
-  	deck[targetCardIndex].zIndex = numCards;
+  	deck[targetCardIndex].zIndex = numCards - 1;
 
     deckStateChanged = true;
   });
@@ -466,7 +466,7 @@ io.on('connection', function(socket) {
   });
 });
 
-//emit the state of the deck every 60ms
+//emit the state of the deck every 24ms if something changed.
 setInterval(function() {
   if (deckStateChanged) {
     io.sockets.emit('deck state', deck);
@@ -476,15 +476,18 @@ setInterval(function() {
     io.sockets.emit('chips state', chips);  
     chipStateChanged = false;
   }
-}, 1000 / 24);
-
-//emit the state of all players every 10ms
-setInterval(function() {
   if (playerStateChanged) {
     io.sockets.emit('player state', players);
     playerStateChanged = false;
   }
-}, 1000 / 10);
+}, 1000 / 24);
+
+//emit the state every ten seconds regardless of change.
+setInterval(function() {
+  io.sockets.emit('deck state', deck);
+  io.sockets.emit('chips state', chips);
+  io.sockets.emit('player state', players);
+}, 5000);
 
 
 function colorNameToHex(color) {
