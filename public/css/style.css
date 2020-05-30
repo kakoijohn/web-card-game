@@ -245,7 +245,7 @@ body {
 
   touch-action: none;
 
-  transform-style: preserve-3d;
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .chip:hover {
@@ -483,7 +483,7 @@ body {
 
   pointer-events: none;
 
-  transform-style: preserve-3d;
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .player_anim {
@@ -510,7 +510,7 @@ body {
 
   touch-action: none;
 
-  transform-style: preserve-3d;
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .floating_nametag .player_cash {
