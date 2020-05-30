@@ -49,7 +49,7 @@ const cardSeparationX = 2.1;
 const playerSeparationX = 20;
 const playerSeparationY = 25;
 
-const nametagStartX = 1;
+const nametagStartX = 11;
 const nametagStartY = 118;
 
 var chips = {
