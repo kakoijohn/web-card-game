@@ -1,4 +1,4 @@
-/** 
+/**
 
 Setup sockets and event listeners
 
@@ -56,7 +56,7 @@ var ctx = canvas.getContext('2d');
 var inMemCanvas = document.createElement('canvas');
 var inMemCtx = inMemCanvas.getContext('2d');
 
-/** 
+/**
 
 Construct the deck and the draw area
 
@@ -64,7 +64,7 @@ Construct the deck and the draw area
 
 $(document).ready(function() {
 	initTouchHandler();
-	
+
 	poker_tableWidth = $('.poker_table').width();
 	poker_tableHeight = $('.poker_table').height();
 
@@ -98,7 +98,7 @@ function loadDeck(numCardsVar, deckNameVar) {
 	    $('#' + cardID).remove();
 	});
 
-	//setup game board with numCards cards	
+	//setup game board with numCards cards
 	for (var i = 0; i < numCards; i++) {
 		$('.poker_table').append(
 			"<div id=\"card_" + i + "\" class=\"card\">" +
@@ -110,7 +110,7 @@ function loadDeck(numCardsVar, deckNameVar) {
 	}
 }
 
-/** 
+/**
 
 Set up our player variables and send the data to the server.
 
@@ -169,7 +169,7 @@ socket.on('new player notification', function(players) {
 			//we don't have a player by that id yet, create them on our game board.
 			$('body').append("<div class=\"player player_anim\" id=\"" + player.cleanID + "\"><div class=\"nametag\">" + player.username + "</div></div>");
 
-			$('.poker_table').append("<div class=\"floating_nametag\" id=\"" + player.cleanID + "_floating_nametag\">" + player.username + 
+			$('.poker_table').append("<div class=\"floating_nametag\" id=\"" + player.cleanID + "_floating_nametag\">" + player.username +
 									 "<div class=\"player_cash\"></div></div>");
 
 			$('#' + player.cleanID + "_floating_nametag").css('left', player.nametagX + '%');
@@ -200,7 +200,7 @@ socket.on('reload page', function() {
 	location.reload();
 });
 
-/** 
+/**
 
 Game Logic
 
@@ -241,7 +241,7 @@ var prevDrawPointY;
 var offsetX;
 var offsetY;
 
-/** 
+/**
 
 Player Mouse Events
 
@@ -278,11 +278,11 @@ $(document).on('click', '.card', function() {
 });
 
 function peekCurCard() {
-	//check to see if card is already face up, 
+	//check to see if card is already face up,
 	//if not we reveal it to the player then send a message to the server saying we flipped it.
 	if (! $('#' + targetCard.id + '_inner').hasClass('card_rotate_global')) {
 		$('#' + targetCard.id + '_inner').toggleClass('card_rotate_local');
-		
+
 		//if we are peeking that card, tell the server that we are peeking the card, else clear that value
 		if ($('#' + targetCard.id + '_inner').hasClass('card_rotate_local'))
 			socket.emit('card peek', {targetCardIndex: targetCard.index, playerColor: playerInfo.color});
@@ -311,7 +311,7 @@ $(document).on('mousedown', '.chip', function(evt) {
 
 		socket.emit('pickup chip', targetChip);
 
-		// console.log(((evt.pageX - offsetX) / poker_tableWidth * 100) + ", " + ((evt.pageY - offsetY) / poker_tableHeight * 100));	
+		// console.log(((evt.pageX - offsetX) / poker_tableWidth * 100) + ", " + ((evt.pageY - offsetY) / poker_tableHeight * 100));
 	}
 });
 
@@ -344,7 +344,7 @@ $(document).on('mousedown', '#drawing_area', function(evt) {
 		draggingNametag = false;
 
 		prevDrawPointX = evt.pageX / canvas.width;
-		prevDrawPointY = evt.pageY / canvas.height;	
+		prevDrawPointY = evt.pageY / canvas.height;
 	}
 });
 
@@ -366,15 +366,15 @@ $(window).mousemove(function (evt) {
 
 		if (cardClick) {
 			//bring the clicked card to the front.
-			socket.emit('target card to top', targetCard.index);	
+			socket.emit('target card to top', targetCard.index);
 		}
 
 		cardClick = false;
 	} else if (drawing) {
-		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
-			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height, 
+		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY,
+			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height,
 			playerID: playerInfo.cleanID, color: playerInfo.color, mode: cursorMode}
-		
+
 		//draw on our own cavas first
 		drawOnCanvas(data);
 		//next send that info over to the server.
@@ -397,7 +397,7 @@ $(window).mousemove(function (evt) {
 		targetNametag.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
 		targetNametag.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
-		if (!targetNametag.released) {
+		if (!targetNametag.released && targetNametag.nametagID != 'table_floating_nametag') {
 			$('#' + targetNametag.nametagID).css('left', targetNametag.x + '%');
 			$('#' + targetNametag.nametagID).css('top',  targetNametag.y + '%');
 		}
@@ -408,7 +408,7 @@ $(window).mousemove(function (evt) {
 	//move player cursor indicator
 	playerInfo.pointerX = evt.pageX / poker_tableWidth;
 	playerInfo.pointerY = evt.pageY / poker_tableHeight;
-	
+
 	$('#' + playerInfo.cleanID).css('left', evt.pageX);
 	$('#' + playerInfo.cleanID).css('top', evt.pageY);
 
@@ -423,10 +423,10 @@ $(window).mouseup(function(evt) {
 		targetCard.released = true;
 
 	if (drawing) {
-		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY, 
-			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height, 
+		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY,
+			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height,
 			playerID: playerInfo.cleanID, color: playerInfo.color, mode: cursorMode}
-		
+
 		//draw on our own cavas first
 		drawOnCanvas(data);
 		//next send that info over to the server.
@@ -444,7 +444,7 @@ $(window).mouseup(function(evt) {
 		socket.emit('release chip', targetChip);
 	}
 
-	if (draggingNametag) 
+	if (draggingNametag)
 		draggingNametag = false;
 
 	if (!targetNametag.released)
@@ -460,7 +460,7 @@ $(document).on('dblclick', '.card', function(evt) {
 	socket.emit('card peek', {targetCardIndex, playerColor: ''});
 });
 
-/** 
+/**
 
 Player Button Events
 
@@ -472,7 +472,7 @@ $(document).on('click', '.shuffle_btn', function(evt) {
 $(document).on('click', '.deal_submit_btn', function(evt) {
 	var numPlayers = $('#numplayers').val();
 	var numCardsDealt = $('#numcards').val();
-	
+
 	if (isNaN(numPlayers))
 		numPlayers = 0;
 	if (isNaN(numCardsDealt))
@@ -516,7 +516,7 @@ $(document).on('dblclick', '#eraser_icon', function(evt) {
 });
 
 
-/** 
+/**
 
 send our player state to the server
 
@@ -527,13 +527,13 @@ setInterval(function() {
 	//only emit the player state if we have received an id from the server.
 	if (playerInfo.username != 'null') {
 		if (playerInfo.stateChanged) {
-			socket.emit('broadcast player state', playerInfo);	
+			socket.emit('broadcast player state', playerInfo);
 			playerInfo.stateChanged = false;
 		}
 	}
 }, 1000 / 24);
 
-/** 
+/**
 
 Listen for the sever for states of the deck, chips, and other players.
 
@@ -592,7 +592,7 @@ socket.on('chips state', function(chips) {
 				$('#' + id).css('left', chip.x + "%");
 				$('#' + id).css('top', chip.y + "%");
 			}
-			
+
 			if (chip.moverColor != '')
 				$('#' + id).css('box-shadow', '0px 0px 0px 3px ' + chip.moverColor);
 			else
@@ -680,7 +680,7 @@ socket.on('reset chip', function(chipIndex) {
 });
 
 
-/** 
+/**
 
 canvas line drawing events
 
@@ -692,12 +692,12 @@ function drawOnCanvas(data) {
 	if (data.mode == 'pencil') {
 		ctx.globalCompositeOperation = 'source-over';
 		ctx.strokeStyle = data.color;
-		ctx.lineWidth = 3;	
+		ctx.lineWidth = 3;
 	} else if (data.mode == 'eraser') {
 		ctx.globalCompositeOperation = 'destination-out';
 		ctx.lineWidth = 20;
 	}
-	
+
 	ctx.moveTo(data.fromX * canvas.width, data.fromY * canvas.height);
 	ctx.lineTo(data.toX * canvas.width, data.toY * canvas.height);
 	ctx.lineJoin = ctx.lineCap = 'round';
@@ -717,7 +717,7 @@ socket.on('clear draw area', function() {
 
 
 
-/** 
+/**
 
 Youtube player stuff
 
@@ -781,7 +781,7 @@ Youtube player stuff
 
 // socket.on('pause youtube video', function() {
 // 	if (youtubePlayerEnabled) {
-// 		youtubePlayer.pauseVideo();	
+// 		youtubePlayer.pauseVideo();
 
 // 		$('#youtube_pause_play_btn').toggleClass('youtube_play_state_icon', true);
 // 		$('#youtube_pause_play_btn').toggleClass('youtube_pause_state_icon', false);
@@ -824,7 +824,7 @@ Youtube player stuff
 // 			}
 
 // 			socket.emit('queue youtube video', videoId);
-			
+
 // 			$('#youtube_player_link').val('');
 // 		}
 // 	}
