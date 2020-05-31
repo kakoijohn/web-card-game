@@ -5,8 +5,38 @@ Setup sockets and event listeners
 **/
 
 var socket = io();
+var serverWasConnected = false;
+
 socket.on('message', function(data) {
   console.log(data);
+});
+
+socket.on('disconnect', function() {
+  console.log("Disconnected from server... Waiting for reconnect...");
+  $('.disconnected_screen').css('display', 'block');
+});
+
+socket.on('connect', function() {
+  if (serverWasConnected) {
+    $('.player').each(function(index) {
+      $(this).remove();
+    });
+    $('.floating_nametag').each(function(index) {
+      $(this).remove();
+    });
+
+    var username = $('#dname').val();
+  	var color = $('#dcolor').val();
+
+  	//let the server know we have a new player every 5 seconds until we receive a response.
+  	socket.emit('new player', {username, color});
+  	newPlayerCall = setInterval(function() {
+  		socket.emit('new player', {username, color});
+  	}, 5000);
+
+    console.log("Re-established connection to server.");
+    $('.disconnected_screen').css('display', 'none');
+  }
 });
 
 //disable right click default function
@@ -131,6 +161,7 @@ var playerInfo = {
 
 //setup the user on the server
 var newPlayerCall;
+
 $(document).on('click', '.name_submit_btn', function(evt) {
 	var username = $('#dname').val();
 	var color = $('#dcolor').val();
@@ -156,6 +187,7 @@ socket.on('new player confirmation', function(newPlayer) {
 	cursorMode =  'pointer';
 
 	clearInterval(newPlayerCall);
+  serverWasConnected = true;
 
 	//hide the loading bar once we have submitted the info to the server
 	$('.loading_area').css('display', 'none');

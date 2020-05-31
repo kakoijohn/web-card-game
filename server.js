@@ -84,7 +84,7 @@ function loadNewDeck(numCards, deckName) {
       zIndex: i,
       showCard: false,
       peekCardCol: '',
-      x: deckStartX, 
+      x: deckStartX,
       y: deckStartY
     };
   }
@@ -173,10 +173,10 @@ function createNewChip(owner, moverUsername, moverColor, value, x, y) {
 }
 
 function moveChipOwnership(fromOwner, toNewOwner, uniqueChipID) {
-	//first make sure the chip actually exists 
+	//first make sure the chip actually exists
 	if (chips[uniqueChipID] != undefined) {
 		//then make sure the from and to owners are valid
-		if ((players[fromOwner] != undefined || fromOwner == "house" || fromOwner == "table") 
+		if ((players[fromOwner] != undefined || fromOwner == "house" || fromOwner == "table")
 			&& (players[toNewOwner] != undefined || toNewOwner == "house" || toNewOwner == "table")) {
 			//verify first that the fromOwner is actually the owner of this chip
 			if (chips[uniqueChipID].owner == fromOwner) {
@@ -186,7 +186,7 @@ function moveChipOwnership(fromOwner, toNewOwner, uniqueChipID) {
 					players[fromOwner].chips["chip_" + chips[uniqueChipID].value]--;
 				if (players[toNewOwner] != undefined)
 					players[toNewOwner].chips["chip_" + chips[uniqueChipID].value]++;
-			}			
+			}
 		}
 	}
 }
@@ -196,7 +196,7 @@ function snapChipToPlayer(uniqueChipID) {
 		io.sockets.emit('reset chip', uniqueChipID);
 
 		var multiplier = 0;
-		
+
 		if (chips[uniqueChipID].value == 5)
 			multiplier = 1;
 		else if (chips[uniqueChipID].value == 25)
@@ -214,7 +214,7 @@ function snapChipToPlayer(uniqueChipID) {
 
 var players = {};
 io.on('connection', function(socket) {
-  
+
   socket.on('new player', function(user) {
   	var username = user.username;
   	var color = user.color;
@@ -223,14 +223,14 @@ io.on('connection', function(socket) {
   		username = socket.id;
 
   	if (color == null || color == "" || colorNameToHex(color) == false)
-  		color = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' 
-                     + (Math.floor(Math.random() * 256)) + ',' 
+  		color = 'rgb(' + (Math.floor(Math.random() * 256)) + ','
+                     + (Math.floor(Math.random() * 256)) + ','
                      + (Math.floor(Math.random() * 256)) + ')';
 
   	var cleanID = username.replace(/[^a-zA-Z0-9]/g, '_');
 
   	if (players[cleanID] == undefined) {
-  		//create a new player if that username doesn't exist 
+  		//create a new player if that username doesn't exist
   		players[cleanID] = {
   			cleanID: cleanID,
   			username: username,
@@ -311,7 +311,7 @@ io.on('connection', function(socket) {
   			players[playerID].nametagY = targetNametag.y;
 
         playerStateChanged = true;
-  		}	
+  		}
   	}
   });
 
@@ -470,7 +470,7 @@ setInterval(function() {
     deckStateChanged = false;
   }
   if (chipStateChanged) {
-    io.sockets.emit('chips state', chips);  
+    io.sockets.emit('chips state', chips);
     chipStateChanged = false;
   }
   if (playerStateChanged) {
@@ -629,7 +629,7 @@ function consolecmd(text) {
     "give [username] [amount]" + '\n' +
     "-- gives the specified user the amount of chips (divided to the largest chip denominator" + '\n' +
     "payout [username]" + '\n' +
-    "-- pays all the chips currently on the table to the specified player" + '\n' + 
+    "-- pays all the chips currently on the table to the specified player" + '\n' +
     "loaddeck [deck name]" + '\n' +
     "-- loads a specified deck to the server (available: standard, euchre)" + '\n' +
     "removeuser [username]" + '\n' +

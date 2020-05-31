@@ -161,9 +161,23 @@ body {
   }
 }
 
+.disconnected_screen {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 999;
+  background-color: #ffffff80;
+  text-align: center;
+}
+
+.disconnected_screen h1 {
+  position: relative;
+  top: 25%;
+}
+
 .card {
   position: absolute;
-  width: 8vw; 
+  width: 8vw;
   height: 11.2vw;
 
   background-color: transparent;
@@ -211,7 +225,7 @@ body {
   background-position: center !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
-  
+
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
 }
@@ -230,7 +244,7 @@ body {
 
 .chip {
   position: absolute;
-  width: 5.6vw; 
+  width: 5.6vw;
   height: 5.6vw;
 
   background-color: transparent;
