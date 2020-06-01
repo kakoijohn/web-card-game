@@ -347,6 +347,14 @@ $(document).on('mousedown', '.chip', function(evt) {
 	}
 });
 
+$(document).on('click', '.chip', function() {
+  if (draggingChipConfirm) {
+    draggingChipConfirm = false;
+    targetChip.released = true;
+    socket.emit('release chip', targetChip);
+  }
+});
+
 $(document).on('mousedown', '.floating_nametag', function(evt) {
 	if (evt.which == 1) {
 		//left click event
