@@ -162,18 +162,31 @@ var playerInfo = {
 //setup the user on the server
 var newPlayerCall;
 
+function newPlayerSubmit() {
+  var username = $('#dname').val();
+  var color = $('#dcolor').val();
+
+  //let the server know we have a new player every 5 seconds until we receive a response.
+  socket.emit('new player', {username, color});
+  newPlayerCall = setInterval(function() {
+    socket.emit('new player', {username, color});
+  }, 5000);
+
+  //hide the form once we have submitted the info to the server
+  $('.display_name_form').css('display', 'none');
+}
+
 $(document).on('click', '.name_submit_btn', function(evt) {
-	var username = $('#dname').val();
-	var color = $('#dcolor').val();
+  newPlayerSubmit();
+});
 
-	//let the server know we have a new player every 5 seconds until we receive a response.
-	socket.emit('new player', {username, color});
-	newPlayerCall = setInterval(function() {
-		socket.emit('new player', {username, color});
-	}, 5000);
-
-	//hide the form once we have submitted the info to the server
-	$('.display_name_form').css('display', 'none');
+$('#dname').keypress(function(event) {
+    if (event.keyCode == 13 || event.which == 13)
+        newPlayerSubmit();
+});
+$('#dcolor').keypress(function(event) {
+    if (event.keyCode == 13 || event.which == 13)
+        newPlayerSubmit();
 });
 
 socket.on('new player confirmation', function(newPlayer) {
@@ -267,6 +280,7 @@ var draggingChip;
 var draggingChipConfirm;
 var draggingNametag;
 var drawing;
+var deckResetting;
 var cursorMode;
 var prevDrawPointX;
 var prevDrawPointY;
@@ -499,18 +513,21 @@ Player Button Events
 **/
 
 $(document).on('click', '.shuffle_btn', function(evt) {
-	socket.emit('shuffle cards');
+  if (!deckResetting)
+	 socket.emit('shuffle cards');
 });
 $(document).on('click', '.deal_submit_btn', function(evt) {
-	var numPlayers = $('#numplayers').val();
-	var numCardsDealt = $('#numcards').val();
+  if (!deckResetting) {
+    var numPlayers = $('#numplayers').val();
+    var numCardsDealt = $('#numcards').val();
 
-	if (isNaN(numPlayers))
-		numPlayers = 0;
-	if (isNaN(numCardsDealt))
-		numCardsDealt = 0;
+    if (isNaN(numPlayers))
+      numPlayers = 0;
+    if (isNaN(numCardsDealt))
+      numCardsDealt = 0;
 
-	socket.emit('deal cards', {numPlayers, numCardsDealt});
+    socket.emit('deal cards', {numPlayers, numCardsDealt});
+  }
 });
 
 $(document).on('click', '#pointer_icon', function(evt) {
@@ -693,8 +710,10 @@ socket.on('pickup confirmation', function(targetPickupChip) {
 socket.on('reset deck', function() {
 	//animate the cards returning to the deck
 	$('.card').toggleClass('card_return_to_deck_anim', true);
+  deckResetting = true;
 	setTimeout(function() {
 		$('.card').toggleClass('card_return_to_deck_anim', false);
+    deckResetting = false;
 	}, 1000);
 
 	//reset the peek state of all cards in deck
