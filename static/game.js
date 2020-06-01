@@ -5,7 +5,7 @@ Setup sockets and event listeners
 **/
 
 var socket = io();
-var serverWasConnected = false;
+var socketWasConnected = false;
 
 socket.on('message', function(data) {
   console.log(data);
@@ -17,7 +17,7 @@ socket.on('disconnect', function() {
 });
 
 socket.on('connect', function() {
-  if (serverWasConnected) {
+  if (socketWasConnected) {
     $('.player').each(function(index) {
       $(this).remove();
     });
@@ -187,7 +187,7 @@ socket.on('new player confirmation', function(newPlayer) {
 	cursorMode =  'pointer';
 
 	clearInterval(newPlayerCall);
-  serverWasConnected = true;
+  socketWasConnected = true;
 
 	//hide the loading bar once we have submitted the info to the server
 	$('.loading_area').css('display', 'none');
@@ -924,6 +924,10 @@ Client Side server commands
 */
 
 function servercmd(command) {
+	socket.emit('console command', command);
+}
+
+function scmd(command) {
 	socket.emit('console command', command);
 }
 
