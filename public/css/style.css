@@ -49,7 +49,7 @@ body {
 }
 
 .display_name_form {
-  position: fixed;
+  position: absolute;
   z-index: 1000;
   height: 100%;
   width: 100%;
@@ -63,6 +63,28 @@ body {
   margin: 0 auto;
   top: 10%;
   vertical-align: middle;
+}
+
+.display_name_form .form_inner div {
+  width: 22em;
+}
+
+.display_name_form .form_inner input {
+  display: table;
+  margin: 0 auto;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+
+  padding: 3vh;
+  border-radius: 3vh;
+  border-width: 0.3vh;
+  border-style: solid;
+  border-color: black;
+
+  width: 100%;
+
+  text-align: center;
+  font-size: 1em;
 }
 
 .display_name_form img {
@@ -80,19 +102,38 @@ body {
 }
 
 .display_name_form .name_submit_btn {
-  height: 2vw;
-  width: 8vw;
+  position: relative;
+  display: table;
   margin: 0 auto;
-  padding-top: 7px;
-  padding-bottom: 7px;
-  border-radius: 5px;
-
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+  vertical-align: middle;
   text-align: center;
-  font-size: 0.8em;
+
+  padding-top: 3vh;
+  padding-bottom: 3vh;
 
   background-color: orange;
+  color: white;
+  border-radius: 3vh;
 
   cursor: pointer;
+}
+
+@media screen and (orientation:portrait) and (max-width: 992px) {
+  .display_name_form .form_inner div {
+    width: 25em;
+    font-size: 2em;
+  }
+  .display_name_form .form_inner input {
+    font-size: 2em;
+  }
+  .display_name_form .name_submit_btn {
+    font-size: 2em;
+  }
+  .display_name_form img:hover {
+    width: 90vw;
+  }
 }
 
 .loading_area {
