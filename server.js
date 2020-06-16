@@ -64,6 +64,7 @@ var chips = {
 const chipStartX = 43.12;
 const chipStartY = 102.52;
 const chipSeparationX = 6.75;
+const chipRadius = 5;
 
 var uniqueChipIDcounter = 0;
 
@@ -318,16 +319,17 @@ io.on('connection', function(socket) {
   socket.on('release chip', function(targetChip) {
   	if (chips[targetChip.id] != undefined) {
       chips[targetChip.id].moverUsername = '';
+      var chipX = chips[targetChip.id].x + chipRadius;
+      var chipY = chips[targetChip.id].y + chipRadius;
 
-  		if (chips[targetChip.id].y > 100 && chips[targetChip.id].owner != targetChip.targetUsername) {
+  		if (chipY > 100 && chips[targetChip.id].owner != targetChip.targetUsername) {
   			moveChipOwnership(chips[targetChip.id].owner, targetChip.targetUsername, targetChip.id);
-  		} else if (chips[targetChip.id].y < 100 && chips[targetChip.id].owner != 'table') {
+  		} else if (chipY < 100 && chips[targetChip.id].owner != 'table') {
   			moveChipOwnership(chips[targetChip.id].owner, 'table', targetChip.id);
   		}
 
   		//chip splitter function
-  		if (chips[targetChip.id].x > 67  && chips[targetChip.id].x < 75 &&
-  			chips[targetChip.id].y > 123 && chips[targetChip.id].y < 138) {
+  		if (chipX > 80  && chipX < 88 && chipY > 103 && chipY < 118) {
   			var chipVal = chips[targetChip.id].value;
   			if (chipVal != 1) {
   				moveChipOwnership(chips[targetChip.id].owner, 'house', targetChip.id);
@@ -356,7 +358,7 @@ io.on('connection', function(socket) {
   			}
   		}
 
-  		if (chips[targetChip.id].y > 100) {
+  		if (chipY > 100) {
   			snapChipToPlayer(targetChip.id);
         chips[targetChip.id].moverColor = '';
       }
@@ -380,7 +382,7 @@ io.on('connection', function(socket) {
   socket.on('flip card global', function(targetCardIndex) {
   	deck[targetCardIndex].showCard = !deck[targetCardIndex].showCard;
 
-  	// console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
+  	console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
     deckStateChanged = true;
   });
 

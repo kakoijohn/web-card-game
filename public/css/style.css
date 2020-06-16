@@ -473,8 +473,8 @@ body {
 
   width: 8vw;
   height: 8vw;
-  top: 62vw;
-  left: 67.5vw;
+  top: 51.5vw;
+  left: 77.5vw;
 
   border-radius: 10px;
   background-color: orange;
@@ -588,6 +588,10 @@ body {
 
 #table_floating_nametag .player_cash {
   border-color: orange;
+}
+
+#table_floating_nametag:hover {
+  cursor: default;
 }
 
 .info_text {

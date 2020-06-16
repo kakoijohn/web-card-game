@@ -695,8 +695,13 @@ socket.on('player state', function(players) {
 							  (player.chips['chip_25'] * 25) +
 							  (player.chips['chip_50'] * 50) +
 							  (player.chips['chip_100'] * 100);
-		if ($('#' + player.cleanID + '_floating_nametag .player_cash').text() != ('$ ' + playerChipTotal))
-			$('#' + player.cleanID + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
+    
+		if ($('#' + player.cleanID + '_floating_nametag .player_cash').text() != ('$ ' + playerChipTotal)) {
+      if (playerChipTotal == 0)
+        $('#' + player.cleanID + '_floating_nametag .player_cash').text('');
+      else
+        $('#' + player.cleanID + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
+    }			
 	}
 });
 
