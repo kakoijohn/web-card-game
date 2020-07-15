@@ -11,11 +11,6 @@ socket.on('message', function(data) {
   console.log(data);
 });
 
-socket.on('disconnect', function() {
-  console.log("Disconnected from server... Waiting for reconnect...");
-  $('.disconnected_screen').css('display', 'block');
-});
-
 socket.on('connect', function() {
   if (socketWasConnected) {
     $('.player').each(function(index) {
@@ -37,6 +32,11 @@ socket.on('connect', function() {
     console.log("Re-established connection to server.");
     $('.disconnected_screen').css('display', 'none');
   }
+});
+
+socket.on('disconnect', function() {
+  console.log("Disconnected from server... Waiting for reconnect...");
+  $('.disconnected_screen').css('display', 'block');
 });
 
 //disable right click default function
@@ -701,7 +701,7 @@ socket.on('player state', function(players) {
         $('#' + player.cleanID + '_floating_nametag .player_cash').text('');
       else
         $('#' + player.cleanID + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
-    }			
+    }
 	}
 });
 
