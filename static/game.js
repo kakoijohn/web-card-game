@@ -666,6 +666,12 @@ socket.on('player state', function(players) {
 			//if not us we update everyone else's cursor on our screen
 			$('#' + player.cleanID).css('left', player.pointerX * poker_tableWidth);
 			$('#' + player.cleanID).css('top', player.pointerY * poker_tableHeight);
+      
+      // if  the player's cursor is underneath the poker table, dont display it.
+      if (player.pointerY > 1)
+        $('#' + player.cleanID).css('display', 'none');
+      else
+        $('#' + player.cleanID).css('display', '');
 
 			if (player.nametagY > 100)
 				$('#' + player.cleanID + "_floating_nametag").css('display', 'none');

@@ -606,6 +606,11 @@ function consolecmd(text) {
     } else {
       response = 'Error: Invalid deck name, or that deck is already loaded.';
     }
+  } else if (command[0] == 'listusers') {
+    for (var id in players) {
+      var player = players[id];
+      response += 'id: ' + id + ', username: ' + player.username + ', color: ' + player.color + '\n';
+    }
   } else if (command[0] == 'removeuser' && command[1] != undefined) {
     var username = command[1];
     if (players[username] != undefined) {
@@ -634,6 +639,8 @@ function consolecmd(text) {
     "-- pays all the chips currently on the table to the specified player" + '\n' +
     "loaddeck [deck name]" + '\n' +
     "-- loads a specified deck to the server (available: standard, euchre)" + '\n' +
+    "listusers" + '\n' +
+    "-- lists all the players currently on the server." + '\n' +
     "removeuser [username]" + '\n' +
     "-- removes the specified user from the server." + '\n' +
     "resetserver" + '\n' +
