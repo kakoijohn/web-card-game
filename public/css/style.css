@@ -597,7 +597,7 @@ body {
   height: 3vw;
   width: 1.8vw;
   
-  transition: all 0.05s;
+  transition: all 0.1s;
 }
 
 .tank_gun {
@@ -618,7 +618,7 @@ body {
   height: 3vw;
   width: 1.8vw;
   
-  transition: all 0.05s;
+  transition: all 0.1s;
 }
 
 .tank:hover {
@@ -627,6 +627,29 @@ body {
 
 .tank:active {
   cursor: grabbing;
+}
+
+.cannonball {
+  position: absolute;
+  
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+
+  touch-action: none;
+
+  -webkit-transform: translate3d(0,0,0);
+  
+  background: url('/resources/vehicles/cannonball.svg');
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  
+  height: 1vw;
+  width: 1vw;
+  
+  transition: all 0.1s;
 }
 
 #table_floating_nametag {

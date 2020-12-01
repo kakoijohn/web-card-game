@@ -55,8 +55,10 @@ const nametagStartY = 118;
 const tankStartX = 3;
 const tankStartY = 118;
 const tankStartRot = 0;
-const tankStepDist = 1;
+const tankSpeed = 1;
 const tankRotDist = 5;
+const cBallLifespan = 6000; // lifetime of cannonball in milliseconds
+const cBallSpeed = 2;
 
 var chips = {
   owner: '',
@@ -245,11 +247,21 @@ io.on('connection', function(socket) {
   			pointerY: 0,
   			nametagX: nametagStartX,
   			nametagY: nametagStartY,
+        
+  			color: color,
+        
         tankX: tankStartX,
         tankY: tankStartY,
         tankRot: tankStartRot,
         gunRot: tankStartRot,
-  			color: color,
+        cBall: {
+          x: 0,
+          y: 0,
+          xComp: 0,
+          yComp: 0,
+          spawnTimer: 0,
+          exists: false
+        },
 
   			chips: {chip_1: 0, chip_5: 0, chip_25: 0, chip_50: 0, chip_100: 0}
   		};
@@ -327,8 +339,8 @@ io.on('connection', function(socket) {
   });
   
   socket.on('drag tank', function(targetTank) {
-  	if (targetTank.tankID != undefined) {
-  		var playerID = targetTank.tankID.replace("_tank", '');
+  	if (targetTank.playerID != undefined) {
+  		var playerID = targetTank.playerID;
       
   		if (players[playerID] != undefined) {
   			players[playerID].tankX = targetTank.x;
@@ -340,12 +352,12 @@ io.on('connection', function(socket) {
   });
   
   socket.on('steer tank', function(targetTank) {
-    if (targetTank.tankID != undefined) {
-  		var playerID = targetTank.tankID.replace("_tank", '');
+    if (targetTank.playerID != undefined) {
+  		var playerID = targetTank.playerID;
       
   		if (players[playerID] != undefined) {
-  			players[playerID].tankX += targetTank.x * tankStepDist * 0.5; // since the table is half as tall as it is wide
-        players[playerID].tankY += targetTank.y * tankStepDist;
+  			players[playerID].tankX += targetTank.x * tankSpeed * 0.5; // since the table is half as tall as it is wide
+        players[playerID].tankY += targetTank.y * tankSpeed;
         
         players[playerID].tankRot += targetTank.rot * tankRotDist;
         players[playerID].gunRot  += targetTank.gunRot * tankRotDist;
@@ -355,6 +367,28 @@ io.on('connection', function(socket) {
         playerStateChanged = true;
   		}
   	}
+  });
+  
+  socket.on('spawn cannonball', function(targetTank) {
+    if (targetTank.playerID != undefined) {
+      var playerID = targetTank.playerID;
+      
+      if (players[playerID] != undefined) {
+        var x = players[playerID].tankX;
+        var y = players[playerID].tankY;
+        var xComp = targetTank.x;
+        var yComp = targetTank.y;
+        
+        players[playerID].cBall.x = x + 0.9;
+        players[playerID].cBall.y = y + 1.5;
+        players[playerID].cBall.xComp = xComp;
+        players[playerID].cBall.yComp = yComp;
+        players[playerID].cBall.spawnTimer = Date.now();
+        players[playerID].cBall.exists = true;
+        
+        playerStateChanged = true;
+      }
+    }
   });
 
   socket.on('release chip', function(targetChip) {
@@ -466,48 +500,54 @@ io.on('connection', function(socket) {
   socket.on('clear draw area', function() {
   	io.sockets.emit('clear draw area');
   });
-
-  // Youtube Player Stuff
-  socket.on('queue youtube video', function(videoID) {
-  	videoQueue.push(videoID);
-  	if (videoQueue.length == 1) {
-  		currVideoIndex++;
-  		io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
-  	}
-  });
-
-  socket.on('pause youtube video', function() {
-  	io.sockets.emit('pause youtube video');
-  });
-
-  socket.on('play youtube video', function() {
-  	io.sockets.emit('play youtube video');
-  });
-
-  socket.on('play next video', function() {
-  	currVideoIndex++;
-  	if (currVideoIndex == videoQueue.length)
-  		currVideoIndex = 0;
-
-  	io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
-  });
-
-  socket.on('play previous video', function() {
-  	currVideoIndex--;
-  	if (currVideoIndex == -1)
-  		currVideoIndex = videoQueue.length - 1;
-
-  	io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
-  });
-
+  
+  // console commands
   socket.on('console command', function(command) {
     var response = consolecmd(command);
     socket.emit('console response', response);
   });
+
+/**
+  // // Youtube Player Stuff
+  // socket.on('queue youtube video', function(videoID) {
+  // 	videoQueue.push(videoID);
+  // 	if (videoQueue.length == 1) {
+  // 		currVideoIndex++;
+  // 		io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
+  // 	}
+  // });
+  //
+  // socket.on('pause youtube video', function() {
+  // 	io.sockets.emit('pause youtube video');
+  // });
+  //
+  // socket.on('play youtube video', function() {
+  // 	io.sockets.emit('play youtube video');
+  // });
+  //
+  // socket.on('play next video', function() {
+  // 	currVideoIndex++;
+  // 	if (currVideoIndex == videoQueue.length)
+  // 		currVideoIndex = 0;
+  //
+  // 	io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
+  // });
+  //
+  // socket.on('play previous video', function() {
+  // 	currVideoIndex--;
+  // 	if (currVideoIndex == -1)
+  // 		currVideoIndex = videoQueue.length - 1;
+  //
+  // 	io.sockets.emit('load youtube video', videoQueue[currVideoIndex]);
+  // });
+**/
+
 });
 
 //emit the state of the deck every 24ms if something changed.
 setInterval(function() {
+  updateCannonballs();
+  
   if (deckStateChanged) {
     io.sockets.emit('deck state', deck);
     deckStateChanged = false;
@@ -521,6 +561,25 @@ setInterval(function() {
     playerStateChanged = false;
   }
 }, 1000 / 24);
+
+function updateCannonballs() {
+  for (var id in players) {
+    if (players[id].cBall.exists) {
+      var cBallAge = Date.now() - players[id].cBall.spawnTimer;
+      if (cBallAge > cBallLifespan) {
+        // if the cannonball has reached the end of its life, remove it
+        players[id].cBall.exists = false;
+        
+        playerStateChanged = true;
+      } else {
+        players[id].cBall.x += players[id].cBall.xComp * cBallSpeed * 0.5; // since the table is half as tall as it is wide
+        players[id].cBall.y += players[id].cBall.yComp * cBallSpeed;
+        
+        playerStateChanged = true;
+      }
+    }
+  }
+}
 
 //emit the state every ten seconds regardless of change.
 setInterval(function() {

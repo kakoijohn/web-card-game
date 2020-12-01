@@ -241,12 +241,17 @@ socket.on('new player notification', function(players) {
       $('.poker_table').append("<div class=\"tank\" id=\"" + player.cleanID + "_tank\">" +
                    $('#tank_base_svg_template').html().replace('user-fill-var', player.color + ' !important').replace(/st1/g, player.cleanID + '_user_tank_color') +
                    "<div class=\"tank_gun\" id=\"" + player.cleanID + "_tank_gun\">" + $('#tank_gun_svg_template').html() + "</div></div>");
+                   
+      $('.poker_table').append("<div class=\"cannonball\" id=\"" + player.cleanID + "_cannonball\"></div>");
 
 			$('#' + player.cleanID + "_floating_nametag").css('left', player.nametagX + '%');
 			$('#' + player.cleanID + "_floating_nametag").css('top', player.nametagY + '%');
       
       $('#' + player.cleanID + "_tank").css('left', player.tankX + '%');
 			$('#' + player.cleanID + "_tank").css('top', player.tankY + '%');
+      
+      $('#' + player.cleanID + "_cannonball").css('left', player.cBall.x + '%');
+			$('#' + player.cleanID + "_cannonball").css('top', player.cBall.y + '%');
 		}
 
 		//toggle animation off for our cursor.
@@ -283,9 +288,9 @@ Game Logic
 var targetCard = {
 	id: '',
 	index: -1,
-  	x: 0,
-  	y: 0,
-  	released: true
+	x: 0,
+	y: 0,
+	released: true
 }
 
 var targetChip = {
@@ -304,7 +309,7 @@ var targetNametag = {
 }
 
 var targetTank = {
-  tankID: '',
+  playerID: '',
   x: 0,
   y: 0,
   rot: 0,
@@ -332,6 +337,7 @@ var lArrow = false;
 var rArrow = false;
 var rGunMove = false;
 var lGunMove = false;
+var gunFire = false;
 
 /**
 
@@ -445,7 +451,7 @@ $(document).on('mousedown', '.tank', function(evt) {
 
 		var targetTankID = $(evt.target).attr('id');
 
-		targetTank.tankID = targetTankID;
+		targetTank.playerID = targetTankID.replace('_tank', '');
 	}
 });
 
@@ -481,6 +487,10 @@ $(document).on('keydown', function(evt) {
       // s key
       dArrow = true;
       break;
+    case 32:
+      // space bar
+      gunFire = true;
+      break;
 	}
 });
 
@@ -515,6 +525,10 @@ $(document).on('keyup', function(evt) {
     case 83:
       // s key
       dArrow = false;
+      break;
+    case 32:
+      // space bar
+      gunFire = false;
       break;
 	}
 });
@@ -592,8 +606,8 @@ $(window).mousemove(function (evt) {
 		targetTank.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
     
     if (!targetTank.released) {
-      $('#' + targetTank.tankID).css('left', targetTank.x + '%');
-      $('#' + targetTank.tankID).css('top',  targetTank.y + '%');
+      $('#' + targetTank.playerID + '_tank').css('left', targetTank.x + '%');
+      $('#' + targetTank.playerID + '_tank').css('top',  targetTank.y + '%');
     }
 
 		socket.emit('drag tank', targetTank);
@@ -735,9 +749,10 @@ setInterval(function() {
     // if any of the arrow keys are pressed, move the tank
     if (uArrow || lArrow || rArrow || dArrow || rGunMove || lGunMove)
       moveTank();
+    if (gunFire)
+      fireCannon();
 	}
 }, 1000 / 24);
-
 
 function moveTank() {
   var moveDir = 0;
@@ -766,13 +781,23 @@ function moveTank() {
   }
   
   if (moveX != 0 || moveY != 0 || moveRot != 0 || gunRot != 0) {
-    targetTank.tankID = playerInfo.cleanID + '_tank';
+    targetTank.playerID = playerInfo.cleanID;
     targetTank.x = moveX;
 		targetTank.y = moveY;
     targetTank.rot = moveRot;
     targetTank.gunRot = gunRot;
     socket.emit('steer tank', targetTank);
   }
+}
+
+function fireCannon() {
+  targetTank.playerID = playerInfo.cleanID;
+  
+  var curTankRot = getRotationDegrees($('#' + playerInfo.cleanID + '_tank')) + getRotationDegrees($('#' + playerInfo.cleanID + '_tank_gun'));
+  targetTank.x = Math.sin(curTankRot * (Math.PI / 180));
+  targetTank.y = -1 * Math.cos(curTankRot * (Math.PI / 180));
+  
+  socket.emit('spawn cannonball', targetTank);
 }
 
 function getRotationDegrees(obj) {
@@ -886,10 +911,10 @@ socket.on('player state', function(players) {
 			else
 				$('#' + player.cleanID + "_floating_nametag").css('display', '');
         
-        if (player.tankY > 100)
-  				$('#' + player.cleanID + "_tank").css('display', 'none');
-  			else
-  				$('#' + player.cleanID + "_tank").css('display', '');
+      if (player.tankY > 100)
+				$('#' + player.cleanID + "_tank").css('display', 'none');
+			else
+				$('#' + player.cleanID + "_tank").css('display', '');
 		} else {
 			//update our chip count.
 			if ($('#chip_1_holder h4').text() != player.chips['chip_1'])
@@ -919,6 +944,23 @@ socket.on('player state', function(players) {
 		$('#' + player.cleanID + '_tank').css('top', player.tankY + '%');
     $('#' + player.cleanID + '_tank').css('transform', 'rotate(' + player.tankRot + 'deg)');
     $('#' + player.cleanID + '_tank_gun').css('transform', 'rotate(' + player.gunRot + 'deg)');
+    
+    if (player.cBall.exists) {
+      if (player.cBall.x > 100 || player.cBall.x < 0 || player.cBall.y > 100 || player.cBall.y < 0) {
+        $('#' + player.cleanID + "_cannonball").css('display', 'none');
+      } else {
+        // if not off the screen and cannoball exists
+        $('#' + player.cleanID + '_cannonball').css('display', '');
+        $('#' + player.cleanID + '_cannonball').css('left', player.cBall.x + '%');
+        $('#' + player.cleanID + '_cannonball').css('top', player.cBall.y + '%');
+      }
+    } else {
+      $('#' + player.cleanID + '_cannonball').css('display', 'none');
+    }
+    
+    //cannonball updates
+    if (player.cBall.exists) {
+    }
 
 		var playerChipTotal = (player.chips['chip_1']) +
 							  (player.chips['chip_5'] * 5) +
@@ -1009,7 +1051,7 @@ Youtube player stuff
 
 **/
 
-
+/**
 // var youtubePlayerEnabled = true;
 // var youtubePlaying = false;
 // var youtubeVolume = 1;
@@ -1161,6 +1203,7 @@ Youtube player stuff
 // $(document).on('click', '#youtube_previous_btn', function(evt) {
 // 	socket.emit('play previous video');
 // });
+// **/
 
 
 /**
