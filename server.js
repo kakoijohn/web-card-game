@@ -3,10 +3,13 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var socketIO = require('socket.io');
+const { Collisions } = require('detect-collisions');
 
 var app = express();
 var server = http.Server(app);
 var io = socketIO(server);
+const collisionSystem = new Collisions();
+const collisionResult = collisionSystem.createResult();
 
 process.stdin.resume();
 process.stdin.setEncoding('utf8');
@@ -161,6 +164,21 @@ function resetDeck() {
 	}
 }
 
+function resetTankPos(playerID) {
+  players[playerID].tankX = tankStartX; // since the table is half as tall as it is wide
+  players[playerID].tankY = tankStartY;
+  
+  players[playerID].tankRot = tankStartRot;
+  players[playerID].gunRot  = tankStartRot;
+  
+  // update colliders
+  playerColliders[playerID].tankCollider.x = tankStartX;
+  playerColliders[playerID].tankCollider.y = tankStartY;
+  playerColliders[playerID].tankCollider.angle = 0;
+  
+  playerStateChanged = true;
+}
+
 function findCardAt(zIndex) {
 	for (var i = 0; i < numCards; i++)
 		if (deck[i].zIndex == zIndex)
@@ -222,6 +240,7 @@ function snapChipToPlayer(uniqueChipID) {
 
 
 var players = {};
+var playerColliders = {};
 io.on('connection', function(socket) {
 
   socket.on('new player', function(user) {
@@ -254,17 +273,34 @@ io.on('connection', function(socket) {
         tankY: tankStartY,
         tankRot: tankStartRot,
         gunRot: tankStartRot,
-        cBall: {
+        
+        cBall: { // cannon ball properties
           x: 0,
           y: 0,
           xComp: 0,
           yComp: 0,
           spawnTimer: 0,
-          exists: false
+          exists: false,
         },
 
   			chips: {chip_1: 0, chip_5: 0, chip_25: 0, chip_50: 0, chip_100: 0}
   		};
+      
+      playerColliders[cleanID] = {
+        id: cleanID,
+        
+        tankCollider: collisionSystem.createPolygon(tankStartX, tankStartY, [[0, 0], [1.8, 0], [1.8, 3], [0, 3]]),
+        cBallCollider: collisionSystem.createCircle(0, 0, 1)
+      }
+      
+      playerColliders[cleanID].tankCollider.info = {
+        id: cleanID,
+        type: 'tankCollider'
+      };
+      playerColliders[cleanID].cBallCollider.info = {
+        id: cleanID,
+        type: 'cBallCollider'
+      };
   	}
 
   	players[cleanID].color = color;
@@ -345,6 +381,10 @@ io.on('connection', function(socket) {
   		if (players[playerID] != undefined) {
   			players[playerID].tankX = targetTank.x;
   			players[playerID].tankY = targetTank.y;
+        
+        // update colliders
+        playerColliders[playerID].tankCollider.x = players[playerID].tankX;
+        playerColliders[playerID].tankCollider.y = players[playerID].tankY;
 
         playerStateChanged = true;
   		}
@@ -361,6 +401,14 @@ io.on('connection', function(socket) {
         
         players[playerID].tankRot += targetTank.rot * tankRotDist;
         players[playerID].gunRot  += targetTank.gunRot * tankRotDist;
+        
+        // update colliders
+        playerColliders[playerID].tankCollider.x = players[playerID].tankX - 0.9;
+        playerColliders[playerID].tankCollider.y = players[playerID].tankY - 1.5;
+        playerColliders[playerID].tankCollider.angle = (Math.PI / 180) * players[playerID].tankRot;
+        playerColliders[playerID].tankCollider.x += 0.9;
+        playerColliders[playerID].tankCollider.y += 1.5;
+        
         // if (players[playerID].tankRot > 360 || players[playerID].tankRot < 0)
         //   players[playerID].tankRot = players[playerID].tankRot % 360;
 
@@ -385,6 +433,8 @@ io.on('connection', function(socket) {
         players[playerID].cBall.yComp = yComp;
         players[playerID].cBall.spawnTimer = Date.now();
         players[playerID].cBall.exists = true;
+        playerColliders[playerID].cBallCollider.x = players[playerID].cBall.x;
+        playerColliders[playerID].cBallCollider.y = players[playerID].cBall.y;
         
         playerStateChanged = true;
       }
@@ -575,10 +625,64 @@ function updateCannonballs() {
         players[id].cBall.x += players[id].cBall.xComp * cBallSpeed * 0.5; // since the table is half as tall as it is wide
         players[id].cBall.y += players[id].cBall.yComp * cBallSpeed;
         
+        playerColliders[id].cBallCollider.x = players[id].cBall.x;
+        playerColliders[id].cBallCollider.y = players[id].cBall.y;
+        
+        var collisions = checkCBallCollisions(id);
+        
+        if (collisions.length > 0) {
+          for (var index in collisions) {
+            if (collisions[index].type == 'tankCollider') {
+              destroyTank(collisions[index].id);
+            } else if (collisions[index].type == 'cBallCollider') {
+              destroyCBall(collisions[index].id);
+            }
+          }
+        }
+        
         playerStateChanged = true;
       }
     }
   }
+}
+
+function checkCBallCollisions(id) {
+  var collisions = [];
+  collisionSystem.update();
+  
+  const potentials = playerColliders[id].cBallCollider.potentials();
+  
+  for (const wall of potentials) {
+    if (playerColliders[id].cBallCollider.collides(wall, collisionResult)) {
+      if (collisionResult.b.info.id != id) {
+        // if the resulting collision isnt the tank that shot the cannon ball
+        collisions.push(collisionResult.b.info);
+      }
+    }
+  }
+  
+  return collisions;
+}
+                
+function destroyTank(id) {
+  var data = {
+    x: 0,
+    y: 0
+  };
+  
+  var tankX = players[id].tankX;
+  var tankY = players[id].tankY;
+  
+  data.x = tankX;
+  data.y = tankY;
+  
+  resetTankPos(id);
+  
+  io.sockets.emit('draw new explosion', data);
+}
+
+function destroyCBall(id) {
+  
 }
 
 //emit the state every ten seconds regardless of change.

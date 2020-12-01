@@ -1033,10 +1033,24 @@ function drawOnCanvas(data) {
 	ctx.closePath();
 }
 
+var craterSprite = new Image();
+craterSprite.src = '/resources/images/sprites/crater.png';
+
+function drawExplosionOnCanvas(data) {
+  ctx.drawImage(craterSprite, (data.x / 100) * canvas.width, (data.y / 100) * canvas.height,
+                              (2.5 / 100) * canvas.width, (5 / 100) * canvas.height);
+                              
+  console.log(data.x + ' ' + canvas.width + ' ' + data.y + ' ' + canvas.height);
+}
+
 socket.on('new draw line', function(data) {
 	//if not us we draw the line from the other user.
 	if (data.playerID != playerInfo.username)
 		drawOnCanvas(data);
+});
+
+socket.on('draw new explosion', function(data) {
+  drawExplosionOnCanvas(data);
 });
 
 socket.on('clear draw area', function() {
