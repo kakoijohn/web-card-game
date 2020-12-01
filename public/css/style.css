@@ -598,6 +598,8 @@ body {
   width: 1.8vw;
   
   transition: all 0.1s;
+  
+  z-index: 400;
 }
 
 .tank_gun {
@@ -619,6 +621,8 @@ body {
   width: 1.8vw;
   
   transition: all 0.1s;
+  
+  z-index: 401;
 }
 
 .tank:hover {
@@ -650,6 +654,8 @@ body {
   width: 1vw;
   
   transition: all 0.1s;
+  
+  z-index: 399;
 }
 
 #table_floating_nametag {

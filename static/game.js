@@ -451,8 +451,12 @@ $(document).on('mousedown', '.tank', function(evt) {
 		offsetY = evt.pageY - $(evt.target).offset().top;
 
 		var targetTankID = $(evt.target).attr('id');
+    if (targetTankID == undefined)
+      targetTankID = $(evt.target).parent().parent().parent().parent().attr('id');
 
 		targetTank.playerID = targetTankID.replace('_tank', '');
+    
+    console.log(targetTankID)
 	}
 });
 
@@ -656,8 +660,10 @@ $(window).mouseup(function(evt) {
 	if (draggingNametag)
 		draggingNametag = false;
     
-  if (draggingTank)
+  if (draggingTank) {
+    targetTank.released = true;
 		draggingTank = false;
+  }
 
 	if (!targetNametag.released)
 		targetNametag.released = true;
