@@ -166,7 +166,7 @@ Set up our player variables and send the data to the server.
 
 var playerInfo = {
 	username: 'null',
-	cleanID: 'null',
+	id: 'null',
 	pointerX: 0,
 	pointerY: 0,
 	nametagX: 0,
@@ -212,7 +212,7 @@ $('#dcolor').keypress(function(event) {
 
 socket.on('new player confirmation', function(newPlayer) {
 	playerInfo.username = newPlayer.username;
-	playerInfo.cleanID = newPlayer.cleanID;
+	playerInfo.id = newPlayer.id;
 	playerInfo.color = newPlayer.color;
 
 	loadDeck(newPlayer.numCards, newPlayer.deckName);
@@ -231,35 +231,35 @@ socket.on('new player notification', function(info) {
 	for (var id in info.players) {
 		var player = info.players[id];
 
-		if ($('#' + player.cleanID).length == 0) {
+		if ($('#' + player.id).length == 0) {
 			//we don't have a player by that id yet, create them on our game board.
-			$('body').append("<div class=\"player player_anim\" id=\"" + player.cleanID + "\"><div class=\"nametag\">" + player.username + "</div></div>");
+			$('body').append("<div class=\"player player_anim\" id=\"" + player.id + "\"><div class=\"nametag\">" + player.username + "</div></div>");
 
-			$('.poker_table').append("<div class=\"floating_nametag\" id=\"" + player.cleanID + "_floating_nametag\">" + player.username +
+			$('.poker_table').append("<div class=\"floating_nametag\" id=\"" + player.id + "_floating_nametag\">" + player.username +
 									 "<div class=\"player_cash\"></div></div>");
       
-      $('.poker_table').append("<div class=\"tank\" id=\"" + player.cleanID + "_tank\">" +
-                   $('#tank_base_svg_template').html().replace('user-fill-var', player.color + ' !important').replace(/st1/g, player.cleanID + '_user_tank_color') +
-                   "<div class=\"tank_gun\" id=\"" + player.cleanID + "_tank_gun\">" + $('#tank_gun_svg_template').html() + "</div></div>");
+      $('.poker_table').append("<div class=\"tank\" id=\"" + player.id + "_tank\">" +
+                   $('#tank_base_svg_template').html().replace('user-fill-var', player.color + ' !important').replace(/st1/g, player.id + '_user_tank_color') +
+                   "<div class=\"tank_gun\" id=\"" + player.id + "_tank_gun\">" + $('#tank_gun_svg_template').html() + "</div></div>");
                    
-      $('.poker_table').append("<div class=\"cannonball\" id=\"" + player.cleanID + "_cannonball\"></div>");
+      $('.poker_table').append("<div class=\"cannonball\" id=\"" + player.id + "_cannonball\"></div>");
 
-			$('#' + player.cleanID + "_floating_nametag").css('left', player.nametagX + '%');
-			$('#' + player.cleanID + "_floating_nametag").css('top', player.nametagY + '%');
+			$('#' + player.id + "_floating_nametag").css('left', player.nametagX + '%');
+			$('#' + player.id + "_floating_nametag").css('top', player.nametagY + '%');
       
-      $('#' + player.cleanID + "_tank").css('left', info.playerVehicles[id].tankX + '%');
-			$('#' + player.cleanID + "_tank").css('top', info.playerVehicles[id].tankY + '%');
+      $('#' + player.id + "_tank").css('left', info.playerVehicles[id].tankX + '%');
+			$('#' + player.id + "_tank").css('top', info.playerVehicles[id].tankY + '%');
       
-      $('#' + player.cleanID + "_cannonball").css('left', info.playerVehicles[id].cBall.x + '%');
-			$('#' + player.cleanID + "_cannonball").css('top', info.playerVehicles[id].cBall.y + '%');
+      $('#' + player.id + "_cannonball").css('left', info.playerVehicles[id].cBall.x + '%');
+			$('#' + player.id + "_cannonball").css('top', info.playerVehicles[id].cBall.y + '%');
 		}
 
 		//toggle animation off for our cursor.
-		if (id == playerInfo.cleanID)
-			$('#' + player.cleanID).toggleClass('player_anim', false);
+		if (id == playerInfo.id)
+			$('#' + player.id).toggleClass('player_anim', false);
 
-		$('#' + player.cleanID).css('background-color', player.color);
-		$('#' + player.cleanID + "_floating_nametag .player_cash").css('border-color', player.color);
+		$('#' + player.id).css('background-color', player.color);
+		$('#' + player.id + "_floating_nametag .player_cash").css('border-color', player.color);
 	}
 });
 
@@ -406,7 +406,7 @@ $(document).on('mousedown', '.chip', function(evt) {
 		var targetChipID = $(evt.target).attr('id');
 
 		targetChip.id = targetChipID;
-		targetChip.targetUsername = playerInfo.cleanID;
+		targetChip.targetUsername = playerInfo.id;
 
 		socket.emit('pickup chip', targetChip);
 
@@ -572,7 +572,7 @@ $(window).mousemove(function (evt) {
 	} else if (drawing) {
 		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY,
 			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height,
-			playerID: playerInfo.cleanID, color: playerInfo.color, mode: cursorMode}
+			playerID: playerInfo.id, color: playerInfo.color, mode: cursorMode}
 
 		//draw on our own cavas first
 		drawOnCanvas(data);
@@ -618,8 +618,8 @@ $(window).mousemove(function (evt) {
 	playerInfo.pointerX = evt.pageX / poker_tableWidth;
 	playerInfo.pointerY = evt.pageY / poker_tableHeight;
 
-	$('#' + playerInfo.cleanID).css('left', evt.pageX);
-	$('#' + playerInfo.cleanID).css('top', evt.pageY);
+	$('#' + playerInfo.id).css('left', evt.pageX);
+	$('#' + playerInfo.id).css('top', evt.pageY);
 
 	playerInfo.stateChanged = true;
 });
@@ -634,7 +634,7 @@ $(window).mouseup(function(evt) {
 	if (drawing) {
 		var data = {fromX: prevDrawPointX, fromY: prevDrawPointY,
 			toX: evt.pageX / canvas.width, toY: evt.pageY / canvas.height,
-			playerID: playerInfo.cleanID, color: playerInfo.color, mode: cursorMode}
+			playerID: playerInfo.id, color: playerInfo.color, mode: cursorMode}
 
 		//draw on our own cavas first
 		drawOnCanvas(data);
@@ -776,13 +776,13 @@ function moveTank() {
     gunRot -= 1;
   
   if (moveDir != 0) {
-    var curTankRot = getRotationDegrees($('#' + playerInfo.cleanID + '_tank'));
+    var curTankRot = getRotationDegrees($('#' + playerInfo.id + '_tank'));
     var moveX = -1 * moveDir * Math.sin(curTankRot * (Math.PI / 180));
     var moveY = moveDir * Math.cos(curTankRot * (Math.PI / 180));
   }
   
   if (moveX != 0 || moveY != 0 || moveRot != 0 || gunRot != 0) {
-    targetTank.playerID = playerInfo.cleanID;
+    targetTank.playerID = playerInfo.id;
     targetTank.x = moveX;
 		targetTank.y = moveY;
     targetTank.rot = moveRot;
@@ -792,9 +792,9 @@ function moveTank() {
 }
 
 function fireCannon() {
-  targetTank.playerID = playerInfo.cleanID;
+  targetTank.playerID = playerInfo.id;
   
-  var curTankRot = getRotationDegrees($('#' + playerInfo.cleanID + '_tank')) + getRotationDegrees($('#' + playerInfo.cleanID + '_tank_gun'));
+  var curTankRot = getRotationDegrees($('#' + playerInfo.id + '_tank')) + getRotationDegrees($('#' + playerInfo.id + '_tank_gun'));
   targetTank.x = Math.sin(curTankRot * (Math.PI / 180));
   targetTank.y = -1 * Math.cos(curTankRot * (Math.PI / 180));
   
@@ -855,7 +855,7 @@ socket.on('chips state', function(chips) {
 	    var chipID = this.id;
 
 	    if (chips[chipID] != undefined) {
-	    	if (chips[chipID].owner != "table" && chips[chipID].owner != playerInfo.cleanID) {
+	    	if (chips[chipID].owner != "table" && chips[chipID].owner != playerInfo.id) {
 	    		$('#' + chipID).remove();
 	    	}
 	    } else {
@@ -867,7 +867,7 @@ socket.on('chips state', function(chips) {
 	for (var id in chips) {
 		var chip = chips[id];
 
-		if (chip.owner == playerInfo.cleanID || chip.owner == "table") {
+		if (chip.owner == playerInfo.id || chip.owner == "table") {
 			if ($('#' + id).length == 0)
 				$('.poker_table').append("<div id=\"" + id + "\" class=\"chip chip_" + chip.value + "\"></div>");
 
@@ -896,21 +896,21 @@ socket.on('player state', function(players) {
 	for (var id in players) {
 		var player = players[id];
 
-		if (id != playerInfo.cleanID) {
+		if (id != playerInfo.id) {
 			//if not us we update everyone else's cursor on our screen
-			$('#' + player.cleanID).css('left', player.pointerX * poker_tableWidth);
-			$('#' + player.cleanID).css('top', player.pointerY * poker_tableHeight);
+			$('#' + player.id).css('left', player.pointerX * poker_tableWidth);
+			$('#' + player.id).css('top', player.pointerY * poker_tableHeight);
       
       // if  the player's cursor is underneath the poker table, dont display it.
       if (player.pointerY > 1)
-        $('#' + player.cleanID).css('display', 'none');
+        $('#' + player.id).css('display', 'none');
       else
-        $('#' + player.cleanID).css('display', '');
+        $('#' + player.id).css('display', '');
 
 			if (player.nametagY > 100)
-				$('#' + player.cleanID + "_floating_nametag").css('display', 'none');
+				$('#' + player.id + "_floating_nametag").css('display', 'none');
 			else
-				$('#' + player.cleanID + "_floating_nametag").css('display', '');
+				$('#' + player.id + "_floating_nametag").css('display', '');
 		} else {
 			//update our chip count.
 			if ($('#chip_1_holder h4').text() != player.chips['chip_1'])
@@ -925,14 +925,14 @@ socket.on('player state', function(players) {
 				$('#chip_100_holder h4').text(player.chips['chip_100']);
 		}
 
-		if (targetNametag.nametagID != (player.cleanID + '_floating_nametag') || targetNametag.released) {
-			$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
-			$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
+		if (targetNametag.nametagID != (player.id + '_floating_nametag') || targetNametag.released) {
+			$('#' + player.id + '_floating_nametag').css('left', player.nametagX + '%');
+			$('#' + player.id + '_floating_nametag').css('top', player.nametagY + '%');
 		}
     
-    if (targetNametag.nametagID != (player.cleanID + '_floating_nametag') || targetNametag.released) {
-			$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
-			$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
+    if (targetNametag.nametagID != (player.id + '_floating_nametag') || targetNametag.released) {
+			$('#' + player.id + '_floating_nametag').css('left', player.nametagX + '%');
+			$('#' + player.id + '_floating_nametag').css('top', player.nametagY + '%');
 		}
 
 		var playerChipTotal = (player.chips['chip_1']) +
@@ -941,11 +941,11 @@ socket.on('player state', function(players) {
 							  (player.chips['chip_50'] * 50) +
 							  (player.chips['chip_100'] * 100);
     
-		if ($('#' + player.cleanID + '_floating_nametag .player_cash').text() != ('$ ' + playerChipTotal)) {
+		if ($('#' + player.id + '_floating_nametag .player_cash').text() != ('$ ' + playerChipTotal)) {
       if (playerChipTotal == 0)
-        $('#' + player.cleanID + '_floating_nametag .player_cash').text('');
+        $('#' + player.id + '_floating_nametag .player_cash').text('');
       else
-        $('#' + player.cleanID + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
+        $('#' + player.id + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
     }
 	}
 });
@@ -955,31 +955,31 @@ socket.on('player vehicle state', function(playerVehicles) {
 	for (var id in playerVehicles) {
 		var player = playerVehicles[id];
 
-		if (id != playerInfo.cleanID) {
+		if (id != playerInfo.id) {
       if (player.tankY > 100)
-				$('#' + player.cleanID + "_tank").css('display', 'none');
+				$('#' + player.id + '_tank').css('display', 'none');
 			else
-				$('#' + player.cleanID + "_tank").css('display', '');
+				$('#' + player.id + '_tank').css('display', '');
 		}
 
     // tank updates
-		$('#' + player.cleanID + '_tank').css('left', player.tankX + '%');
-		$('#' + player.cleanID + '_tank').css('top', player.tankY + '%');
-    $('#' + player.cleanID + '_tank').css('transform', 'rotate(' + player.tankRot + 'deg)');
-    $('#' + player.cleanID + '_tank_gun').css('transform', 'rotate(' + player.gunRot + 'deg)');
+		$('#' + player.id + '_tank').css('left', player.tankX + '%');
+		$('#' + player.id + '_tank').css('top', player.tankY + '%');
+    $('#' + player.id + '_tank').css('transform', 'rotate(' + player.tankRot + 'deg)');
+    $('#' + player.id + '_tank_gun').css('transform', 'rotate(' + player.gunRot + 'deg)');
     
     //cannonball updates
     if (player.cBall.exists) {
       if (player.cBall.x > 100 || player.cBall.x < 0 || player.cBall.y > 100 || player.cBall.y < 0) {
-        $('#' + player.cleanID + "_cannonball").css('display', 'none');
+        $('#' + player.id + "_cannonball").css('display', 'none');
       } else {
         // if not off the screen and cannoball exists
-        $('#' + player.cleanID + '_cannonball').css('display', '');
-        $('#' + player.cleanID + '_cannonball').css('left', player.cBall.x + '%');
-        $('#' + player.cleanID + '_cannonball').css('top', player.cBall.y + '%');
+        $('#' + player.id + '_cannonball').css('display', '');
+        $('#' + player.id + '_cannonball').css('left', player.cBall.x + '%');
+        $('#' + player.id + '_cannonball').css('top', player.cBall.y + '%');
       }
     } else {
-      $('#' + player.cleanID + '_cannonball').css('display', 'none');
+      $('#' + player.id + '_cannonball').css('display', 'none');
     }
 	}
 });
