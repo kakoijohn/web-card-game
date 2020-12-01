@@ -455,8 +455,6 @@ $(document).on('mousedown', '.tank', function(evt) {
       targetTankID = $(evt.target).parent().parent().parent().parent().attr('id');
 
 		targetTank.playerID = targetTankID.replace('_tank', '');
-    
-    console.log(targetTankID)
 	}
 });
 
@@ -1052,8 +1050,6 @@ craterSprite.src = '/resources/images/sprites/crater.png';
 function drawExplosionOnCanvas(data) {
   ctx.drawImage(craterSprite, (data.x / 100) * canvas.width, (data.y / 100) * canvas.height,
                               (2.5 / 100) * canvas.width, (5 / 100) * canvas.height);
-                              
-  console.log(data.x + ' ' + canvas.width + ' ' + data.y + ' ' + canvas.height);
 }
 
 socket.on('new draw line', function(data) {

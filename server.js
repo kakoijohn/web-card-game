@@ -518,7 +518,7 @@ io.on('connection', function(socket) {
   socket.on('flip card global', function(targetCardIndex) {
   	deck[targetCardIndex].showCard = !deck[targetCardIndex].showCard;
 
-  	console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
+  	// console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
     deckStateChanged = true;
   });
 
