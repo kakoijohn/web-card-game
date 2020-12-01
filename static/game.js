@@ -73,6 +73,24 @@ function initTouchHandler() {
     document.addEventListener("touchcancel", touchHandler, true);
 }
 
+window.addEventListener('keydown', function(e) {
+  if(e.keyCode == 32 && e.target == document.body) {
+    e.preventDefault();
+  }
+  if(e.keyCode == 37 && e.target == document.body) {
+    e.preventDefault();
+  }
+  if(e.keyCode == 38 && e.target == document.body) {
+    e.preventDefault();
+  }
+  if(e.keyCode == 39 && e.target == document.body) {
+    e.preventDefault();
+  }
+  if(e.keyCode == 40 && e.target == document.body) {
+    e.preventDefault();
+  }
+});
+
 var poker_tableWidth;
 var poker_tableHeight;
 
@@ -153,6 +171,9 @@ var playerInfo = {
 	pointerY: 0,
 	nametagX: 0,
 	nametagY: 0,
+  tankX: 0,
+  tankY: 0,
+  tankRot: 0,
 	color: 'null',
 	stateChanged: false,
 
@@ -216,9 +237,16 @@ socket.on('new player notification', function(players) {
 
 			$('.poker_table').append("<div class=\"floating_nametag\" id=\"" + player.cleanID + "_floating_nametag\">" + player.username +
 									 "<div class=\"player_cash\"></div></div>");
+      
+      $('.poker_table').append("<div class=\"tank\" id=\"" + player.cleanID + "_tank\">" +
+                   $('#tank_base_svg_template').html().replace('user-fill-var', player.color + ' !important').replace(/st1/g, player.cleanID + '_user_tank_color') +
+                   "<div class=\"tank_gun\" id=\"" + player.cleanID + "_tank_gun\">" + $('#tank_gun_svg_template').html() + "</div></div>");
 
 			$('#' + player.cleanID + "_floating_nametag").css('left', player.nametagX + '%');
 			$('#' + player.cleanID + "_floating_nametag").css('top', player.nametagY + '%');
+      
+      $('#' + player.cleanID + "_tank").css('left', player.tankX + '%');
+			$('#' + player.cleanID + "_tank").css('top', player.tankY + '%');
 		}
 
 		//toggle animation off for our cursor.
@@ -238,6 +266,7 @@ socket.on('remove user', function(username) {
 	if ($('#' + username).length != 0) {
 		$('#' + username).remove();
 		$('#' + username + '_floating_nametag').remove();
+    $('#' + username + '_tank').remove();
 	}
 });
 
@@ -274,11 +303,21 @@ var targetNametag = {
 	released: true
 }
 
+var targetTank = {
+  tankID: '',
+  x: 0,
+  y: 0,
+  rot: 0,
+  gunRot: 0,
+  released: true
+}
+
 var draggingCard;
 var cardClick;
 var draggingChip;
 var draggingChipConfirm;
 var draggingNametag;
+var draggingTank;
 var drawing;
 var deckResetting;
 var cursorMode;
@@ -286,6 +325,13 @@ var prevDrawPointX;
 var prevDrawPointY;
 var offsetX;
 var offsetY;
+
+var uArrow = false;
+var dArrow = false;
+var lArrow = false;
+var rArrow = false;
+var rGunMove = false;
+var lGunMove = false;
 
 /**
 
@@ -368,6 +414,7 @@ $(document).on('mousedown', '.floating_nametag', function(evt) {
 		draggingChip = false;
 		draggingCard = false;
 		drawing = false;
+    draggingTank = false;
 
 		targetNametag.released = false;
 
@@ -382,12 +429,103 @@ $(document).on('mousedown', '.floating_nametag', function(evt) {
 	}
 });
 
+$(document).on('mousedown', '.tank', function(evt) {
+	if (evt.which == 1) {
+		//left click event
+    draggingTank = true;
+		draggingNametag = false;
+		draggingChip = false;
+		draggingCard = false;
+		drawing = false;
+
+		targetTank.released = false;
+
+		offsetX = evt.pageX - $(evt.target).offset().left;
+		offsetY = evt.pageY - $(evt.target).offset().top;
+
+		var targetTankID = $(evt.target).attr('id');
+
+		targetTank.tankID = targetTankID;
+	}
+});
+
+$(document).on('keydown', function(evt) {
+	switch (evt.which) {
+		case 38:
+      // up arrow
+      break;
+    case 87:
+      // w key
+      uArrow = true;
+			break;
+		case 37:
+      // left arrow
+      lGunMove = true;
+      break;
+    case 65:
+      // a key
+			lArrow = true;
+      break;
+		case 39:
+      // right arrow
+      rGunMove = true;
+      break;
+    case 68:
+      // d key
+			rArrow = true;
+      break;
+    case 40:
+      // down arrow
+      break;
+    case 83:
+      // s key
+      dArrow = true;
+      break;
+	}
+});
+
+$(document).on('keyup', function(evt) {
+  switch (evt.which) {
+		case 38:
+      // up arrow
+      break;
+    case 87:
+      // w key
+      uArrow = false;
+			break;
+		case 37:
+      // left arrow
+      lGunMove = false;
+      break;
+    case 65:
+      // a key
+			lArrow = false;
+      break;
+		case 39:
+      // right arrow
+      rGunMove = false;
+      break;
+    case 68:
+      // d key
+			rArrow = false;
+      break;
+    case 40:
+      // down arrow
+      break;
+    case 83:
+      // s key
+      dArrow = false;
+      break;
+	}
+});
+
 $(document).on('mousedown', '#drawing_area', function(evt) {
 	if (evt.which == 1 && (cursorMode == 'pencil' || cursorMode == 'eraser')) {
 		drawing = true;
 		draggingCard = false;
 		draggingChip = false;
 		draggingNametag = false;
+    draggingTank = false;
 
 		prevDrawPointX = evt.pageX / canvas.width;
 		prevDrawPointY = evt.pageY / canvas.height;
@@ -449,7 +587,17 @@ $(window).mousemove(function (evt) {
 		}
 
 		socket.emit('move nametag', targetNametag);
-	}
+	} else if (draggingTank) {
+    targetTank.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
+		targetTank.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
+    
+    if (!targetTank.released) {
+      $('#' + targetTank.tankID).css('left', targetTank.x + '%');
+      $('#' + targetTank.tankID).css('top',  targetTank.y + '%');
+    }
+
+		socket.emit('drag tank', targetTank);
+  }
 
 	//move player cursor indicator
 	playerInfo.pointerX = evt.pageX / poker_tableWidth;
@@ -492,6 +640,9 @@ $(window).mouseup(function(evt) {
 
 	if (draggingNametag)
 		draggingNametag = false;
+    
+  if (draggingTank)
+		draggingTank = false;
 
 	if (!targetNametag.released)
 		targetNametag.released = true;
@@ -575,12 +726,69 @@ send our player state to the server
 setInterval(function() {
 	//only emit the player state if we have received an id from the server.
 	if (playerInfo.username != 'null') {
+    // only send info to the server if the state has actually changed
 		if (playerInfo.stateChanged) {
 			socket.emit('broadcast player state', playerInfo);
 			playerInfo.stateChanged = false;
 		}
+    
+    // if any of the arrow keys are pressed, move the tank
+    if (uArrow || lArrow || rArrow || dArrow || rGunMove || lGunMove)
+      moveTank();
 	}
 }, 1000 / 24);
+
+
+function moveTank() {
+  var moveDir = 0;
+  var moveX = 0;
+  var moveY = 0;
+  var moveRot = 0;
+  var gunRot = 0;
+  
+  if (uArrow)
+    moveDir -= 1;
+  if (dArrow)
+    moveDir += 1;
+  if (lArrow)
+    moveRot -= 1;
+  if (rArrow)
+    moveRot += 1;
+  if (rGunMove)
+    gunRot += 1;
+  if (lGunMove)
+    gunRot -= 1;
+  
+  if (moveDir != 0) {
+    var curTankRot = getRotationDegrees($('#' + playerInfo.cleanID + '_tank'));
+    var moveX = -1 * moveDir * Math.sin(curTankRot * (Math.PI / 180));
+    var moveY = moveDir * Math.cos(curTankRot * (Math.PI / 180));
+  }
+  
+  if (moveX != 0 || moveY != 0 || moveRot != 0 || gunRot != 0) {
+    targetTank.tankID = playerInfo.cleanID + '_tank';
+    targetTank.x = moveX;
+		targetTank.y = moveY;
+    targetTank.rot = moveRot;
+    targetTank.gunRot = gunRot;
+    socket.emit('steer tank', targetTank);
+  }
+}
+
+function getRotationDegrees(obj) {
+    var matrix = obj.css("-webkit-transform") ||
+    obj.css("-moz-transform")    ||
+    obj.css("-ms-transform")     ||
+    obj.css("-o-transform")      ||
+    obj.css("transform");
+    if(matrix !== 'none') {
+        var values = matrix.split('(')[1].split(')')[0].split(',');
+        var a = values[0];
+        var b = values[1];
+        var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+    } else { var angle = 0; }
+    return (angle < 0) ? angle + 360 : angle;
+}
 
 /**
 
@@ -677,6 +885,11 @@ socket.on('player state', function(players) {
 				$('#' + player.cleanID + "_floating_nametag").css('display', 'none');
 			else
 				$('#' + player.cleanID + "_floating_nametag").css('display', '');
+        
+        if (player.tankY > 100)
+  				$('#' + player.cleanID + "_tank").css('display', 'none');
+  			else
+  				$('#' + player.cleanID + "_tank").css('display', '');
 		} else {
 			//update our chip count.
 			if ($('#chip_1_holder h4').text() != player.chips['chip_1'])
@@ -695,6 +908,17 @@ socket.on('player state', function(players) {
 			$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
 			$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
 		}
+    
+    if (targetNametag.nametagID != (player.cleanID + '_floating_nametag') || targetNametag.released) {
+			$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
+			$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
+		}
+    
+    // tank updates
+		$('#' + player.cleanID + '_tank').css('left', player.tankX + '%');
+		$('#' + player.cleanID + '_tank').css('top', player.tankY + '%');
+    $('#' + player.cleanID + '_tank').css('transform', 'rotate(' + player.tankRot + 'deg)');
+    $('#' + player.cleanID + '_tank_gun').css('transform', 'rotate(' + player.gunRot + 'deg)');
 
 		var playerChipTotal = (player.chips['chip_1']) +
 							  (player.chips['chip_5'] * 5) +

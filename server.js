@@ -52,6 +52,12 @@ const playerSeparationY = 25;
 const nametagStartX = 11;
 const nametagStartY = 118;
 
+const tankStartX = 3;
+const tankStartY = 118;
+const tankStartRot = 0;
+const tankStepDist = 1;
+const tankRotDist = 5;
+
 var chips = {
   owner: '',
   moverUsername: '',
@@ -239,6 +245,10 @@ io.on('connection', function(socket) {
   			pointerY: 0,
   			nametagX: nametagStartX,
   			nametagY: nametagStartY,
+        tankX: tankStartX,
+        tankY: tankStartY,
+        tankRot: tankStartRot,
+        gunRot: tankStartRot,
   			color: color,
 
   			chips: {chip_1: 0, chip_5: 0, chip_25: 0, chip_50: 0, chip_100: 0}
@@ -310,6 +320,37 @@ io.on('connection', function(socket) {
   		if (players[playerID] != undefined) {
   			players[playerID].nametagX = targetNametag.x;
   			players[playerID].nametagY = targetNametag.y;
+
+        playerStateChanged = true;
+  		}
+  	}
+  });
+  
+  socket.on('drag tank', function(targetTank) {
+  	if (targetTank.tankID != undefined) {
+  		var playerID = targetTank.tankID.replace("_tank", '');
+      
+  		if (players[playerID] != undefined) {
+  			players[playerID].tankX = targetTank.x;
+  			players[playerID].tankY = targetTank.y;
+
+        playerStateChanged = true;
+  		}
+  	}
+  });
+  
+  socket.on('steer tank', function(targetTank) {
+    if (targetTank.tankID != undefined) {
+  		var playerID = targetTank.tankID.replace("_tank", '');
+      
+  		if (players[playerID] != undefined) {
+  			players[playerID].tankX += targetTank.x * tankStepDist * 0.5; // since the table is half as tall as it is wide
+        players[playerID].tankY += targetTank.y * tankStepDist;
+        
+        players[playerID].tankRot += targetTank.rot * tankRotDist;
+        players[playerID].gunRot  += targetTank.gunRot * tankRotDist;
+        // if (players[playerID].tankRot > 360 || players[playerID].tankRot < 0)
+        //   players[playerID].tankRot = players[playerID].tankRot % 360;
 
         playerStateChanged = true;
   		}
