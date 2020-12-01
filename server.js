@@ -82,6 +82,7 @@ var uniqueChipIDcounter = 0;
 var deckStateChanged = false;
 var chipStateChanged = false;
 var playerStateChanged = false;
+var playerVehStateChanged = false;
 
 //youtube stuff
 var videoQueue = [];
@@ -165,18 +166,18 @@ function resetDeck() {
 }
 
 function resetTankPos(playerID) {
-  players[playerID].tankX = tankStartX; // since the table is half as tall as it is wide
-  players[playerID].tankY = tankStartY;
+  playerVehicles[playerID].tankX = tankStartX; // since the table is half as tall as it is wide
+  playerVehicles[playerID].tankY = tankStartY;
   
-  players[playerID].tankRot = tankStartRot;
-  players[playerID].gunRot  = tankStartRot;
+  playerVehicles[playerID].tankRot = tankStartRot;
+  playerVehicles[playerID].gunRot  = tankStartRot;
   
   // update colliders
   playerColliders[playerID].tankCollider.x = tankStartX;
   playerColliders[playerID].tankCollider.y = tankStartY;
   playerColliders[playerID].tankCollider.angle = 0;
   
-  playerStateChanged = true;
+  playerVehStateChanged = true;
 }
 
 function findCardAt(zIndex) {
@@ -240,6 +241,7 @@ function snapChipToPlayer(uniqueChipID) {
 
 
 var players = {};
+var playerVehicles = {};
 var playerColliders = {};
 io.on('connection', function(socket) {
 
@@ -268,6 +270,12 @@ io.on('connection', function(socket) {
   			nametagY: nametagStartY,
         
   			color: color,
+
+  			chips: {chip_1: 0, chip_5: 0, chip_25: 0, chip_50: 0, chip_100: 0}
+  		};
+      
+      playerVehicles[cleanID] = {
+        id: cleanID,
         
         tankX: tankStartX,
         tankY: tankStartY,
@@ -282,16 +290,14 @@ io.on('connection', function(socket) {
           spawnTimer: 0,
           exists: false,
         },
-
-  			chips: {chip_1: 0, chip_5: 0, chip_25: 0, chip_50: 0, chip_100: 0}
-  		};
+      };
       
       playerColliders[cleanID] = {
         id: cleanID,
         
         tankCollider: collisionSystem.createPolygon(tankStartX, tankStartY, [[0, 0], [1.8, 0], [1.8, 3], [0, 3]]),
         cBallCollider: collisionSystem.createCircle(0, 0, 1)
-      }
+      };
       
       playerColliders[cleanID].tankCollider.info = {
         id: cleanID,
@@ -309,7 +315,7 @@ io.on('connection', function(socket) {
     socket.emit('new player confirmation', {username, cleanID, color, numCards, deckName});
 
     //tell all clients we have a new player and send a list of all the current players.
-    io.sockets.emit('new player notification', players);
+    io.sockets.emit('new player notification', {players, playerVehicles});
 
     console.log("Added new player with username: " + cleanID);
 
@@ -378,15 +384,15 @@ io.on('connection', function(socket) {
   	if (targetTank.playerID != undefined) {
   		var playerID = targetTank.playerID;
       
-  		if (players[playerID] != undefined) {
-  			players[playerID].tankX = targetTank.x;
-  			players[playerID].tankY = targetTank.y;
+  		if (playerVehicles[playerID] != undefined) {
+  			playerVehicles[playerID].tankX = targetTank.x;
+  			playerVehicles[playerID].tankY = targetTank.y;
         
         // update colliders
         playerColliders[playerID].tankCollider.x = players[playerID].tankX;
         playerColliders[playerID].tankCollider.y = players[playerID].tankY;
 
-        playerStateChanged = true;
+        playerVehStateChanged = true;
   		}
   	}
   });
@@ -395,12 +401,12 @@ io.on('connection', function(socket) {
     if (targetTank.playerID != undefined) {
   		var playerID = targetTank.playerID;
       
-  		if (players[playerID] != undefined) {
-  			players[playerID].tankX += targetTank.x * tankSpeed * 0.5; // since the table is half as tall as it is wide
-        players[playerID].tankY += targetTank.y * tankSpeed;
+  		if (playerVehicles[playerID] != undefined) {
+  			playerVehicles[playerID].tankX += targetTank.x * tankSpeed * 0.5; // since the table is half as tall as it is wide
+        playerVehicles[playerID].tankY += targetTank.y * tankSpeed;
         
-        players[playerID].tankRot += targetTank.rot * tankRotDist;
-        players[playerID].gunRot  += targetTank.gunRot * tankRotDist;
+        playerVehicles[playerID].tankRot += targetTank.rot * tankRotDist;
+        playerVehicles[playerID].gunRot  += targetTank.gunRot * tankRotDist;
         
         // update colliders
         playerColliders[playerID].tankCollider.x = players[playerID].tankX - 0.9;
@@ -412,7 +418,7 @@ io.on('connection', function(socket) {
         // if (players[playerID].tankRot > 360 || players[playerID].tankRot < 0)
         //   players[playerID].tankRot = players[playerID].tankRot % 360;
 
-        playerStateChanged = true;
+        playerVehStateChanged = true;
   		}
   	}
   });
@@ -421,22 +427,22 @@ io.on('connection', function(socket) {
     if (targetTank.playerID != undefined) {
       var playerID = targetTank.playerID;
       
-      if (players[playerID] != undefined) {
-        var x = players[playerID].tankX;
-        var y = players[playerID].tankY;
+      if (playerVehicles[playerID] != undefined) {
+        var x = playerVehicles[playerID].tankX;
+        var y = playerVehicles[playerID].tankY;
         var xComp = targetTank.x;
         var yComp = targetTank.y;
         
-        players[playerID].cBall.x = x + 0.9;
-        players[playerID].cBall.y = y + 1.5;
-        players[playerID].cBall.xComp = xComp;
-        players[playerID].cBall.yComp = yComp;
-        players[playerID].cBall.spawnTimer = Date.now();
-        players[playerID].cBall.exists = true;
-        playerColliders[playerID].cBallCollider.x = players[playerID].cBall.x;
-        playerColliders[playerID].cBallCollider.y = players[playerID].cBall.y;
+        playerVehicles[playerID].cBall.x = x + 0.9;
+        playerVehicles[playerID].cBall.y = y + 1.5;
+        playerVehicles[playerID].cBall.xComp = xComp;
+        playerVehicles[playerID].cBall.yComp = yComp;
+        playerVehicles[playerID].cBall.spawnTimer = Date.now();
+        playerVehicles[playerID].cBall.exists = true;
+        playerVehicles[playerID].cBallCollider.x = playerVehicles[playerID].cBall.x;
+        playerVehicles[playerID].cBallCollider.y = playerVehicles[playerID].cBall.y;
         
-        playerStateChanged = true;
+        playerVehStateChanged = true;
       }
     }
   });
@@ -610,20 +616,22 @@ setInterval(function() {
     io.sockets.emit('player state', players);
     playerStateChanged = false;
   }
+  if (playerVehStateChanged) {
+    io.sockets.emit('player vehicle state', playerVehicles);
+    playerVehStateChanged = false;
+  }
 }, 1000 / 24);
 
 function updateCannonballs() {
-  for (var id in players) {
-    if (players[id].cBall.exists) {
-      var cBallAge = Date.now() - players[id].cBall.spawnTimer;
+  for (var id in playerVehicles) {
+    if (playerVehicles[id].cBall.exists) {
+      var cBallAge = Date.now() - playerVehicles[id].cBall.spawnTimer;
       if (cBallAge > cBallLifespan) {
         // if the cannonball has reached the end of its life, remove it
-        players[id].cBall.exists = false;
-        
-        playerStateChanged = true;
+        playerVehicles[id].cBall.exists = false;
       } else {
-        players[id].cBall.x += players[id].cBall.xComp * cBallSpeed * 0.5; // since the table is half as tall as it is wide
-        players[id].cBall.y += players[id].cBall.yComp * cBallSpeed;
+        playerVehicles[id].cBall.x += players[id].cBall.xComp * cBallSpeed * 0.5; // since the table is half as tall as it is wide
+        playerVehicles[id].cBall.y += players[id].cBall.yComp * cBallSpeed;
         
         playerColliders[id].cBallCollider.x = players[id].cBall.x;
         playerColliders[id].cBallCollider.y = players[id].cBall.y;
@@ -639,9 +647,8 @@ function updateCannonballs() {
             }
           }
         }
-        
-        playerStateChanged = true;
       }
+      playerVehStateChanged = true;
     }
   }
 }
@@ -670,8 +677,8 @@ function destroyTank(id) {
     y: 0
   };
   
-  var tankX = players[id].tankX;
-  var tankY = players[id].tankY;
+  var tankX = playerVehicles[id].tankX;
+  var tankY = playerVehicles[id].tankY;
   
   data.x = tankX;
   data.y = tankY;
@@ -690,6 +697,7 @@ setInterval(function() {
   io.sockets.emit('deck state', deck);
   io.sockets.emit('chips state', chips);
   io.sockets.emit('player state', players);
+  io.sockets.emit('player vehicle state', playerVehicles);
 }, 5000);
 
 
@@ -828,11 +836,14 @@ function consolecmd(text) {
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
     players = null;
+    playerVehicles = null;
+    playerColliders = null;
     chips = null;
     resetDeck();
     shuffle(deck, 10);
     deckStateChanged = true;
     playerStateChanged = true;
+    playerVehStateChanged = true;
     chipStateChanged = true;
     response = "Cleared all players from server and sent out refresh call to all clients.";
   } else if (command[0] == 'help') {

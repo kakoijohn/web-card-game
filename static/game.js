@@ -227,9 +227,9 @@ socket.on('new player confirmation', function(newPlayer) {
 	$('.loading_area').css('display', 'none');
 });
 
-socket.on('new player notification', function(players) {
-	for (var id in players) {
-		var player = players[id];
+socket.on('new player notification', function(info) {
+	for (var id in info.players) {
+		var player = info.players[id];
 
 		if ($('#' + player.cleanID).length == 0) {
 			//we don't have a player by that id yet, create them on our game board.
@@ -247,11 +247,11 @@ socket.on('new player notification', function(players) {
 			$('#' + player.cleanID + "_floating_nametag").css('left', player.nametagX + '%');
 			$('#' + player.cleanID + "_floating_nametag").css('top', player.nametagY + '%');
       
-      $('#' + player.cleanID + "_tank").css('left', player.tankX + '%');
-			$('#' + player.cleanID + "_tank").css('top', player.tankY + '%');
+      $('#' + player.cleanID + "_tank").css('left', info.playerVehicles[id].tankX + '%');
+			$('#' + player.cleanID + "_tank").css('top', info.playerVehicles[id].tankY + '%');
       
-      $('#' + player.cleanID + "_cannonball").css('left', player.cBall.x + '%');
-			$('#' + player.cleanID + "_cannonball").css('top', player.cBall.y + '%');
+      $('#' + player.cleanID + "_cannonball").css('left', info.playerVehicles[id].cBall.x + '%');
+			$('#' + player.cleanID + "_cannonball").css('top', info.playerVehicles[id].cBall.y + '%');
 		}
 
 		//toggle animation off for our cursor.
@@ -272,6 +272,7 @@ socket.on('remove user', function(username) {
 		$('#' + username).remove();
 		$('#' + username + '_floating_nametag').remove();
     $('#' + username + '_tank').remove();
+    $('#' + username + "_cannonball").remove();
 	}
 });
 
@@ -910,11 +911,6 @@ socket.on('player state', function(players) {
 				$('#' + player.cleanID + "_floating_nametag").css('display', 'none');
 			else
 				$('#' + player.cleanID + "_floating_nametag").css('display', '');
-        
-      if (player.tankY > 100)
-				$('#' + player.cleanID + "_tank").css('display', 'none');
-			else
-				$('#' + player.cleanID + "_tank").css('display', '');
 		} else {
 			//update our chip count.
 			if ($('#chip_1_holder h4').text() != player.chips['chip_1'])
@@ -938,29 +934,6 @@ socket.on('player state', function(players) {
 			$('#' + player.cleanID + '_floating_nametag').css('left', player.nametagX + '%');
 			$('#' + player.cleanID + '_floating_nametag').css('top', player.nametagY + '%');
 		}
-    
-    // tank updates
-		$('#' + player.cleanID + '_tank').css('left', player.tankX + '%');
-		$('#' + player.cleanID + '_tank').css('top', player.tankY + '%');
-    $('#' + player.cleanID + '_tank').css('transform', 'rotate(' + player.tankRot + 'deg)');
-    $('#' + player.cleanID + '_tank_gun').css('transform', 'rotate(' + player.gunRot + 'deg)');
-    
-    if (player.cBall.exists) {
-      if (player.cBall.x > 100 || player.cBall.x < 0 || player.cBall.y > 100 || player.cBall.y < 0) {
-        $('#' + player.cleanID + "_cannonball").css('display', 'none');
-      } else {
-        // if not off the screen and cannoball exists
-        $('#' + player.cleanID + '_cannonball').css('display', '');
-        $('#' + player.cleanID + '_cannonball').css('left', player.cBall.x + '%');
-        $('#' + player.cleanID + '_cannonball').css('top', player.cBall.y + '%');
-      }
-    } else {
-      $('#' + player.cleanID + '_cannonball').css('display', 'none');
-    }
-    
-    //cannonball updates
-    if (player.cBall.exists) {
-    }
 
 		var playerChipTotal = (player.chips['chip_1']) +
 							  (player.chips['chip_5'] * 5) +
@@ -973,6 +946,40 @@ socket.on('player state', function(players) {
         $('#' + player.cleanID + '_floating_nametag .player_cash').text('');
       else
         $('#' + player.cleanID + '_floating_nametag .player_cash').text('$ ' + playerChipTotal);
+    }
+	}
+});
+
+//listen for player state information from server
+socket.on('player vehicle state', function(playerVehicles) {
+	for (var id in playerVehicles) {
+		var player = playerVehicles[id];
+
+		if (id != playerInfo.cleanID) {
+      if (player.tankY > 100)
+				$('#' + player.cleanID + "_tank").css('display', 'none');
+			else
+				$('#' + player.cleanID + "_tank").css('display', '');
+		}
+
+    // tank updates
+		$('#' + player.cleanID + '_tank').css('left', player.tankX + '%');
+		$('#' + player.cleanID + '_tank').css('top', player.tankY + '%');
+    $('#' + player.cleanID + '_tank').css('transform', 'rotate(' + player.tankRot + 'deg)');
+    $('#' + player.cleanID + '_tank_gun').css('transform', 'rotate(' + player.gunRot + 'deg)');
+    
+    //cannonball updates
+    if (player.cBall.exists) {
+      if (player.cBall.x > 100 || player.cBall.x < 0 || player.cBall.y > 100 || player.cBall.y < 0) {
+        $('#' + player.cleanID + "_cannonball").css('display', 'none');
+      } else {
+        // if not off the screen and cannoball exists
+        $('#' + player.cleanID + '_cannonball').css('display', '');
+        $('#' + player.cleanID + '_cannonball').css('left', player.cBall.x + '%');
+        $('#' + player.cleanID + '_cannonball').css('top', player.cBall.y + '%');
+      }
+    } else {
+      $('#' + player.cleanID + '_cannonball').css('display', 'none');
     }
 	}
 });
