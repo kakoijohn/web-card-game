@@ -203,6 +203,31 @@ function createNewChip(owner, moverUsername, moverColor, value, x, y) {
 	return 'chip_' + (uniqueChipIDcounter - 1);
 }
 
+function giveChipsToPlayer(amount, playerID) {
+  var num100Chips = Math.floor(amount / 100);
+  amount = amount % 100;
+  var num50Chips = Math.floor(amount / 50);
+  amount = amount % 50;
+  var num25Chips = Math.floor(amount / 25);
+  amount = amount % 25;
+  var num5Chips = Math.floor(amount / 5);
+  amount = amount % 5;
+  var num1Chips = Math.floor(amount / 1);
+
+  for (var i = 0; i < num100Chips; i++)
+    createNewChip(playerID, '', '', 100, chipStartX + (chipSeparationX * 4), chipStartY);
+  for (var i = 0; i < num50Chips; i++)
+    createNewChip(playerID, '', '', 50, chipStartX + (chipSeparationX * 3), chipStartY);
+  for (var i = 0; i < num25Chips; i++)
+    createNewChip(playerID, '', '', 25, chipStartX + (chipSeparationX * 2), chipStartY);
+  for (var i = 0; i < num5Chips; i++)
+    createNewChip(playerID, '', '', 5, chipStartX + (chipSeparationX), chipStartY);
+  for (var i = 0; i < num1Chips; i++)
+    createNewChip(playerID, '', '', 1, chipStartX, chipStartY);
+    
+  return ("Gave " + playerID + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1");
+}
+
 function moveChipOwnership(fromOwner, toNewOwner, uniqueChipID) {
 	//first make sure the chip actually exists
 	if (chips[uniqueChipID] != undefined) {
@@ -460,37 +485,9 @@ io.on('connection', function(socket) {
   			moveChipOwnership(chips[targetChip.id].owner, 'table', targetChip.id);
   		}
 
-  		//chip splitter function
-  		if (chipX > 80  && chipX < 88 && chipY > 103 && chipY < 118) {
-  			var chipVal = chips[targetChip.id].value;
-  			if (chipVal != 1) {
-  				moveChipOwnership(chips[targetChip.id].owner, 'house', targetChip.id);
-  				var numNewChips = 0;
-  				var newChipVals = 0;
-  				switch (chipVal) {
-  					case 100:
-  						numNewChips = 2;
-  						newChipVals = 50;
-  						break;
-  					case 50:
-  						numNewChips = 2;
-  						newChipVals = 25;
-  						break;
-  					case 25:
-  						numNewChips = 5;
-  						newChipVals = 5;
-  						break;
-  					case 5:
-  						numNewChips = 5;
-  						newChipVals = 1;
-  						break;
-  				}
-  				for (var i = 0; i < numNewChips; i++)
-  					createNewChip(targetChip.targetUsername, '', '', newChipVals, chips[targetChip.id].x + ((Math.random() * 6) - 3), chips[targetChip.id].y + ((Math.random() * 6) - 3));
-  			}
-  		}
-
-  		if (chipY > 100) {
+  		if (chipY > 100 && !(chipX > 80  && chipX < 88 && chipY > 103 && chipY < 118)) {
+        // if the chips are in the players hand and not in the splitter area,
+        // snap the chip to the area
   			snapChipToPlayer(targetChip.id);
         chips[targetChip.id].moverColor = '';
       }
@@ -498,10 +495,75 @@ io.on('connection', function(socket) {
       chipStateChanged = true;
   	}
   });
+  
+  socket.on('split chips', function(playerID) {
+    for (let id in chips) {
+      let chip = chips[id];
+      var chipX = chip.x + chipRadius;
+      var chipY = chip.y + chipRadius;
+      if (chip.owner == playerID && (chipX > 80  && chipX < 88 && chipY > 103 && chipY < 118)) {
+        // if the player is the owner and the chip is in the chip split area.
+        var chipVal = chip.value;
+        if (chipVal != 1) {
+          moveChipOwnership(playerID, 'house', id);
+          var numNewChips = 0;
+          var newChipVals = 0;
+          let multiplier = 0;
+          switch (chipVal) {
+            case 100:
+              numNewChips = 2;
+              newChipVals = 50;
+              multiplier = 3;
+              break;
+            case 50:
+              numNewChips = 2;
+              newChipVals = 25;
+              multiplier = 2;
+              break;
+            case 25:
+              numNewChips = 5;
+              newChipVals = 5;
+              multiplier = 1;
+              break;
+            case 5:
+              numNewChips = 5;
+              newChipVals = 1;
+              multiplier = 0;
+              break;
+          }
+          let newChipX = chipStartX + (chipSeparationX * multiplier);
+      		let newChipY = chipStartY;
+          for (var i = 0; i < numNewChips; i++) {
+            // create new chips with the same total value
+            createNewChip(playerID, '', '', newChipVals, newChipX, newChipY);
+          }
+          chipStateChanged = true;
+        }
+      }
+    }
+  });
+  
+  socket.on('combine chips', function(playerID) {
+    let totalChipValue = 0;
+    
+    for (let id in chips) {
+      let chip = chips[id];
+      var chipX = chip.x + chipRadius;
+      var chipY = chip.y + chipRadius;
+      if (chip.owner == playerID && (chipX > 80  && chipX < 88 && chipY > 103 && chipY < 118)) {
+        // if the player is the owner and the chip is in the chip split area.
+        totalChipValue += chip.value;
+        moveChipOwnership(playerID, 'house', id);
+        chipStateChanged = true;
+      }
+    }
+    
+    if (totalChipValue != 0)
+      giveChipsToPlayer(totalChipValue, playerID);
+  });
 
   socket.on('target card to top', function(targetCardIndex) {
   	var currZIndex = deck[targetCardIndex].zIndex;
-	  // console.log("CURRZINDEX: " + currZIndex);
   	for (var i = 0; i < numCards; i++) {
 		  if (deck[i].zIndex > currZIndex)
 		  	deck[i].zIndex = deck[i].zIndex - 1;
@@ -514,7 +576,7 @@ io.on('connection', function(socket) {
   socket.on('flip card global', function(targetCardIndex) {
   	deck[targetCardIndex].showCard = !deck[targetCardIndex].showCard;
 
-  	console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
+  	// console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
     deckStateChanged = true;
   });
 
@@ -749,56 +811,36 @@ function consolecmd(text) {
   var response = '';
 
   if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
-    var username = command[1];
+    var playerID = command[1];
     var amount = command[2];
 
-    if (players[username] != undefined || username == "house" || username == "table") {
-      var num100Chips = Math.floor(amount / 100);
-      amount = amount % 100;
-      var num50Chips = Math.floor(amount / 50);
-      amount = amount % 50;
-      var num25Chips = Math.floor(amount / 25);
-      amount = amount % 25;
-      var num5Chips = Math.floor(amount / 5);
-      amount = amount % 5;
-      var num1Chips = Math.floor(amount / 1);
-
-      for (var i = 0; i < num100Chips; i++)
-        createNewChip(username, '', '', 100, chipStartX + (chipSeparationX * 4), chipStartY);
-      for (var i = 0; i < num50Chips; i++)
-        createNewChip(username, '', '', 50, chipStartX + (chipSeparationX * 3), chipStartY);
-      for (var i = 0; i < num25Chips; i++)
-        createNewChip(username, '', '', 25, chipStartX + (chipSeparationX * 2), chipStartY);
-      for (var i = 0; i < num5Chips; i++)
-        createNewChip(username, '', '', 5, chipStartX + (chipSeparationX), chipStartY);
-      for (var i = 0; i < num1Chips; i++)
-        createNewChip(username, '', '', 1, chipStartX, chipStartY);
+    if (players[playerID] != undefined || playerID == "house" || playerID == "table") {
+      response = giveChipsToPlayer(amount, playerID);
 
       chipStateChanged = true;
-      response = "Gave " + username + ": " + num100Chips + "x $100, " + num50Chips + "x $50, " + num25Chips + "x $25, " + num5Chips + "x $5, " + num1Chips + "x $1";
     } else {
-      response = "Error: Invalid give command. Username not found.";
+      response = "Error: Invalid give command. playerID not found.";
     }
   } else if (command[0] == 'payout' && command[1] != undefined) {
-    var username = command[1];
-    if (players[username] != undefined) {
-      var player = players[username];
+    var playerID = command[1];
+    if (players[playerID] != undefined) {
+      var player = players[playerID];
 
       for (var id in chips) {
         var chip = chips[id];
 
         if (chip.owner == "table") {
-          chip.moverUsername = '';
+          chip.moverplayerID = '';
           chip.moverColor = '';
-          moveChipOwnership('table', username, id);
+          moveChipOwnership('table', playerID, id);
           snapChipToPlayer(id);
         }
       }
 
       chipStateChanged = true;
-      response = "Paying out " + username;
+      response = "Paying out " + playerID;
     } else {
-      response = "Error: Invalid payout command. Username not found.";
+      response = "Error: Invalid payout command. playerID not found.";
     }
   } else if (command[0] == 'loaddeck' && command[1] != undefined) {
     var deckNameInput = command[1];
@@ -826,17 +868,17 @@ function consolecmd(text) {
   } else if (command[0] == 'listusers') {
     for (var id in players) {
       var player = players[id];
-      response += 'id: ' + id + ', username: ' + player.username + ', color: ' + player.color + '\n';
+      response += 'id: ' + id + ', playerID: ' + player.playerID + ', color: ' + player.color + '\n';
     }
   } else if (command[0] == 'removeuser' && command[1] != undefined) {
-    var username = command[1];
-    if (players[username] != undefined) {
-      delete players[username];
-      io.sockets.emit('remove user', username);
+    var playerID = command[1];
+    if (players[playerID] != undefined) {
+      delete players[playerID];
+      io.sockets.emit('remove user', playerID);
       playerStateChanged = true;
-      response = "Removing user: " + username;
+      response = "Removing user: " + playerID;
     } else {
-      response = "Error: Invalid payout command. Username not found.";
+      response = "Error: Invalid payout command. playerID not found.";
     }
   } else if (command[0] == 'resetserver') {
     io.sockets.emit('reload page');
@@ -853,19 +895,19 @@ function consolecmd(text) {
     response = "Cleared all players from server and sent out refresh call to all clients.";
   } else if (command[0] == 'help') {
     response = "List of Commands:" + '\n' +
-    "give [username] [amount]" + '\n' +
+    "give [playerID] [amount]" + '\n' +
     "-- gives the specified user the amount of chips (divided to the largest chip denominator" + '\n' +
-    "payout [username]" + '\n' +
+    "payout [playerID]" + '\n' +
     "-- pays all the chips currently on the table to the specified player" + '\n' +
     "loaddeck [deck name]" + '\n' +
     "-- loads a specified deck to the server (available: standard, euchre)" + '\n' +
     "listusers" + '\n' +
     "-- lists all the players currently on the server." + '\n' +
-    "removeuser [username]" + '\n' +
+    "removeuser [playerID]" + '\n' +
     "-- removes the specified user from the server." + '\n' +
     "resetserver" + '\n' +
     "-- removes all users and resets the server to the original state.";
-    // console.log("change [username] [amount] [divisor]");
+    // console.log("change [playerID] [amount] [divisor]");
     // console.log("-- changes the user's specified amount of chips into the divisor");
   }
 

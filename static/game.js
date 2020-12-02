@@ -699,7 +699,12 @@ $(document).on('click', '.deal_submit_btn', function(evt) {
     socket.emit('deal cards', {numPlayers, numCardsDealt});
   }
 });
-
+$(document).on('click', '#split_btn', function(evt) {
+  socket.emit('split chips', playerInfo.id);
+});
+$(document).on('click', '#combine_btn', function(evt) {
+  socket.emit('combine chips', playerInfo.id);
+});
 $(document).on('click', '#pointer_icon', function(evt) {
 	$('#pointer_icon').css('box-shadow', '0px 0px 0px 0.2vw ' + playerInfo.color);
 	$('#pencil_icon').css('box-shadow', '');

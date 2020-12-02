@@ -78,7 +78,9 @@
     </div>
 
     <div class="chip_splitter_area">
-      <h4>Chip Splitter</h4>
+      <h4>Drag Chips here to Split or Combine</h4>
+      <div id="split_btn" class="chip_split_btn">Split</div>
+      <div id="combine_btn" class="chip_split_btn">Combine</div>
     </div>
 
     <div class="draw_icon" id="eraser_icon"></div>
@@ -86,13 +88,14 @@
     <div class="draw_icon" id="pointer_icon"></div>
 
     <div class="info_text">
-      <p style="cursor:pointer">Controls <strong>+</strong></p>
+      <p style="cursor:pointer">Controls / Info <strong>+</strong></p>
       <ul style="height: 0;">
         <li>Click and drag cards to move them.</li>
-        <li>Double Click to reveal card to everyone.</li>
-        <li>Right Click (or Tap) to peek card (only you can see).</li>
+        <li>Double Click to reveal card to everyone (the card will flip RIGHT).</li>
+        <li>Right Click or Tap to peek card (only you can see, the card will flip UP with an outline).</li>
+        <li>Cards with an outline are currently being peeked by another player (outline color corresponds to player color).</li>
         <li>Double Click eraser tool to clear all drawings.</li>
-        <li>Drag chips to the chip splitter to make change.</li>
+        <li>Drag chips to the chip split / combine area and click button to make change.</li>
       </ul>
     </div>
 

@@ -1,8 +1,15 @@
+:root {
+  --primary-color: greenyellow;
+  --secondary-color: steelblue;
+  --btn-color: orange;
+}
+
 body {
   margin: 0;
   padding: 0;
 
   font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.2vw;
 }
 
 .poker_table {
@@ -113,7 +120,7 @@ body {
   padding-top: 3vh;
   padding-bottom: 3vh;
 
-  background-color: orange;
+  background-color: var(--btn-color);
   border-radius: 3vh;
 
   cursor: pointer;
@@ -132,6 +139,12 @@ body {
   }
   .display_name_form img:hover {
     width: 90vw;
+  }
+}
+
+@media screen and (orientation:landscape) and (max-width: 992px) {
+  #combine_btn {
+    top: 12vw;
   }
 }
 
@@ -345,7 +358,7 @@ body {
   text-align: center;
   font-size: 1vw;
 
-  background-color: orange;
+  background-color: var(--btn-color);
 
   cursor: pointer;
 
@@ -383,7 +396,7 @@ body {
   margin: 0 auto;
   margin-top: 5px;
   padding: 0.7vw;
-  background-color: orange;
+  background-color: var(--btn-color);
   border-radius: 5px;
   text-align: center;
 
@@ -399,7 +412,7 @@ body {
   margin-right: 1vw;
   vertical-align: top;
 
-  background-color: orange;
+  background-color: var(--secondary-color);
   border-radius: 0.9vw;
 
   user-select: none;
@@ -431,7 +444,7 @@ body {
 
   border-radius: 10vw;
 
-  background-color: orange;
+  background-color: var(--secondary-color);
 
   user-select: none;
   -moz-user-select: none;
@@ -477,7 +490,7 @@ body {
   left: 77.5vw;
 
   border-radius: 10px;
-  background-color: orange;
+  background-color: var(--secondary-color);
 
   text-align: center;
 
@@ -486,6 +499,32 @@ body {
   -khtml-user-select: none;
   -webkit-user-select: none;
   -o-user-select: none;
+}
+
+.chip_splitter_area .chip_split_btn {
+  position: absolute;
+  margin-top: 1vw;
+  padding: 1vw;
+  border-radius: 10px;
+  left: 0;
+  right: 0;
+  height: 1vw;
+  
+  text-align: center;
+  
+  background-color: var(--btn-color);
+}
+
+.chip_split_btn:hover {
+  cursor: pointer;
+}
+
+#split_btn {
+  top: 7.2vw;
+}
+
+#combine_btn {
+  top: 10.4vw;
 }
 
 .draw_icon {
@@ -500,7 +539,7 @@ body {
   margin-right: 5px;
   padding: 5px;
 
-  background-color: orange !important;
+  background-color: var(--btn-color) !important;
   background-size: 2vw !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -664,7 +703,7 @@ body {
 }
 
 #table_floating_nametag .player_cash {
-  border-color: orange;
+  border-color: var(--secondary-color);
 }
 
 #table_floating_nametag:hover {
@@ -707,7 +746,7 @@ body {
 
   margin-right: 5px;
   padding: 5px;
-  background-color: orange !important;
+  background-color: var(--secondary-color) !important;
   border-radius: 5px;
   text-align: center;
   font-size: 1.2vw;
