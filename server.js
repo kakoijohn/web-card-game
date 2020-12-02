@@ -175,7 +175,6 @@ function resetTankPos(playerID) {
   // update colliders
   playerColliders[playerID].tankCollider.x = tankStartX;
   playerColliders[playerID].tankCollider.y = tankStartY;
-  playerColliders[playerID].tankCollider.angle = 0;
   
   playerVehStateChanged = true;
 }
@@ -297,8 +296,8 @@ io.on('connection', function(socket) {
       
       playerColliders[id] = {
         id: id,
-        tankCollider: collisionSystem.createPolygon(tankStartX, tankStartY, [[0, 0], [1.8, 0], [1.8, 3], [0, 3]]),
-        cBallCollider: collisionSystem.createCircle(0, 0, 1)
+        tankCollider: collisionSystem.createCircle(tankStartX, tankStartY, 1.5),
+        cBallCollider: collisionSystem.createCircle(0, 0, 0.5)
       };
       
       playerColliders[id].tankCollider.info = {
@@ -392,8 +391,8 @@ io.on('connection', function(socket) {
   			playerVehicles[playerID].tankY = targetTank.y;
         
         // update colliders
-        playerColliders[playerID].tankCollider.x = players[playerID].tankX;
-        playerColliders[playerID].tankCollider.y = players[playerID].tankY;
+        playerColliders[playerID].tankCollider.x = playerVehicles[playerID].tankX;
+        playerColliders[playerID].tankCollider.y = playerVehicles[playerID].tankY;
 
         playerVehStateChanged = true;
   		}
@@ -412,11 +411,8 @@ io.on('connection', function(socket) {
         playerVehicles[playerID].gunRot  += targetTank.gunRot * tankRotDist;
         
         // update colliders
-        playerColliders[playerID].tankCollider.x = playerVehicles[playerID].tankX - 0.9;
-        playerColliders[playerID].tankCollider.y = playerVehicles[playerID].tankY - 1.5;
-        playerColliders[playerID].tankCollider.angle = (Math.PI / 180) * playerVehicles[playerID].tankRot;
-        playerColliders[playerID].tankCollider.x += 0.9;
-        playerColliders[playerID].tankCollider.y += 1.5;
+        playerColliders[playerID].tankCollider.x = playerVehicles[playerID].tankX;
+        playerColliders[playerID].tankCollider.y = playerVehicles[playerID].tankY;
         
         // if (players[playerID].tankRot > 360 || players[playerID].tankRot < 0)
         //   players[playerID].tankRot = players[playerID].tankRot % 360;
@@ -518,7 +514,7 @@ io.on('connection', function(socket) {
   socket.on('flip card global', function(targetCardIndex) {
   	deck[targetCardIndex].showCard = !deck[targetCardIndex].showCard;
 
-  	// console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
+  	console.log(deck[targetCardIndex].x + ", " + deck[targetCardIndex].y);
     deckStateChanged = true;
   });
 
@@ -561,7 +557,7 @@ io.on('connection', function(socket) {
   socket.on('clear draw area', function() {
   	io.sockets.emit('clear draw area');
   });
-  
+
   // console commands
   socket.on('console command', function(command) {
     var response = consolecmd(command);

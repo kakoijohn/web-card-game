@@ -754,8 +754,9 @@ setInterval(function() {
     // if any of the arrow keys are pressed, move the tank
     if (uArrow || lArrow || rArrow || dArrow || rGunMove || lGunMove)
       moveTank();
-    if (gunFire)
+    if (gunFire) {
       fireCannon();
+    }
 	}
 }, 1000 / 24);
 
@@ -836,20 +837,18 @@ socket.on('deck state', function(deck) {
     	$('#card_' + i).css('z-index', deck[i].zIndex);
 
     	if (deck[i].showCard) {
-			$('#card_' + i + '_inner').toggleClass('card_rotate_global', true);
-			$('#card_' + i + '_inner').toggleClass('card_rotate_local', false);
+  			$('#card_' + i + '_inner').toggleClass('card_rotate_global', true);
+  			$('#card_' + i + '_inner').toggleClass('card_rotate_local', false);
 
-			$('#card_' + i + '_inner').css('box-shadow', '');
+  			$('#card_' + i + '_inner').css('box-shadow', '');
     	} else {
-			$('#card_' + i + '_inner').toggleClass('card_rotate_global', false);
-
-			if (deck[i].peekCardCol != '') {
-				$('#card_' + i + '_inner').css('box-shadow', '0px 0px 0px 3px ' + deck[i].peekCardCol);
-			} else {
-				$('#card_' + i + '_inner').css('box-shadow', '');
-			}
-		}
-
+  			$('#card_' + i + '_inner').toggleClass('card_rotate_global', false);
+  			if (deck[i].peekCardCol != '') {
+  				$('#card_' + i + '_inner').css('box-shadow', '0px 0px 0px 3px ' + deck[i].peekCardCol);
+  			} else {
+  				$('#card_' + i + '_inner').css('box-shadow', '');
+  			}
+		  }
   	}
 });
 
