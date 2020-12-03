@@ -664,9 +664,11 @@ body {
   height: 3vw;
   width: 1.8vw;
   
-  transition: all 0.1s;
-  
   z-index: 400;
+}
+
+.tank__anim {
+  transition: all 0.1s;
 }
 
 .tank_gun {

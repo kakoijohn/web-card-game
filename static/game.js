@@ -271,7 +271,7 @@ socket.on('new player notification', function(info) {
 			$('.poker_table').append("<div class=\"floating_nametag\" id=\"" + player.id + "_floating_nametag\">" + player.username +
 									 "<div class=\"player_cash\"></div></div>");
       
-      $('.poker_table').append("<div class=\"tank\" id=\"" + player.id + "_tank\">" +
+      $('.poker_table').append("<div class=\"tank tank__anim\" id=\"" + player.id + "_tank\">" +
                    $('#tank_base_svg_template').html().replace('user-fill-var', player.color + ' !important').replace(/st1/g, player.id + '_user_tank_color') +
                    "<div class=\"tank_gun\" id=\"" + player.id + "_tank_gun\">" + $('#tank_gun_svg_template').html() + "</div></div>");
                    
@@ -488,6 +488,9 @@ $(document).on('mousedown', '.tank', function(evt) {
       targetTankID = $(evt.target).parent().parent().parent().parent().attr('id');
 
 		targetTank.playerID = targetTankID.replace('_tank', '');
+    
+    // disable the movement animation while we are dragging it.
+    $('#' + targetTank.playerID + '_tank').toggleClass('tank__anim', false);
 	}
 });
 
@@ -694,6 +697,8 @@ $(window).mouseup(function(evt) {
   if (draggingTank) {
     targetTank.released = true;
 		draggingTank = false;
+    
+    $('#' + targetTank.playerID + '_tank').toggleClass('tank__anim', true);
   }
 
 	if (!targetNametag.released)
