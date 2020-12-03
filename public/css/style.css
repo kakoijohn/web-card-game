@@ -93,7 +93,6 @@ body {
   width: 100%;
 
   text-align: center;
-  font-size: 1em;
 }
 
 .display_name_form img {
@@ -128,19 +127,43 @@ body {
   cursor: pointer;
 }
 
+.pickr {
+  width: 20em;
+  height: 5em;
+}
+
+.pcr-button, .pcr-button:before, .pcr-button:after {
+  content: none !important;
+  
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  
+  border-radius: 3vh !important;
+  border-style: solid;
+  border-color: black;
+  
+  margin: 0 !important;
+  padding: 0!important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
 @media screen and (orientation:portrait) and (max-width: 992px) {
-  .display_name_form .form_inner div {
-    width: 25em;
-    font-size: 2em;
+  .display_name_form {
+    font-size: 5em;
   }
+  
   .display_name_form .form_inner input {
-    font-size: 2em;
+    font-size: 1em;
   }
-  .display_name_form .name_submit_btn {
-    font-size: 2em;
-  }
-  .display_name_form img:hover {
+  
+  .display_name_form .form_inner div {
     width: 90vw;
+  }
+    
+  .pcr-app {
+    transform: scale(3);
   }
 }
 
@@ -745,9 +768,11 @@ body {
   
   top: 0;
   left: 0;
-  height: 70%;
-  width: 80%;
-  margin: 10%;
+  height: 80vh;
+  width: 80vw;
+  margin-left: 10vw;
+  margin-top: 10vh;
+  overflow-y:auto;
   
   background-color: white;
   border-radius: 10px;

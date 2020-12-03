@@ -110,9 +110,10 @@ var randomStartingColor = 'rgb(' + (Math.floor(Math.random() * 256)) + ','
 
 //color picker for choosing the color at the beginning
 const pickr = Pickr.create({
-    el: '.color-picker',
+    el: '.color_picker',
     theme: 'nano',
     default: randomStartingColor,
+    position: 'top-middle',
 
     components: {
         // Main components
@@ -128,13 +129,26 @@ const pickr = Pickr.create({
             cmyk: false,
             input: true,
             clear: false,
-            save: true
+            save: false
         }
     }
 });
 
 pickr.on('save', function() {
-  pickr.hide();
+  //also called when applycolor() is invoked
+  $('.pcr-button').css('background-color', pickr.getColor().toRGBA().toString());
+});
+
+pickr.on('hide', function() {
+  pickr.applyColor();
+});
+
+pickr.on('changestop', function() {
+  pickr.applyColor();
+});
+
+pickr.on('init', function() {
+  $('.pcr-button').css('background-color', pickr.getColor().toRGBA().toString());
 });
 
 /**
