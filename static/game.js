@@ -508,7 +508,12 @@ $(document).on('mousedown', '.tank', function(evt) {
 	}
 });
 
+// keyboard controls for the board, mainly the tank
 $(document).on('keydown', function(evt) {
+  // if we are using the console, dont report keyboard inputs to the game
+  if ($('#console_input').is(':focus'))
+    return;
+  
 	switch (evt.which) {
 		case 38:
       // up arrow
@@ -548,6 +553,10 @@ $(document).on('keydown', function(evt) {
 });
 
 $(document).on('keyup', function(evt) {
+  // if we are using the console, dont report keyboard inputs to the game
+  if ($('#console_input').is(':focus'))
+    return;
+  
   switch (evt.which) {
 		case 38:
       // up arrow
