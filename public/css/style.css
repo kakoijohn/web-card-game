@@ -165,6 +165,13 @@ body {
   .pcr-app {
     transform: scale(3);
   }
+  
+  .terminal_container {
+    height: 30vh !important;
+    width: 95vw !important;
+    margin-left: 2vw !important;
+    margin-top: 3vh !important;
+  }
 }
 
 @media screen and (orientation:landscape) and (max-width: 992px) {
@@ -648,7 +655,7 @@ body {
 .terminal_console {
   overflow-y: auto;
   
-  width: 98%;
+  width: 97%;
   height: 90%;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -663,8 +670,7 @@ body {
   width: 3%;
   height: 5%;
   padding: 0;
-  margin-left: 10px;
-  margin-top: 1%;
+  margin-left: 1%;
 }
 
 .terminal_container #console_input {
@@ -683,15 +689,13 @@ body {
 }
 
 .terminal_exit {
-  position: absolute;
-  float: right;
-  color: red;
+  display: inline-block;
   
-  right: 0;
-  bottom: 0;
-  margin: 0.5%;
-  margin-bottom: -1%;
-  line-height: 0;
+  width: 3%;
+  height: 5%;
+  padding: 0;
+  
+  color: red;
   
   cursor: pointer;
 }
