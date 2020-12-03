@@ -500,9 +500,6 @@ $(document).on('mousedown', '.tank', function(evt) {
 
 		targetTank.released = false;
 
-		offsetX = evt.pageX - $(evt.target).offset().left;
-		offsetY = evt.pageY - $(evt.target).offset().top;
-
 		var targetTankID = $(evt.target).attr('id');
     if (targetTankID == undefined)
       targetTankID = $(evt.target).parent().parent().parent().parent().attr('id');
@@ -670,8 +667,8 @@ $(window).mousemove(function (evt) {
 
 		socket.emit('move nametag', targetNametag);
 	} else if (draggingTank) {
-    targetTank.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
-		targetTank.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
+    targetTank.x = ((evt.pageX) / poker_tableWidth * 100);
+		targetTank.y = ((evt.pageY) / poker_tableHeight * 100);
     
     if (!targetTank.released) {
       $('#' + targetTank.playerID + '_tank').css('left', targetTank.x + '%');
