@@ -56,7 +56,7 @@ body {
 }
 
 .display_name_form {
-  position: absolute;
+  position: fixed;
   z-index: 1000;
   height: 100%;
   width: 100%;
@@ -73,6 +73,8 @@ body {
 }
 
 .display_name_form .form_inner div {
+  text-align: center;
+  margin-top: 2vh;
   width: 22em;
 }
 
@@ -527,16 +529,26 @@ body {
   top: 10.4vw;
 }
 
+.icon_grid {
+  display: grid;
+  float: right;
+  grid-template-rows: 4vw 4vw;
+}
+
+.icon_row {
+  margin-right: 1vw;
+  float: right;
+}
+
 .draw_icon {
   display: inline-block;
-  float: right;
   vertical-align: top;
   height: 2vw;
   width: 2vw;
   margin-top: 15px;
   margin-bottom: 15px;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-left: 3px;
+  margin-right: 3px;
   padding: 5px;
 
   background-color: var(--btn-color) !important;
@@ -549,6 +561,20 @@ body {
   cursor: pointer;
 }
 
+.empty_icon {
+  display: inline-block;
+  vertical-align: top;
+  height: 2vw;
+  width: 2vw;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 3px;
+  margin-right: 3px;
+  padding: 5px;
+  
+  background-color: transparent;
+}
+
 #pointer_icon {
   background: url('/resources/icons/cursor.svg');
 }
@@ -559,8 +585,10 @@ body {
 
 #eraser_icon {
   background: url('/resources/icons/eraser.svg');
+}
 
-  margin-right: 1vw;
+#question_icon {
+  background: url('/resources/icons/question.svg');
 }
 
 .player {
@@ -710,21 +738,47 @@ body {
   cursor: default;
 }
 
+.info_text_container {
+  position: fixed;
+  
+  top: 0;
+  left: 0;
+  height: 70%;
+  width: 80%;
+  margin: 10%;
+  
+  background-color: white;
+  border-radius: 10px;
+  border-color: var(--btn-color);
+  border-style: solid;
+  
+  z-index: -100;
+  opacity: 0;
+  
+  transition: all 1s;
+}
+
+.info_text_container__active {
+  z-index: 5000;
+  opacity: 1;
+}
+
+.info_text_exit {
+  float: right;
+  color: red;
+  
+  margin: 0.5%;
+  line-height: 0;
+  
+  cursor: pointer;
+}
+
 .info_text {
   display: block;
   margin-left: 1vw;
+  margin-top: 1vw;
 
-  margin-top: 8vw;
   margin-bottom: 10px;
-}
-
-.info_text p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.info_text ul {
-  margin: 0;
 }
 
 .youtube_player {

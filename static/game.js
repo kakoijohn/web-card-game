@@ -104,6 +104,39 @@ var ctx = canvas.getContext('2d');
 var inMemCanvas = document.createElement('canvas');
 var inMemCtx = inMemCanvas.getContext('2d');
 
+var randomStartingColor = 'rgb(' + (Math.floor(Math.random() * 256)) + ','
+               + (Math.floor(Math.random() * 256)) + ','
+               + (Math.floor(Math.random() * 256)) + ')';
+
+//color picker for choosing the color at the beginning
+const pickr = Pickr.create({
+    el: '.color-picker',
+    theme: 'nano',
+    default: randomStartingColor,
+
+    components: {
+        // Main components
+        preview: true,
+        opacity: true,
+        hue: true,
+        // Input / output Options
+        interaction: {
+            hex: true,
+            rgba: true,
+            hsla: false,
+            hsva: false,
+            cmyk: false,
+            input: true,
+            clear: false,
+            save: true
+        }
+    }
+});
+
+pickr.on('save', function() {
+  pickr.hide();
+});
+
 /**
 
 Construct the deck and the draw area
@@ -185,7 +218,7 @@ var newPlayerCall;
 
 function newPlayerSubmit() {
   var username = $('#dname').val();
-  var color = $('#dcolor').val();
+  var color = pickr.getColor().toRGBA().toString();
 
   //let the server know we have a new player every 5 seconds until we receive a response.
   socket.emit('new player', {username, color});
@@ -738,6 +771,14 @@ $(document).on('click', '#eraser_icon', function(evt) {
 $(document).on('dblclick', '#eraser_icon', function(evt) {
 	socket.emit('clear draw area');
 });
+
+$(document).on('click', '#question_icon', function(evt) {
+  $('.info_text_container').toggleClass('info_text_container__active', true);
+});
+$(document).on('click', '.info_text_exit', function(evt) {
+  $('.info_text_container').toggleClass('info_text_container__active', false);
+});
+
 
 
 /**

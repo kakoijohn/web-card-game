@@ -3,22 +3,25 @@
     <title>Cards with Friends!</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
     <meta name="viewport" content="maximum-scale=1.0,user-scalable=0"/>
 
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
     <form class="display_name_form">
       <div class="form_inner">
-        <label for="dname">Your Name</label>
+        <label for="dname">Enter Your Name</label>
         <input type="text" id="dname" name="dname" maxlength="20">
-        <label for="dcolor">Favorite Color</label>
-        <input type="text" id="dcolor" name="dcolor">
-        <div class="name_submit_btn">Submit</div>
+        <label for="dcolor">Choose Your Favorite Color</label>
+        <div class="color_picker_container">
+          <div class="color-picker"></div>
+        </div>
+        <div class="name_submit_btn">Lets Go!</div>
       </div>
-      <img src="resources/images/html colors.png">
     </form>
     <div class="loading_area">
       <div class="lds-ellipsis">Loading<div></div><div></div><div></div><div></div></div>
@@ -83,20 +86,45 @@
       <div id="combine_btn" class="chip_split_btn">Combine</div>
     </div>
 
-    <div class="draw_icon" id="eraser_icon"></div>
-    <div class="draw_icon" id="pencil_icon"></div>
-    <div class="draw_icon" id="pointer_icon"></div>
+    <div class="icon_grid">
+      <div class="icon_row">
+        <div class="draw_icon" id="pointer_icon"></div>
+        <div class="draw_icon" id="pencil_icon"></div>
+        <div class="draw_icon" id="eraser_icon"></div>
+      </div>
+      <div class="icon_row">
+        <div class="empty_icon"></div>
+        <div class="empty_icon"></div>
+        <div class="draw_icon" id="question_icon"></div>
+      </div>
+    </div>
 
-    <div class="info_text">
-      <p style="cursor:pointer">Controls / Info <strong>+</strong></p>
-      <ul style="height: 0;">
-        <li>Click and drag cards to move them.</li>
-        <li>Double Click to reveal card to everyone (the card will flip RIGHT).</li>
-        <li>Right Click or Tap to peek card (only you can see, the card will flip UP with an outline).</li>
-        <li>Cards with an outline are currently being peeked by another player (outline color corresponds to player color).</li>
-        <li>Double Click eraser tool to clear all drawings.</li>
-        <li>Drag chips to the chip split / combine area and click button to make change.</li>
-      </ul>
+    <div class="info_text_container">
+      <div class="info_text_exit">
+        <h1><strong>✖</strong></h1>
+      </div>
+      <div class="info_text">
+        <h1>Cards With Friends!</h1>
+        <h2>Created by: John Damits</h2>
+        <h3>Version: 1.5.0 Updated: 12/2/20</h3>
+        <h3>Objective: Have fun with friends over an online card table!</h3>
+        <p>Controls / Info:</p>
+        <ul>
+          <li>Click and drag cards to move them.</li>
+          <li>Double Click to reveal card to everyone (the card will flip RIGHT).</li>
+          <li>Right Click or Tap to peek card (only you can see, the card will flip UP with an outline).</li>
+          <li>Cards with an outline are currently being peeked by another player (outline color corresponds to player color).</li>
+          <li>Double Click eraser tool to clear all drawings.</li>
+          <li>Drag chips to the chip split / combine area and click button to make change.</li>
+          <li>Drag your nametag from underneath the "Deal" button to stake your claim on the table.</li>
+        </ul>
+        <p>New Features:</p>
+        <ul>
+          <li>Tanks! (WASD to move tank, Arrow Keys to move gun, spacebar to shoot your friends)</li>
+          <li>Chip splitter and combiner: to have less one dollar chips at the end of a poker round</li>
+          <li>Color picker: to make choosing your favorite color easier</li>
+        </ul>
+      </div>
     </div>
 
     <!-- <div class="youtube_link_btn" id="enable_youtube_link_btn">Disable Youtube Player</div>
