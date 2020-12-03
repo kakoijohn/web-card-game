@@ -809,6 +809,7 @@ $(document).on('click', '.info_text_exit', function(evt) {
 
 $(document).on('click', '#terminal_icon', function(evt) {
   $('.terminal_container').toggleClass('terminal_container__active', true);
+  $('#console_input').focus();
 });
 $(document).on('click', '.terminal_exit', function(evt) {
   $('.terminal_container').toggleClass('terminal_container__active', false);
