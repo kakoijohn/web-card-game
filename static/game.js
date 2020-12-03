@@ -19,6 +19,12 @@ socket.on('connect', function() {
     $('.floating_nametag').each(function(index) {
       $(this).remove();
     });
+    $('.tank').each(function(index) {
+      $(this).remove();
+    });
+    $('.cannonball').each(function(index) {
+      $(this).remove();
+    });
 
     var username = $('#dname').val();
   	var color = $('#dcolor').val();
