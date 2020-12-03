@@ -666,7 +666,7 @@ body {
   margin-left: 10px;
 }
 
-.terminal_container input {
+.terminal_container #console_input {
   display: inline-block;
   
   width: 90%;

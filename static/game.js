@@ -136,7 +136,7 @@ const pickr = Pickr.create({
 
 pickr.on('save', function() {
   //also called when applycolor() is invoked
-  $('.pcr-button').css('background-color', pickr.getColor().toRGBA().toString());
+  $('.pcr-button').css('background-color', pickr.getColor().toHEXA().toString());
 });
 
 pickr.on('hide', function() {
@@ -148,7 +148,7 @@ pickr.on('changestop', function() {
 });
 
 pickr.on('init', function() {
-  $('.pcr-button').css('background-color', pickr.getColor().toRGBA().toString());
+  $('.pcr-button').css('background-color', pickr.getColor().toHEXA().toString());
 });
 
 /**
@@ -232,7 +232,7 @@ var newPlayerCall;
 
 function newPlayerSubmit() {
   var username = $('#dname').val();
-  var color = pickr.getColor().toRGBA().toString();
+  var color = pickr.getColor().toHEXA().toString();
 
   //let the server know we have a new player every 5 seconds until we receive a response.
   socket.emit('new player', {username, color});
