@@ -798,6 +798,13 @@ $(document).on('click', '.info_text_exit', function(evt) {
   $('.info_text_container').toggleClass('info_text_container__active', false);
 });
 
+$(document).on('click', '#terminal_icon', function(evt) {
+  $('.terminal_container').toggleClass('terminal_container__active', true);
+});
+$(document).on('click', '.terminal_exit', function(evt) {
+  $('.terminal_container').toggleClass('terminal_container__active', false);
+});
+
 
 
 /**
@@ -1298,10 +1305,34 @@ Youtube player stuff
 Client Side server commands
 
 */
+var consoleInputMem = [];
+var memIndex = 0;
 
-function servercmd(command) {
-	socket.emit('console command', command);
-}
+$('#console_input').keydown(function(event) {
+  if ((event.keyCode == 13 || event.which == 13) && $('#console_input').val() != '') {
+    let inputText = $('#console_input').val();
+    
+    scmd(inputText);
+    
+    // append the input into memory
+    consoleInputMem.push(inputText);
+    memIndex = consoleInputMem.length - 1;
+    // clear the value of the input area
+    $('#console_input').val('');
+  } else if (event.keyCode == 38 || event.which == 38) {
+    // up arrow pressed
+    if (memIndex >= 0) {
+      $('#console_input').val(consoleInputMem[memIndex]);
+      memIndex--;
+    }
+  } else if (event.keyCode == 40 || event.which == 40) {
+    // down arrow pressed
+    if (memIndex < consoleInputMem.length) {
+      $('#console_input').val(consoleInputMem[memIndex]);
+      memIndex++;
+    }
+  }
+});
 
 function scmd(command) {
 	socket.emit('console command', command);
@@ -1309,4 +1340,9 @@ function scmd(command) {
 
 socket.on('console response', function(response) {
 	console.log(response);
+  
+  $('.terminal_console').append('<div class="output_line">' + response.replace(/\n/g, '<br>') + '</div><br>');
+  
+  var element = document.getElementById("terminal_console");
+  element.scrollTop = element.scrollHeight;
 });

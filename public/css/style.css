@@ -614,6 +614,86 @@ body {
   background: url('/resources/icons/question.svg');
 }
 
+#terminal_icon {
+  background: url('/resources/icons/terminal.svg');
+}
+
+.terminal_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 50vh;
+  width: 50vw;
+  margin-left: 25vw;
+  margin-top: 25vh;
+  
+  background-color: #292828;
+  border-style: solid;
+  border-color: black;
+  color: white;
+  
+  font-family: Menlo, Consolas, DejaVu Sans Mono, monospace;
+  
+  z-index: -100;
+  opacity: 0;
+  
+  transition: all 1s;
+}
+
+.terminal_container__active {
+  z-index: 4000;
+  opacity: 1;
+}
+
+.terminal_console {
+  overflow-y: auto;
+  
+  width: 98%;
+  height: 92.5%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  
+  font-size: 0.8em;
+}
+
+.terminal_container .input_area_icon {
+  display: inline-block;
+  
+  width: 3%;
+  height: 5%;
+  padding: 0;
+  margin-left: 10px;
+}
+
+.terminal_container input {
+  display: inline-block;
+  
+  width: 90%;
+  height: 5%;
+  
+  color: white;
+  background-color: #212020;
+  border-style: none;
+  
+  font-family: Menlo, Consolas, DejaVu Sans Mono, monospace;
+  font-size: 0.8em;
+}
+
+.terminal_exit {
+  position: absolute;
+  float: right;
+  color: red;
+  
+  right: 0;
+  bottom: 0;
+  margin: 0.5%;
+  margin-bottom: -1%;
+  line-height: 0;
+  
+  cursor: pointer;
+}
+
 .player {
   position: absolute;
   z-index: 500;

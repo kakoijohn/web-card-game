@@ -834,7 +834,7 @@ function consolecmd(text) {
   } else if (command[0] == 'listusers') {
     for (var id in players) {
       var player = players[id];
-      response += 'id: ' + id + ', playerID: ' + player.playerID + ', color: ' + player.color + '\n';
+      response += 'id: ' + id + ', Display Name: ' + player.username + ', color: ' + player.color + '\n';
     }
   } else if (command[0] == 'removeuser' && command[1] != undefined) {
     var playerID = command[1];
@@ -862,7 +862,7 @@ function consolecmd(text) {
   } else if (command[0] == 'help') {
     response = "List of Commands:" + '\n' +
     "give [playerID] [amount]" + '\n' +
-    "-- gives the specified user the amount of chips (divided to the largest chip denominator" + '\n' +
+    "-- gives the specified user the amount of chips (divided to the largest chip denominator)" + '\n' +
     "payout [playerID]" + '\n' +
     "-- pays all the chips currently on the table to the specified player" + '\n' +
     "loaddeck [deck name]" + '\n' +
