@@ -171,6 +171,12 @@ body {
     width: 95vw !important;
     margin-left: 2vw !important;
     margin-top: 3vh !important;
+    
+    font-size: 3em;
+  }
+  
+  .terminal_container #console_input {
+    width: 85% !important;
   }
 }
 
