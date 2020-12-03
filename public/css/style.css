@@ -625,7 +625,7 @@ body {
   height: 50vh;
   width: 50vw;
   margin-left: 25vw;
-  margin-top: 25vh;
+  margin-top: 10vh;
   
   background-color: #292828;
   border-style: solid;
@@ -649,7 +649,7 @@ body {
   overflow-y: auto;
   
   width: 98%;
-  height: 92.5%;
+  height: 90%;
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 10px;
@@ -664,13 +664,15 @@ body {
   height: 5%;
   padding: 0;
   margin-left: 10px;
+  margin-top: 1%;
 }
 
 .terminal_container #console_input {
   display: inline-block;
   
-  width: 90%;
+  width: 85%;
   height: 5%;
+  margin-top: 1%;
   
   color: white;
   background-color: #212020;
