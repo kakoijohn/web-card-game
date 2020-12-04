@@ -639,8 +639,8 @@ io.on('connection', function(socket) {
   });
 
   // console commands
-  socket.on('console command', function(command) {
-    var response = consolecmd(command);
+  socket.on('console command', function(cmdInfo) {
+    var response = consolecmd(cmdInfo.command, 'client', cmdInfo.id);
     socket.emit('console response', response);
   });
   
@@ -799,117 +799,180 @@ setInterval(function() {
 }, 5000);
 
 //console commands
+var adminList = {
+  playerID: ''
+};
+const serverPassword = 'hackermikecarns';
+
 process.stdin.on('data', function (text) {
-  consolecmd(text);
+  consolecmd(text, 'server', '');
 });
 
-function consolecmd(text) {
+function consolecmd(text, source, id) {
   var command = text.replace('\n', '').split(' ');
   var response = '';
 
-  if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
-    var playerID = command[1];
-    var amount = command[2];
-
-    if (players[playerID] != undefined || playerID == "house" || playerID == "table") {
-      response = giveChipsToPlayer(amount, playerID);
-
-      chipStateChanged = true;
-    } else {
-      response = "Error: Invalid give command. playerID not found.";
-    }
-  } else if (command[0] == 'payout' && command[1] != undefined) {
-    var playerID = command[1];
-    if (players[playerID] != undefined) {
-      var player = players[playerID];
-
-      for (var id in chips) {
-        var chip = chips[id];
-
-        if (chip.owner == "table") {
-          chip.moverplayerID = '';
-          chip.moverColor = '';
-          moveChipOwnership('table', playerID, id);
-          snapChipToPlayer(id);
-        }
+  if (source == 'server' || (source == 'client' && adminList[id] != undefined)) {
+    if (command[0] == 'give' && command[1] != undefined && command[2] != undefined) {
+      var playerID = command[1];
+      var amount = command[2];
+  
+      if (players[playerID] != undefined || playerID == "house" || playerID == "table") {
+        response = giveChipsToPlayer(amount, playerID);
+  
+        chipStateChanged = true;
+      } else {
+        response = "Error: Invalid give command. playerID not found.";
       }
-
-      chipStateChanged = true;
-      response = "Paying out " + playerID;
-    } else {
-      response = "Error: Invalid payout command. playerID not found.";
-    }
-  } else if (command[0] == 'loaddeck' && command[1] != undefined) {
-    var deckNameInput = command[1];
-    if (deckNameInput == 'standard' && deckName != deckNameInput) {
-      deckName = deckNameInput;
-      numCards = 52;
-      loadNewDeck(numCards, deckName);
+    } else if (command[0] == 'payout' && command[1] != undefined) {
+      var playerID = command[1];
+      if (players[playerID] != undefined) {
+        var player = players[playerID];
+  
+        for (var id in chips) {
+          var chip = chips[id];
+  
+          if (chip.owner == "table") {
+            chip.moverplayerID = '';
+            chip.moverColor = '';
+            moveChipOwnership('table', playerID, id);
+            snapChipToPlayer(id);
+          }
+        }
+  
+        chipStateChanged = true;
+        response = "Paying out " + playerID;
+      } else {
+        response = "Error: Invalid payout command. playerID not found.";
+      }
+    } else if (command[0] == 'loaddeck' && command[1] != undefined) {
+      var deckNameInput = command[1];
+      if (deckNameInput == 'standard' && deckName != deckNameInput) {
+        deckName = deckNameInput;
+        numCards = 52;
+        loadNewDeck(numCards, deckName);
+        shuffle(deck, 10);
+        io.sockets.emit('load new deck', {numCards, deckName});
+  
+        deckStateChanged = true;
+        response = 'Loading Standard deck with 52 cards.';
+      } else if (deckNameInput == 'euchre' && deckName != deckNameInput) {
+        deckName = deckNameInput;
+        numCards = 24;
+        loadNewDeck(numCards, deckName);
+        shuffle(deck, 10);
+        io.sockets.emit('load new deck', {numCards, deckName});
+  
+        deckStateChanged = true;
+        response = 'Loading Euchre deck with 24 cards.';
+      } else {
+        response = 'Error: Invalid deck name, or that deck is already loaded.';
+      }
+    } else if (command[0] == 'listusers') {
+      for (var id in players) {
+        let player = players[id];
+        let opStatus = false;
+        if (adminList[id] != undefined)
+          opStatus = true;
+        response += 'id: ' + id + ', display name: ' + player.username + ', color: ' + player.color + 'is admin: ' + opStatus + '\n';
+      }
+    } else if (command[0] == 'removeuser' && command[1] != undefined) {
+      var playerID = command[1];
+      if (players[playerID] != undefined) {
+        delete players[playerID];
+        io.sockets.emit('remove user', playerID);
+        playerStateChanged = true;
+        response = "Removing user: " + playerID;
+      } else {
+        response = "Error: Invalid payout command. playerID not found.";
+      }
+    } else if (command[0] == 'resetserver') {
+      io.sockets.emit('reload page');
+      players = null;
+      playerVehicles = null;
+      playerColliders = null;
+      chips = null;
+      resetDeck();
       shuffle(deck, 10);
-      io.sockets.emit('load new deck', {numCards, deckName});
-
       deckStateChanged = true;
-      response = 'Loading Standard deck with 52 cards.';
-    } else if (deckNameInput == 'euchre' && deckName != deckNameInput) {
-      deckName = deckNameInput;
-      numCards = 24;
-      loadNewDeck(numCards, deckName);
-      shuffle(deck, 10);
-      io.sockets.emit('load new deck', {numCards, deckName});
-
-      deckStateChanged = true;
-      response = 'Loading Euchre deck with 24 cards.';
-    } else {
-      response = 'Error: Invalid deck name, or that deck is already loaded.';
-    }
-  } else if (command[0] == 'listusers') {
-    for (var id in players) {
-      var player = players[id];
-      response += 'id: ' + id + ', Display Name: ' + player.username + ', color: ' + player.color + '\n';
-    }
-  } else if (command[0] == 'removeuser' && command[1] != undefined) {
-    var playerID = command[1];
-    if (players[playerID] != undefined) {
-      delete players[playerID];
-      io.sockets.emit('remove user', playerID);
       playerStateChanged = true;
-      response = "Removing user: " + playerID;
+      playerVehStateChanged = true;
+      chipStateChanged = true;
+      response = "Cleared all players from server and sent out refresh call to all clients.";
+    } else if (command[0] == 'op' && command[1] != undefined) {
+      // op command when the player initiating is already an admin, doesnt require password
+      var playerID = command[1];
+  
+      if (players[playerID] != undefined) {
+        adminList[playerID] = {id: playerID};
+        response = "Gave console command permissions to: " + playerID;
+      } else if (players[playerID] == undefined) {
+        response = "Error: Invalid OP command. playerID not found.";
+      }
+    } else if (command[0] == 'deop' && command[1] != undefined) {
+      // op command when the player initiating is already an admin, doesnt require password
+      var playerID = command[1];
+  
+      if (adminList[playerID] != undefined) {
+        adminList[playerID] = null;
+        response = "Removed console command permissions from: " + playerID;
+      } else if (players[playerID] == undefined) {
+        response = "Error: Invalid OP command. playerID is not an OP.";
+      }
+    } else if (command[0] == 'help') {
+      response = "List of Commands:" + '\n' +
+      "give [playerID] [amount]" + '\n' +
+      "-- gives the specified user the amount of chips (divided to the largest chip denominator)" + '\n' +
+      "payout [playerID]" + '\n' +
+      "-- pays all the chips currently on the table to the specified player" + '\n' +
+      "loaddeck [deck name]" + '\n' +
+      "-- loads a specified deck to the server (available: standard, euchre)" + '\n' +
+      "listusers" + '\n' +
+      "-- lists all the players currently on the server." + '\n' +
+      "removeuser [playerID]" + '\n' +
+      "-- removes the specified user from the server." + '\n' +
+      "resetserver" + '\n' +
+      "-- removes all users and resets the server to the original state." + '\n' +
+      "op [playerID]" + '\n' +
+      "-- gives admin persmissions to the specified user to initiate console commands.";
+      "deop [playerID]" + '\n' +
+      "-- removes admin persmissions from the specified user.";
     } else {
-      response = "Error: Invalid payout command. playerID not found.";
+      response = "Error: Invalid command. Type \"help\" for a list of commands.";
     }
-  } else if (command[0] == 'resetserver') {
-    io.sockets.emit('reload page');
-    players = null;
-    playerVehicles = null;
-    playerColliders = null;
-    chips = null;
-    resetDeck();
-    shuffle(deck, 10);
-    deckStateChanged = true;
-    playerStateChanged = true;
-    playerVehStateChanged = true;
-    chipStateChanged = true;
-    response = "Cleared all players from server and sent out refresh call to all clients.";
-  } else if (command[0] == 'help') {
-    response = "List of Commands:" + '\n' +
-    "give [playerID] [amount]" + '\n' +
-    "-- gives the specified user the amount of chips (divided to the largest chip denominator)" + '\n' +
-    "payout [playerID]" + '\n' +
-    "-- pays all the chips currently on the table to the specified player" + '\n' +
-    "loaddeck [deck name]" + '\n' +
-    "-- loads a specified deck to the server (available: standard, euchre)" + '\n' +
-    "listusers" + '\n' +
-    "-- lists all the players currently on the server." + '\n' +
-    "removeuser [playerID]" + '\n' +
-    "-- removes the specified user from the server." + '\n' +
-    "resetserver" + '\n' +
-    "-- removes all users and resets the server to the original state.";
-    // console.log("change [playerID] [amount] [divisor]");
-    // console.log("-- changes the user's specified amount of chips into the divisor");
-  }
-
-  else {
-    response = "Error: Invalid command.";
+  } else {
+    // the user giving the console command does not have admin privileges
+    if (command[0] == 'op' && command[1] != undefined && command[2] != undefined) {
+      var playerID = command[1];
+      var password = command[2];
+  
+      if (players[playerID] != undefined && password == serverPassword) {
+        adminList[playerID] = {id: playerID};
+        response = "Gave console command permissions to: " + playerID + '\n' +
+                   "Type \"help\" for a new list of available commands.";
+      } else if (players[playerID] == undefined) {
+        response = "Error: Invalid OP command. playerID not found.";
+      } else if (password != serverPassword) {
+        response = "Error: Invalid OP command. Incorrect password.";
+      }
+    } else if (command[0] == 'listusers') {
+      for (var id in players) {
+        let player = players[id];
+        let opStatus = false;
+        if (adminList[id] != undefined)
+          opStatus = true;
+        response += 'id: ' + id + ', display name: ' + player.username + ', color: ' + player.color + 'is admin: ' + opStatus + '\n';
+      }
+    } else if (command[0] == 'help') {
+      response = "List of Commands:" + '\n' +
+      "listusers" + '\n' +
+      "-- lists all the players currently on the server." + '\n' +
+      "op [playerID] [password]" + '\n' +
+      "-- gives admin persmissions to the specified user to initiate console commands.";
+    } else {
+      response = "Error: Invalid command OR you do not have permission to use console commands." + '\n' +
+                 "Type \"help\" for a list of available commands.";
+    }
   }
 
   console.log(response);

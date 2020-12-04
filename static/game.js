@@ -124,7 +124,7 @@ const pickr = Pickr.create({
     components: {
         // Main components
         preview: true,
-        opacity: true,
+        opacity: false,
         hue: true,
         // Input / output Options
         interaction: {
@@ -1397,7 +1397,7 @@ $('#console_input').keydown(function(event) {
 });
 
 function scmd(command) {
-	socket.emit('console command', command);
+	socket.emit('console command', {command: command, id: playerInfo.id});
 }
 
 socket.on('console response', function(response) {
