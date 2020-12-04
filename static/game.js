@@ -278,6 +278,9 @@ socket.on('new player confirmation', function(newPlayer) {
 
 	//hide the loading bar once we have submitted the info to the server
 	$('.loading_area').css('display', 'none');
+  
+  //set the current wallpaper
+  $('.poker_table').addClass('poker_table__bg_' + newPlayer.currentWallpaper);
 });
 
 socket.on('new player notification', function(info) {
@@ -374,6 +377,7 @@ var targetTank = {
 var draggingCard;
 var cardClick;
 var draggingChip;
+var draggingDealerChip;
 var draggingChipConfirm;
 var draggingNametag;
 var draggingTank;
@@ -445,25 +449,40 @@ function peekCurCard() {
 
 $(document).on('mousedown', '.chip', function(evt) {
 	if (evt.which == 1) {
-		//left click event
-		draggingCard = false;
-		draggingNametag = false;
-		drawing = false;
-		draggingChip = true;
+    //left click event
+    draggingCard = false;
+    draggingNametag = false;
+    drawing = false;
+    draggingDealerChip = false;
+    draggingChip = true;
 
-		targetChip.released = false;
+    targetChip.released = false;
 
-		offsetX = evt.pageX - $(evt.target).offset().left;
-		offsetY = evt.pageY - $(evt.target).offset().top;
+    offsetX = evt.pageX - $(evt.target).offset().left;
+    offsetY = evt.pageY - $(evt.target).offset().top;
 
-		var targetChipID = $(evt.target).attr('id');
+    var targetChipID = $(evt.target).attr('id');
 
-		targetChip.id = targetChipID;
-		targetChip.targetUsername = playerInfo.id;
+    targetChip.id = targetChipID;
+    targetChip.targetUsername = playerInfo.id;
 
-		socket.emit('pickup chip', targetChip);
+    socket.emit('pickup chip', targetChip);
 
-		// console.log(((evt.pageX - offsetX) / poker_tableWidth * 100) + ", " + ((evt.pageY - offsetY) / poker_tableHeight * 100));
+    // console.log(((evt.pageX - offsetX) / poker_tableWidth * 100) + ", " + ((evt.pageY - offsetY) / poker_tableHeight * 100));
+  }
+});
+
+$(document).on('mousedown', '.dealer_chip', function(evt) {
+  if (evt.which == 1) {
+  		//left click event
+  		draggingCard = false;
+  		draggingNametag = false;
+  		drawing = false;
+  		draggingChip = false;
+      draggingDealerChip = true;
+  
+  		offsetX = evt.pageX - $(evt.target).offset().left;
+  		offsetY = evt.pageY - $(evt.target).offset().top;
 	}
 });
 
@@ -472,6 +491,7 @@ $(document).on('mousedown', '.floating_nametag', function(evt) {
 		//left click event
 		draggingNametag = true;
 		draggingChip = false;
+    draggingDealerChip = false;
 		draggingCard = false;
 		drawing = false;
     draggingTank = false;
@@ -495,6 +515,7 @@ $(document).on('mousedown', '.tank', function(evt) {
     draggingTank = true;
 		draggingNametag = false;
 		draggingChip = false;
+    draggingDealerChip = false;
 		draggingCard = false;
 		drawing = false;
 
@@ -656,7 +677,16 @@ $(window).mousemove(function (evt) {
 		}
 		//next send the chip state to the server.
 		socket.emit('move chip', targetChip);
-	} else if (draggingNametag) {
+	} else if (draggingDealerChip) {
+    let moveChipX = ((evt.pageX - offsetX) / poker_tableWidth * 100);
+    let moveChipY = ((evt.pageY - offsetY) / poker_tableHeight * 100);
+    
+    //move the chip locally on our screen before sending the data to the server.
+		$('#dealer_chip').css('left', moveChipX + "%");
+		$('#dealer_chip').css('top', moveChipY + "%");
+    
+    socket.emit('move dealer chip', {x: moveChipX, y: moveChipY});
+  } else if (draggingNametag) {
 		targetNametag.x = ((evt.pageX - offsetX) / poker_tableWidth * 100);
 		targetNametag.y = ((evt.pageY - offsetY) / poker_tableHeight * 100);
 
@@ -710,6 +740,9 @@ $(window).mouseup(function(evt) {
 
 	if (draggingChip)
 		draggingChip = false;
+    
+  if (draggingDealerChip)
+    draggingDealerChip = false;
 
 	if (draggingChipConfirm) {
 		draggingChipConfirm = false;
@@ -816,6 +849,9 @@ $(document).on('click', '#terminal_icon', function(evt) {
 });
 $(document).on('click', '.terminal_exit', function(evt) {
   $('.terminal_container').toggleClass('terminal_container__active', false);
+});
+$(document).on('click', '#wallpaper_icon', function(evt) {
+  socket.emit('cycle wallpaper');
 });
 
 
@@ -977,6 +1013,13 @@ socket.on('chips state', function(chips) {
 
 	if ($('#table_floating_nametag .player_cash').text() != ('$ ' + tableChipTotal))
 		$('#table_floating_nametag .player_cash').text('$ ' + tableChipTotal);
+});
+
+socket.on('dealer chip state', function(dealerChip) {
+  if (!draggingDealerChip) {
+    $('#dealer_chip').css('left', dealerChip.x + "%");
+    $('#dealer_chip').css('top', dealerChip.y + "%");
+  }
 });
 
 //listen for player state information from server
@@ -1150,7 +1193,13 @@ socket.on('clear draw area', function() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-
+socket.on('load new wallpaper', function(wallpaper) {
+  // remove the old wallpaper
+  $('.poker_table').removeClass('poker_table__bg_' + wallpaper.previous);
+  
+  // add the new wallpaper
+  $('.poker_table').addClass('poker_table__bg_' + wallpaper.current);
+});
 
 /**
 

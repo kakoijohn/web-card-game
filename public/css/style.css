@@ -34,6 +34,14 @@ body {
   -o-user-select: none;
 }
 
+.poker_table__bg_0 {
+  background: url('/resources/backgrounds/poker_table.svg');
+}
+
+.poker_table__bg_1 {
+  background: url('/resources/backgrounds/texas_holdem_table.svg');
+}
+
 .clear_scroll_bar {
   position: absolute;
   top: 0;
@@ -380,6 +388,34 @@ body {
   background: url('/resources/chips/1_pokerchip.svg');
 }
 
+.dealer_chip {
+  position: absolute;
+  width: 5vw;
+  height: 5vw;
+
+  background: url('/resources/chips/dealer_chip.svg');
+  background-color: transparent;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  z-index: 500;
+  /*perspective: 1000px;*/
+
+  border-radius: 5vw;
+
+  touch-action: none;
+
+  -webkit-transform: translate3d(0,0,0);
+}
+
+.dealer_chip:hover {
+  cursor: grab;
+}
+
+.dealer_chip:active {
+  cursor: grabbing;
+}
+
 .shuffle_btn {
   display: inline-block;
   vertical-align: top;
@@ -631,6 +667,10 @@ body {
   background: url('/resources/icons/terminal.svg');
 }
 
+#wallpaper_icon {
+  background: url('/resources/icons/wallpaper.svg');
+}
+
 .terminal_container {
   position: fixed;
   top: 0;
@@ -843,7 +883,7 @@ body {
 }
 
 #table_floating_nametag {
-  top: 118%;
+  top: 114%;
   left: 25%;
 }
 

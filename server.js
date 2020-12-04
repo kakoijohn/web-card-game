@@ -41,11 +41,15 @@ server.listen(PORT, function() {
 var deck = {};
 var numCards = 52;
 var deckName = 'standard';
+var currentWallpaper = 0; // 0 for default wallpaper, 1 for texas holdem table
+const numWallpapers = 2;
 const deckStartX = 32.92; //percentage of gameboard
 const deckStartY = 102.83; //percentage of gameboard
 
 const dealStartX = 0.5;
 const dealStartY = 0.7;
+const dealerChipStartX = 25.2;
+const dealerChipStartY = 121;
 const dealEndX = 80 - dealStartX;
 const dealEndY = 76.5 - dealStartY;
 const cardSeparationX = 2.1;
@@ -53,10 +57,10 @@ const playerSeparationX = 20;
 const playerSeparationY = 25;
 
 const nametagStartX = 11;
-const nametagStartY = 118;
+const nametagStartY = 114;
 
 const tankStartX = 3;
-const tankStartY = 118;
+const tankStartY = 114;
 const tankStartRot = 0;
 const tankSpeed = 1;
 const tankRotDist = 5;
@@ -72,6 +76,11 @@ var chips = {
   y: 0
 };
 
+var dealerChip = {
+  x: dealerChipStartX,
+  y: dealerChipStartY
+}
+
 const chipStartX = 43.12;
 const chipStartY = 102.52;
 const chipSeparationX = 6.75;
@@ -81,6 +90,7 @@ var uniqueChipIDcounter = 0;
 
 var deckStateChanged = false;
 var chipStateChanged = false;
+var dealerChipStateChanged = false;
 var playerStateChanged = false;
 var playerVehStateChanged = false;
 
@@ -338,7 +348,7 @@ io.on('connection', function(socket) {
   	players[id].color = color;
 
   	//callback to client that we have put them into the system.
-    socket.emit('new player confirmation', {username, id, color, numCards, deckName});
+    socket.emit('new player confirmation', {username, id, color, numCards, deckName, currentWallpaper});
 
     //tell all clients we have a new player and send a list of all the current players.
     io.sockets.emit('new player notification', {players, playerVehicles});
@@ -347,6 +357,7 @@ io.on('connection', function(socket) {
 
     deckStateChanged = true;
     chipStateChanged = true;
+    dealerChipStateChanged = true;
     playerStateChanged = true;
     playerVehStateChanged = true;
   });
@@ -392,6 +403,13 @@ io.on('connection', function(socket) {
 
       chipStateChanged = true;
   	}
+  });
+  
+  socket.on('move dealer chip', function(chipInfo) {
+    dealerChip.x = chipInfo.x;
+    dealerChip.y = chipInfo.y;
+    
+    dealerChipStateChanged = true;
   });
 
   socket.on('move nametag', function(targetNametag) {
@@ -625,6 +643,15 @@ io.on('connection', function(socket) {
     var response = consolecmd(command);
     socket.emit('console response', response);
   });
+  
+  socket.on('cycle wallpaper', function() {
+    let prevWallpaper = currentWallpaper;
+    currentWallpaper++;
+    if (currentWallpaper >= numWallpapers)
+      currentWallpaper = 0;
+    
+    io.sockets.emit('load new wallpaper', {previous: prevWallpaper, current: currentWallpaper});
+  });
 
 /**
   // // Youtube Player Stuff
@@ -682,6 +709,10 @@ setInterval(function() {
   if (playerVehStateChanged) {
     io.sockets.emit('player vehicle state', playerVehicles);
     playerVehStateChanged = false;
+  }
+  if (dealerChipStateChanged) {
+    io.sockets.emit('dealer chip state', dealerChip);
+    dealerChipStateChanged = false;
   }
 }, 1000 / 24);
 
@@ -878,7 +909,7 @@ function consolecmd(text) {
   }
 
   else {
-    response = "Error: Invalid command. type help for a list of commands.";
+    response = "Error: Invalid command.";
   }
 
   console.log(response);
