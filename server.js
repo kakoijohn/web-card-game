@@ -809,7 +809,7 @@ process.stdin.on('data', function (text) {
 });
 
 function consolecmd(text, source, id) {
-  var command = text.replace('\n', '').split(' ');
+  var command = text.trim().replace('\n', '').split(' ');
   var response = '';
 
   if (source == 'server' || (source == 'client' && adminList[id] != undefined)) {
