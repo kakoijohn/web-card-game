@@ -15,7 +15,7 @@ body {
 .poker_table {
   position: relative;
 
-  background: url('/resources/poker_table.svg');
+  background: url('/resources/backgrounds/poker_table.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
