@@ -61,6 +61,10 @@ const nametagStartY = 114;
 
 const tankStartX = 3;
 const tankStartY = 114;
+const tankMinX = 0;
+const tankMinY = 0;
+const tankMaxX = 100;
+const tankMaxY = 130;
 const tankStartRot = 0;
 const tankSpeed = 1;
 const tankRotDist = 5;
@@ -449,6 +453,16 @@ io.on('connection', function(socket) {
   		if (playerVehicles[playerID] != undefined) {
   			playerVehicles[playerID].tankX += targetTank.x * tankSpeed * 0.5; // since the table is half as tall as it is wide
         playerVehicles[playerID].tankY += targetTank.y * tankSpeed;
+        
+        if (playerVehicles[playerID].tankX < tankMinX)
+          playerVehicles[playerID].tankX = tankMinX;
+        else if (playerVehicles[playerID].tankX > tankMaxX)
+          playerVehicles[playerID].tankX = tankMaxX;
+          
+        if (playerVehicles[playerID].tankY < tankMinY)
+          playerVehicles[playerID].tankY = tankMinY;
+        else if (playerVehicles[playerID].tankY > tankMaxY)
+          playerVehicles[playerID].tankY = tankMaxY;
         
         playerVehicles[playerID].tankRot += targetTank.rot * tankRotDist;
         playerVehicles[playerID].gunRot  += targetTank.gunRot * tankRotDist;
@@ -874,7 +888,7 @@ function consolecmd(text, source, id) {
         let opStatus = false;
         if (adminList[id] != undefined)
           opStatus = true;
-        response += 'id: ' + id + ', display name: ' + player.username + ', color: ' + player.color + 'is admin: ' + opStatus + '\n';
+        response += 'id: ' + id + ', display name: ' + player.username + ', color: ' + player.color + ', is admin: ' + opStatus + '\n';
       }
     } else if (command[0] == 'removeuser' && command[1] != undefined) {
       var playerID = command[1];
@@ -961,7 +975,7 @@ function consolecmd(text, source, id) {
         let opStatus = false;
         if (adminList[id] != undefined)
           opStatus = true;
-        response += 'id: ' + id + ', display name: ' + player.username + ', color: ' + player.color + 'is admin: ' + opStatus + '\n';
+        response += 'id: ' + id + ', display name: ' + player.username + ', color: ' + player.color + ', is admin: ' + opStatus + '\n';
       }
     } else if (command[0] == 'help') {
       response = "List of Commands:" + '\n' +
